@@ -64,7 +64,7 @@ export function ExamplePrompts({
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 + i * 0.06 }}
           onClick={() => onPick(prompt)}
-          className="group flex items-center gap-2 rounded-2xl border border-black/[0.06] bg-black/[0.025] px-4 py-2.5 text-left text-[13px] text-foreground/60 transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-foreground/90"
+          className="group flex items-center gap-2 rounded-2xl border border-black/[0.06] bg-black/[0.025] px-4 py-2.5 text-left text-[13px] text-foreground/72 transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-foreground/90"
         >
           <span className="text-primary/60 transition-transform group-hover:translate-x-0.5">
             →

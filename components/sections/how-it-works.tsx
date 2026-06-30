@@ -52,7 +52,7 @@ export function HowItWorks() {
               {i + 1}
             </span>
             <span className="mb-5 grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
-              <s.icon className="size-5" />
+              <s.icon className="size-5" strokeWidth={1.5} />
             </span>
             <h3 className="font-display text-xl font-medium">{s.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-foreground/65">

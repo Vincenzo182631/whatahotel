@@ -74,8 +74,8 @@ const config: Config = {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        glow: "0 0 0 1px rgba(183,79,84,0.22), 0 30px 80px -30px rgba(183,79,84,0.32)",
-        card: "0 24px 60px -28px rgba(16,33,58,0.18)",
+        glow: "0 0 0 1px rgba(183,79,84,0.22), 0 30px 80px -30px rgba(183,79,84,0.35)",
+        card: "0 30px 70px -32px rgba(16,33,58,0.30)",
       },
       backgroundImage: {
         "gold-sheen":

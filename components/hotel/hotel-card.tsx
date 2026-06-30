@@ -91,7 +91,7 @@ export function HotelCard({
               <h3 className="mt-1 font-display text-2xl font-medium leading-tight">
                 {hotel.name}
               </h3>
-              <p className="mt-0.5 text-sm text-foreground/60">
+              <p className="mt-0.5 text-sm text-foreground/72">
                 {hotel.city}, {hotel.country}
               </p>
             </div>
@@ -148,7 +148,7 @@ export function HotelCard({
                   </li>
                 ))}
               </ul>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-xs text-foreground/55">
+              <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-xs text-foreground/70">
                 {hotel.distances.map((d) => (
                   <span key={d.label}>
                     {d.label}: <span className="text-foreground/75">{d.value}</span>
@@ -161,17 +161,17 @@ export function HotelCard({
           {/* Footer */}
           <div className="mt-auto flex flex-wrap items-end justify-between gap-4 pt-5">
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-foreground/50">
+              <p className="text-[11px] uppercase tracking-wider text-foreground/65">
                 From
               </p>
               <p className="font-display text-2xl text-gradient-gold">
                 {formatCurrency(hotel.startingRate)}
-                <span className="ml-1 text-sm font-normal text-foreground/50">
+                <span className="ml-1 text-sm font-normal text-foreground/65">
                   / night
                 </span>
               </p>
               {hotel.estimatedTotal && (
-                <p className="text-xs text-foreground/50">
+                <p className="text-xs text-foreground/65">
                   ≈ {formatCurrency(hotel.estimatedTotal)} for your stay
                 </p>
               )}

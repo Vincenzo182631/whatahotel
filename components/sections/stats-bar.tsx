@@ -24,7 +24,7 @@ export function StatsBar() {
             <span className="font-display text-4xl text-gradient-gold sm:text-5xl">
               {s.value}
             </span>
-            <span className="text-sm uppercase tracking-wider text-foreground/55">
+            <span className="text-sm uppercase tracking-wider text-foreground/70">
               {s.label}
             </span>
           </motion.div>

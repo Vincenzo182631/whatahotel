@@ -42,7 +42,7 @@ export default async function HotelPage({ params }: Params) {
       <div className="container py-8">
         <Link
           href="/"
-          className="mb-6 inline-flex items-center gap-2 text-sm text-foreground/60 transition-colors hover:text-primary"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-foreground/72 transition-colors hover:text-primary"
         >
           <ArrowLeft className="size-4" /> Back to your advisor
         </Link>
@@ -91,7 +91,7 @@ export default async function HotelPage({ params }: Params) {
             <h1 className="mt-1 font-display text-4xl font-light md:text-5xl">
               {hotel.name}
             </h1>
-            <p className="mt-2 flex items-center gap-1.5 text-foreground/60">
+            <p className="mt-2 flex items-center gap-1.5 text-foreground/72">
               <MapPin className="size-4 text-primary" />
               {hotel.neighborhood} · {hotel.city}, {hotel.country}
             </p>
@@ -100,13 +100,13 @@ export default async function HotelPage({ params }: Params) {
             <span className="inline-flex items-center gap-1.5 rounded-full bg-black/[0.04] px-3 py-1.5">
               <Star className="size-4 fill-primary text-primary" />
               <span className="font-semibold">{hotel.rating}</span>
-              <span className="text-sm text-foreground/50">
+              <span className="text-sm text-foreground/65">
                 ({hotel.reviewCount.toLocaleString()})
               </span>
             </span>
             <p className="mt-2 font-display text-2xl text-gradient-gold">
               {formatCurrency(hotel.startingRate)}
-              <span className="text-sm font-normal text-foreground/50">
+              <span className="text-sm font-normal text-foreground/65">
                 {" "}
                 / night
               </span>
@@ -163,7 +163,7 @@ export default async function HotelPage({ params }: Params) {
                     <Check className="mt-0.5 size-4 shrink-0 text-primary" />
                     <span>
                       <span className="font-medium">{perk.label}</span>
-                      <span className="text-foreground/60"> — {perk.detail}</span>
+                      <span className="text-foreground/72"> — {perk.detail}</span>
                     </span>
                   </li>
                 ))}
@@ -177,7 +177,7 @@ export default async function HotelPage({ params }: Params) {
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 {hotel.distances.map((d) => (
                   <div key={d.label} className="rounded-2xl glass p-4">
-                    <p className="text-sm text-foreground/60">{d.label}</p>
+                    <p className="text-sm text-foreground/72">{d.label}</p>
                     <p className="mt-1 font-display text-lg">{d.value}</p>
                   </div>
                 ))}

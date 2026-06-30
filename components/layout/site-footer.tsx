@@ -18,7 +18,7 @@ export function SiteFooter() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="What a Hotel" className="h-10 w-auto max-w-none" />
             </Link>
-            <p className="mt-4 text-sm leading-relaxed text-foreground/55">
+            <p className="mt-4 text-sm leading-relaxed text-foreground/70">
               An AI-powered luxury travel advisor. Curated hotels, honest
               recommendations and advisor-exclusive perks — from inspiration to
               booking, in conversation.
@@ -30,7 +30,7 @@ export function SiteFooter() {
               <Link
                 key={l.label}
                 href={l.href}
-                className="text-sm text-foreground/60 transition-colors hover:text-primary"
+                className="text-sm text-foreground/72 transition-colors hover:text-primary"
               >
                 {l.label}
               </Link>
@@ -38,7 +38,7 @@ export function SiteFooter() {
           </nav>
         </div>
 
-        <div className="mt-10 flex flex-col items-start justify-between gap-2 border-t border-black/[0.06] pt-6 text-xs text-foreground/40 sm:flex-row sm:items-center">
+        <div className="mt-10 flex flex-col items-start justify-between gap-2 border-t border-black/[0.06] pt-6 text-xs text-foreground/55 sm:flex-row sm:items-center">
           <p>© {2026} WhataHotel. Crafted for travellers with taste.</p>
           <p>Prices and availability powered by WhataHotel's advisor network.</p>
         </div>

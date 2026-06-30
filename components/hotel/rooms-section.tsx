@@ -19,7 +19,7 @@ export function RoomsSection({ hotelId }: { hotelId: string }) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 rounded-2xl glass p-6 text-sm text-foreground/60">
+      <div className="flex items-center gap-2 rounded-2xl glass p-6 text-sm text-foreground/72">
         <Loader2 className="size-4 animate-spin text-primary" /> Checking live
         availability…
       </div>
@@ -27,7 +27,7 @@ export function RoomsSection({ hotelId }: { hotelId: string }) {
   }
   if (isError || !data) {
     return (
-      <div className="rounded-2xl glass p-6 text-sm text-foreground/60">
+      <div className="rounded-2xl glass p-6 text-sm text-foreground/72">
         I couldn't load rooms just now — ask the advisor and I'll pull them up.
       </div>
     );
@@ -44,7 +44,7 @@ export function RoomsSection({ hotelId }: { hotelId: string }) {
             </span>{" "}
             vs. public rate over {data.quote.nights} nights
           </span>
-          <span className="text-foreground/50">
+          <span className="text-foreground/65">
             incl. {data.perks.length} exclusive perks
           </span>
         </div>
@@ -57,8 +57,8 @@ export function RoomsSection({ hotelId }: { hotelId: string }) {
         >
           <div className="min-w-0">
             <h4 className="font-display text-lg font-medium">{room.name}</h4>
-            <p className="mt-0.5 text-sm text-foreground/60">{room.description}</p>
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-foreground/55">
+            <p className="mt-0.5 text-sm text-foreground/72">{room.description}</p>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-foreground/70">
               <span className="inline-flex items-center gap-1">
                 <BedDouble className="size-3.5 text-primary/70" /> {room.bedType}
               </span>
@@ -69,7 +69,7 @@ export function RoomsSection({ hotelId }: { hotelId: string }) {
               {room.view && <span>{room.view} view</span>}
               <span
                 className={
-                  room.refundable ? "text-primary/80" : "text-foreground/40"
+                  room.refundable ? "text-primary/80" : "text-foreground/55"
                 }
               >
                 {room.refundable ? "Free cancellation" : "Non-refundable"}
@@ -81,7 +81,7 @@ export function RoomsSection({ hotelId }: { hotelId: string }) {
               <p className="font-display text-xl text-gradient-gold">
                 {formatCurrency(room.pricePerNight)}
               </p>
-              <p className="text-xs text-foreground/50">per night</p>
+              <p className="text-xs text-foreground/65">per night</p>
             </div>
             <Button size="sm" onClick={reserve}>
               <Check className="size-4" /> Reserve

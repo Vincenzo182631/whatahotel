@@ -47,7 +47,7 @@ export function Testimonials() {
           Loved by{" "}
           <span className="text-gradient-gold italic">discerning travellers</span>
         </h2>
-        <p className="mt-3 flex items-center justify-center gap-2 text-foreground/55">
+        <p className="mt-3 flex items-center justify-center gap-2 text-foreground/70">
           <span className="flex">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star key={i} className="size-4 fill-primary text-primary" />
@@ -79,7 +79,7 @@ export function Testimonials() {
               </span>
               <span>
                 <span className="block text-sm font-medium">{r.name}</span>
-                <span className="block text-xs text-foreground/50">
+                <span className="block text-xs text-foreground/65">
                   {r.location}
                 </span>
               </span>

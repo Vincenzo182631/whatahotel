@@ -11,7 +11,7 @@ export function HomeExperience() {
 
   return (
     <main className="min-h-dvh">
-      <SiteHeader />
+      <SiteHeader heroMode={!started} />
       <AnimatePresence mode="wait">
         {started ? (
           <motion.div

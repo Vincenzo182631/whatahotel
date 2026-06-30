@@ -33,7 +33,7 @@ export function BookingSummary({ booking }: { booking: BookingDraft }) {
     >
       <div className="flex items-center justify-between gap-4 border-b border-black/[0.08] p-5">
         <div>
-          <p className="text-[11px] uppercase tracking-wider text-foreground/50">
+          <p className="text-[11px] uppercase tracking-wider text-foreground/65">
             {booking.complete ? "Reservation summary" : "Securing your stay"}
           </p>
           <h3 className="mt-0.5 font-display text-lg font-medium">
@@ -45,7 +45,7 @@ export function BookingSummary({ booking }: { booking: BookingDraft }) {
             <Check className="size-3.5" /> Ready to confirm
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-xs text-foreground/60">
+          <span className="inline-flex items-center gap-1.5 text-xs text-foreground/72">
             <Loader2 className="size-3.5 animate-spin text-primary" /> {progress}%
           </span>
         )}

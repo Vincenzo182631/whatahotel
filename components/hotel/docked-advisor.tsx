@@ -53,7 +53,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
         </span>
         <div>
           <p className="text-sm font-medium">WhataHotel Advisor</p>
-          <p className="flex items-center gap-1 text-[11px] text-foreground/50">
+          <p className="flex items-center gap-1 text-[11px] text-foreground/65">
             <Sparkles className="size-3 text-primary" /> Ask about this hotel
           </p>
         </div>

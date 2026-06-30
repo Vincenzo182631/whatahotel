@@ -31,7 +31,7 @@ export function PopularDestinations() {
         <h2 className="mt-3 font-display text-3xl font-light sm:text-4xl">
           Popular <span className="text-gradient-gold italic">destinations</span>
         </h2>
-        <p className="mx-auto mt-3 max-w-md text-foreground/55">
+        <p className="mx-auto mt-3 max-w-md text-foreground/70">
           Tap a destination and your advisor will start curating instantly.
         </p>
       </div>
@@ -64,7 +64,7 @@ export function PopularDestinations() {
                 <p className="text-xs text-cream/70">{d.country}</p>
               </div>
               <span className="grid size-9 translate-y-2 place-items-center rounded-full glass opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                <ArrowUpRight className="size-4 text-primary" />
+                <ArrowUpRight className="size-4 text-primary" strokeWidth={1.5} />
               </span>
             </div>
           </motion.button>

@@ -19,7 +19,7 @@ export function ComparisonTable({ comparison }: { comparison: HotelComparison })
         <table className="w-full min-w-[520px] border-collapse text-sm">
           <thead>
             <tr>
-              <th className="w-36 p-4 text-left align-bottom text-xs uppercase tracking-wider text-foreground/50">
+              <th className="w-36 p-4 text-left align-bottom text-xs uppercase tracking-wider text-foreground/65">
                 Side by side
               </th>
               {hotels.map((h) => (
@@ -37,7 +37,7 @@ export function ComparisonTable({ comparison }: { comparison: HotelComparison })
                   <p className="font-display text-base font-medium leading-tight">
                     {h.name}
                   </p>
-                  <p className="text-xs text-foreground/55">{h.city}</p>
+                  <p className="text-xs text-foreground/70">{h.city}</p>
                 </th>
               ))}
             </tr>
@@ -48,7 +48,7 @@ export function ComparisonTable({ comparison }: { comparison: HotelComparison })
                 key={row.label}
                 className={i % 2 === 0 ? "bg-black/[0.025]" : undefined}
               >
-                <td className="p-3 px-4 text-xs font-medium text-foreground/60">
+                <td className="p-3 px-4 text-xs font-medium text-foreground/72">
                   {row.label}
                 </td>
                 {row.values.map((v, j) => (

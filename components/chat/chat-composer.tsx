@@ -69,7 +69,7 @@ export function ChatComposer({
           }
         }}
         className={cn(
-          "no-scrollbar flex-1 resize-none bg-transparent py-2 text-foreground placeholder:text-foreground/40 focus:outline-none disabled:opacity-60",
+          "no-scrollbar flex-1 resize-none bg-transparent py-2 text-foreground placeholder:text-foreground/55 focus:outline-none disabled:opacity-60",
           isHero ? "text-lg" : "text-base",
         )}
       />

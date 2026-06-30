@@ -28,7 +28,7 @@ export function ChatInterface() {
         <CriteriaBar criteria={criteria} />
         <button
           onClick={reset}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-foreground/50 transition-colors hover:bg-black/[0.04] hover:text-foreground"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-foreground/65 transition-colors hover:bg-black/[0.04] hover:text-foreground"
         >
           <RotateCcw className="size-3.5" /> New trip
         </button>

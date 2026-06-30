@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    /* WhataHotel — light, navy ink + #B74F54 accent (matches the logo) */
-    --background: 0 0% 100%; /* white */
-    --foreground: 211 44% 14%; /* deep navy ink */
+    /* WhataHotel — warm ivory, deep navy ink + #B74F54 accent (premium light) */
+    --background: 36 38% 96%; /* warm ivory */
+    --foreground: 213 50% 11%; /* near-black navy */
 
-    --card: 0 0% 100%;
-    --card-foreground: 211 44% 14%;
+    --card: 0 0% 100%; /* white cards pop on ivory */
+    --card-foreground: 213 50% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 211 44% 14%;
+    --popover-foreground: 213 50% 11%;
 
     --primary: 357 42% 51%; /* #B74F54 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 357 40% 96%;
-    --secondary-foreground: 357 42% 42%;
+    --secondary: 357 38% 95%;
+    --secondary-foreground: 357 44% 40%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 211 14% 40%;
+    --muted: 36 24% 93%;
+    --muted-foreground: 213 16% 32%; /* darker -> more legible */
 
-    --accent: 357 45% 95%;
-    --accent-foreground: 357 42% 42%;
+    --accent: 357 44% 94%;
+    --accent-foreground: 357 44% 40%;
 
     --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 22% 89%;
-    --input: 214 22% 89%;
+    --border: 36 22% 86%;
+    --input: 36 22% 86%;
     --ring: 357 42% 51%;
 
     --radius: 1rem;
@@ -46,7 +46,7 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background-color: #ffffff;
+    background-color: #faf6f0;
     font-feature-settings: "ss01", "cv01";
   }
 

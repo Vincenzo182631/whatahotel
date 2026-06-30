@@ -31,7 +31,7 @@ export function CriteriaBar({ criteria }: { criteria: SearchCriteria }) {
 
   return (
     <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
-      <span className="shrink-0 text-[11px] uppercase tracking-wider text-foreground/40">
+      <span className="shrink-0 text-[11px] uppercase tracking-wider text-foreground/55">
         Trip so far
       </span>
       {chips.map((chip) => (

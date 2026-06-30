@@ -18,7 +18,7 @@ export default function SavedPage() {
       <div className="container py-10">
         <Link
           href="/"
-          className="mb-6 inline-flex items-center gap-2 text-sm text-foreground/60 transition-colors hover:text-primary"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-foreground/72 transition-colors hover:text-primary"
         >
           <ArrowLeft className="size-4" /> Back to your advisor
         </Link>
@@ -26,7 +26,7 @@ export default function SavedPage() {
         <h1 className="font-display text-4xl font-light">
           Your saved <span className="text-gradient-gold">collection</span>
         </h1>
-        <p className="mt-2 text-foreground/60">
+        <p className="mt-2 text-foreground/72">
           The hotels you've fallen for. Ready when you are.
         </p>
 
@@ -34,7 +34,7 @@ export default function SavedPage() {
           <div className="mt-12 flex flex-col items-center justify-center rounded-3xl glass-strong p-16 text-center">
             <Heart className="size-10 text-primary/40" />
             <p className="mt-4 font-display text-xl">No saved hotels yet</p>
-            <p className="mt-1 max-w-sm text-sm text-foreground/55">
+            <p className="mt-1 max-w-sm text-sm text-foreground/70">
               Tell your advisor what you're dreaming of, then tap the heart on any
               recommendation to keep it here.
             </p>
@@ -68,11 +68,11 @@ export default function SavedPage() {
                 </div>
                 <div className="p-5">
                   <h3 className="font-display text-lg font-medium">{hotel.name}</h3>
-                  <p className="text-sm text-foreground/55">{hotel.city}</p>
+                  <p className="text-sm text-foreground/70">{hotel.city}</p>
                   <div className="mt-3 flex items-center justify-between">
                     <span className="font-display text-lg text-gradient-gold">
                       {formatCurrency(hotel.startingRate)}
-                      <span className="text-xs font-normal text-foreground/50">
+                      <span className="text-xs font-normal text-foreground/65">
                         {" "}
                         / night
                       </span>
