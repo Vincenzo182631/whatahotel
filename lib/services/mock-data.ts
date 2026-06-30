@@ -76,6 +76,13 @@ export const DESTINATIONS: Record<
     blurb:
       "Ski-in chalets, alpine spas and fireside dining beneath the Matterhorn. The Alps are a mountain retreat without compromise.",
   },
+  maui: {
+    label: "Maui, Hawaii",
+    country: "United States",
+    aliases: ["maui", "wailea", "hawaii", "kaanapali"],
+    blurb:
+      "Golden beaches, volcanic drama and aloha-spirit service. Maui pairs Pacific beauty with some of America's finest beach resorts.",
+  },
 };
 
 export const HOTELS: Hotel[] = [
@@ -797,6 +804,104 @@ export const HOTELS: Hotel[] = [
       { label: "Zurich Airport", value: "3.5 hr drive" },
     ],
     coordinates: { lat: 46.0207, lng: 7.7491 },
+  },
+
+  // ------------------------------------------------------------------ MAUI ---
+  {
+    id: "four-seasons-maui-wailea",
+    name: "Four Seasons Resort Maui at Wailea",
+    brand: "Four Seasons",
+    city: "Wailea",
+    destinationKey: "maui",
+    country: "United States",
+    neighborhood: "Wailea Beach, Maui",
+    shortPitch:
+      "Polished oceanfront luxury on Wailea Beach — three pools, no resort fee, and Four Seasons' famously intuitive service.",
+    description:
+      "Set on the golden sands of Wailea Beach, this is Maui's most refined address: open-air elegance, three swimming pools (including an adults-only serenity pool), the Spa, and dining from Wolfgang Puck. Famous for charging no resort fee and for service that anticipates your every need, it suits couples and families equally.",
+    image: img("1559599189-fe84dea4eb79"),
+    gallery: [img("1582719478250-c89cae4dc85b"), img("1571003123894-1f0594d2b5d9")],
+    rating: 9.6,
+    reviewCount: 3120,
+    starRating: 5,
+    startingRate: 1095,
+    currency: "USD",
+    amenities: ["beachfront", "spa", "pool", "gym", "kidsclub", "oceanview", "michelin"],
+    highlights: [
+      "Adults-only serenity pool + oceanfront infinity pool",
+      "No resort fee — a Four Seasons signature",
+      "Spa, Wailea Beach & Spago by Wolfgang Puck",
+    ],
+    perks: [
+      { id: "p1", label: "Daily breakfast for two", detail: "Complimentary" },
+      { id: "p2", label: "$100 spa credit", detail: "Advisor-exclusive" },
+      { id: "p3", label: "Room upgrade on arrival", detail: "Subject to availability" },
+    ],
+    vibes: ["beach", "family", "romantic", "wellness"],
+    goodFor: ["family", "honeymoon", "anniversary", "celebration", "leisure"],
+    distances: [
+      { label: "Wailea Beach", value: "On property" },
+      { label: "Wailea shops", value: "5 min drive" },
+      { label: "Kahului Airport (OGG)", value: "40 min drive" },
+    ],
+    coordinates: { lat: 20.6864, lng: -156.4432 },
+    usp: "The only Wailea Beach resort with no resort fee, three pools (including adults-only), and Four Seasons' anticipatory service.",
+    bestFor: "Couples and families who want polished, fuss-free beachfront luxury",
+    pros: [
+      "No resort fee",
+      "Equally excellent for couples and families",
+      "Direct Wailea Beach access & multiple pools",
+      "Standout spa and dining",
+    ],
+    cons: ["Among the priciest on Maui", "Very popular — books far ahead"],
+  },
+  {
+    id: "fairmont-kea-lani-maui",
+    name: "Fairmont Kea Lani, Maui",
+    brand: "Fairmont",
+    city: "Wailea",
+    destinationKey: "maui",
+    country: "United States",
+    neighborhood: "Polo Beach, Wailea",
+    shortPitch:
+      "Maui's only all-suite and villa resort — generous space, a dramatic waterslide pool, and a quieter stretch of Polo Beach.",
+    description:
+      "Gleaming white against the Wailea coast, Fairmont Kea Lani is Maui's only all-suite resort: every room is a spacious one-bedroom suite, with oceanfront villas for larger groups. Three pools (including an adults-only pool and a 140-foot waterslide), the Willow Stream Spa, and calm Polo Beach make it a favourite for families and longer stays.",
+    image: img("1520250497591-112f2f40a3f4"),
+    gallery: [img("1455587734955-081b22074882"), img("1551882547-ff40c63fe5fa")],
+    rating: 9.3,
+    reviewCount: 4580,
+    starRating: 5,
+    startingRate: 845,
+    currency: "USD",
+    amenities: ["beachfront", "spa", "pool", "gym", "kidsclub", "oceanview", "breakfast"],
+    highlights: [
+      "All-suite & villa resort — space for everyone",
+      "Three pools incl. adults-only & a 140-ft waterslide",
+      "Willow Stream Spa & quiet Polo Beach",
+    ],
+    perks: [
+      { id: "p1", label: "Daily breakfast for two", detail: "Complimentary" },
+      { id: "p2", label: "$100 resort credit", detail: "Advisor-exclusive" },
+      { id: "p3", label: "Suite upgrade on arrival", detail: "Subject to availability" },
+    ],
+    vibes: ["beach", "family", "wellness", "romantic"],
+    goodFor: ["family", "honeymoon", "anniversary", "leisure", "celebration"],
+    distances: [
+      { label: "Polo Beach", value: "On property" },
+      { label: "Wailea shops", value: "6 min drive" },
+      { label: "Kahului Airport (OGG)", value: "40 min drive" },
+    ],
+    coordinates: { lat: 20.6829, lng: -156.4427 },
+    usp: "Maui's only all-suite resort — every room is a generously sized suite, ideal for families and longer stays, anchored by a dramatic waterslide pool.",
+    bestFor: "Families and groups who value space and suite living",
+    pros: [
+      "All suites — exceptional space",
+      "Brilliant for families (waterslide, kids' club)",
+      "Often better value per square foot",
+      "Polo Beach is quieter",
+    ],
+    cons: ["Resort fee applies", "Larger, livelier feel than a boutique resort"],
   },
 ];
 

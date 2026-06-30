@@ -92,6 +92,11 @@ export interface Hotel {
   goodFor: Occasion[];
   distances: { label: string; value: string }[];
   coordinates: { lat: number; lng: number };
+  /** Optional comparison metadata (used by the side-by-side comparison view). */
+  usp?: string; // unique selling point
+  bestFor?: string; // human "best suited for" summary
+  pros?: string[];
+  cons?: string[];
 }
 
 /** A hotel plus the advisor's reasoning for surfacing it. */

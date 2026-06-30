@@ -5,9 +5,11 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePreferences } from "@/store/preferences-store";
+import { useConversation } from "@/store/conversation-store";
 
 export function SiteHeader({ heroMode = false }: { heroMode?: boolean }) {
   const savedCount = usePreferences((s) => s.saved.length);
+  const resetConversation = useConversation((s) => s.reset);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -31,7 +33,12 @@ export function SiteHeader({ heroMode = false }: { heroMode?: boolean }) {
         )}
       >
         <div className="container relative flex h-full items-center justify-between">
-          <Link href="/" className="group flex items-center" aria-label="What a Hotel — home">
+          <Link
+            href="/"
+            onClick={() => resetConversation()}
+            className="group flex items-center"
+            aria-label="What a Hotel — home"
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo.png"
@@ -45,13 +52,14 @@ export function SiteHeader({ heroMode = false }: { heroMode?: boolean }) {
 
           <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 md:flex">
             {[
-              { label: "Home", href: "/" },
-              { label: "Journal", href: "#" },
-              { label: "About", href: "#" },
+              { label: "Home", href: "/", home: true },
+              { label: "Journal", href: "/journal" },
+              { label: "About", href: "/about" },
             ].map((l) => (
               <Link
                 key={l.label}
                 href={l.href}
+                onClick={l.home ? () => resetConversation() : undefined}
                 className={cn(
                   "text-sm font-medium transition-colors",
                   dark

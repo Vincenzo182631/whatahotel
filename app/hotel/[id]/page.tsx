@@ -11,6 +11,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { DockedAdvisor } from "@/components/hotel/docked-advisor";
 import { RoomsSection } from "@/components/hotel/rooms-section";
+import { HotelCompare } from "@/components/hotel/hotel-compare";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
@@ -34,6 +35,15 @@ export default async function HotelPage({ params }: Params) {
 
   const gallery = imagesService.getGallery(hotel);
   const perks = await advisorPerksService.getPerks(id);
+
+  // Similar hotels in the same destination, for the side-by-side comparison.
+  const allHotels = await hotelDetailsService.getAllHotels();
+  const compareHotels = [
+    hotel,
+    ...allHotels.filter(
+      (h) => h.destinationKey === hotel.destinationKey && h.id !== hotel.id,
+    ),
+  ].slice(0, 3);
 
   return (
     <main className="min-h-dvh">
@@ -199,6 +209,13 @@ export default async function HotelPage({ params }: Params) {
             <DockedAdvisor hotel={hotel} />
           </aside>
         </div>
+
+        {/* Side-by-side comparison with live entry-level pricing */}
+        {compareHotels.length >= 2 && (
+          <section className="mt-14">
+            <HotelCompare hotels={compareHotels} />
+          </section>
+        )}
       </div>
     </main>
   );
