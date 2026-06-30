@@ -85,7 +85,11 @@ function detectIntent(text: string): "compare" | "book" | "recommend" | null {
   const t = text.toLowerCase();
   if (/\bcompare\b|side by side|versus|\bvs\b|difference between/.test(t)) return "compare";
   if (/\bbook\b|reserve|booking|i'?ll take|let'?s book/.test(t)) return "book";
-  if (/recommend|show me|find me|options|suggestions?|what do you|go ahead/.test(t))
+  if (
+    /recommend|show me|find me|options|suggestions?|what do you|go ahead|best hotel|top hotel|best place|rank|search/.test(
+      t,
+    )
+  )
     return "recommend";
   return null;
 }
@@ -206,7 +210,7 @@ export async function runTurn(
   if (shouldRecommend) {
     const { recommendations, totalFound } = await recommendationService.recommend(
       criteria,
-      4,
+      5,
     );
     sessionStorageService.save(sessionId, { lastRecommendations: recommendations });
     const ctx: ReplyContext = {

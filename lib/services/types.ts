@@ -102,7 +102,9 @@ export interface Hotel {
 /** A hotel plus the advisor's reasoning for surfacing it. */
 export interface Recommendation extends Hotel {
   reason: string; // human "why I chose this"
-  matchScore: number; // 0-100
+  matchScore: number; // 0-100 (internal)
+  fitScore: number; // personalised fit, 5.0–10.0 scale (shown to users)
+  rank: number; // 1-based position in the ranked shortlist
   matchTags: string[]; // the criteria this hotel satisfies
   estimatedTotal?: number; // for the trip, if nights known
 }

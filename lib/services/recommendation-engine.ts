@@ -46,7 +46,7 @@ const OCCASION_PHRASE: Record<string, string> = {
 };
 
 function scoreHotel(hotel: Hotel, c: SearchCriteria) {
-  let score = hotel.rating * 6; // up to ~60
+  let score = hotel.rating * 7; // quality baseline (up to ~70)
   const tags: string[] = [];
 
   // Budget fit
@@ -135,6 +135,12 @@ function generateReason(
   return `${lead} because ${reasonBody}. ${hotel.highlights[0]} seals it.`;
 }
 
+/** Map the internal 0–100 match score to a 5.0–10.0 personalised fit score. */
+function toFitScore(score: number): number {
+  const fit = Math.max(5, Math.min(10, score / 10));
+  return Math.round(fit * 10) / 10;
+}
+
 export interface RecommendationService {
   recommend(
     criteria: SearchCriteria,
@@ -143,7 +149,7 @@ export interface RecommendationService {
 }
 
 export const recommendationService: RecommendationService = {
-  async recommend(criteria, limit = 4) {
+  async recommend(criteria, limit = 5) {
     if (!criteria.destination) return { recommendations: [], totalFound: 0 };
 
     const candidates = await hotelSearchService.searchHotels({
@@ -161,6 +167,8 @@ export const recommendationService: RecommendationService = {
         const rec: Recommendation = {
           ...hotel,
           matchScore: score,
+          fitScore: toFitScore(score),
+          rank: 0, // assigned after sorting
           matchTags: tags,
           reason: generateReason(hotel, criteria, matchedAmenities),
           estimatedTotal: criteria.nights
@@ -171,10 +179,11 @@ export const recommendationService: RecommendationService = {
       })
       .sort((a, b) => b.matchScore - a.matchScore);
 
-    return {
-      recommendations: scored.slice(0, limit),
-      totalFound: scored.length,
-    };
+    const recommendations = scored
+      .slice(0, limit)
+      .map((rec, i) => ({ ...rec, rank: i + 1 }));
+
+    return { recommendations, totalFound: scored.length };
   },
 };
 

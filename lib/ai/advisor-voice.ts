@@ -104,10 +104,10 @@ function composeRecommend(ctx: ReplyContext): string {
   if (n === 0) {
     return `I looked across ${dest}, but nothing quite fits those exact details. If we nudge the budget or relax one preference, I can show you some exceptional options — what would you like to adjust?`;
   }
-  const intro = `I found ${ctx.totalFound} hotel${ctx.totalFound === 1 ? "" : "s"} in ${dest}. Based on ${summaryClause(c)}, here ${n === 1 ? "is my top pick" : `are my top ${n}`}.`;
+  const intro = `I searched the best hotels in ${dest} and ranked them for ${summaryClause(c)}. Here ${n === 1 ? "is your top match" : `are your top ${n}, scored out of 10`}.`;
   const outro =
     n > 1
-      ? ` Tell me to compare any two, ask why I chose one, or say "book" when you're ready.`
+      ? ` They're ranked best-fit first — tell me to compare any two, ask why I ranked one where I did, or say "book" when you're ready.`
       : ` Ask me anything about it, or say "book" when you're ready.`;
   return intro + outro;
 }

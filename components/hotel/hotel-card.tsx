@@ -60,8 +60,11 @@ export function HotelCard({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-navy-900/30" />
           <div className="absolute left-4 top-4 flex items-center gap-2">
+            <span className="grid size-9 place-items-center rounded-full bg-gold-sheen text-sm font-semibold text-white shadow-lg">
+              #{hotel.rank}
+            </span>
             <Badge variant="gold" className="shadow-lg">
-              <Sparkles className="size-3" /> {hotel.matchScore}% match
+              <Sparkles className="size-3" /> {hotel.fitScore.toFixed(1)}/10 match
             </Badge>
           </div>
           <button

@@ -133,9 +133,9 @@ async function* streamFromClaude(
 function buildSituation(ctx: ReplyContext): string {
   switch (ctx.action) {
     case "recommend":
-      return `SITUATION: You have enough to recommend. The app is showing ${ctx.recommendations.length} hotel cards (out of ${ctx.totalFound} found): ${ctx.recommendations
-        .map((r) => r.name)
-        .join(", ")}. Briefly introduce them and reference why they fit. Do NOT list full details — the cards do that.`;
+      return `SITUATION: You searched the best hotels in this city and RANKED them best-fit first for the traveller's needs. The app is showing ${ctx.recommendations.length} ranked hotel cards (out of ${ctx.totalFound} found), each with a personalised fit score out of 10: ${ctx.recommendations
+        .map((r) => `#${r.rank} ${r.name} (${r.fitScore.toFixed(1)}/10)`)
+        .join(", ")}. Briefly introduce the ranked shortlist and why #1 leads. Do NOT list full details — the cards do that.`;
     case "compare":
       return `SITUATION: The app is rendering a comparison table for: ${ctx.comparison?.hotels
         .map((h) => h.name)
