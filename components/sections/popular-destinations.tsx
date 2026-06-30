@@ -16,7 +16,7 @@ const DESTINATIONS: { label: string; country: string; image: string; prompt: str
   { label: "New York", country: "USA", image: img("1496442226666-8d4d0e62e6e9"), prompt: "Find me a luxury hotel in New York City." },
   { label: "London", country: "UK", image: img("1513635269975-59663e0ac1ad"), prompt: "Find me a luxury hotel in London." },
   { label: "Dubai", country: "UAE", image: img("1512453979798-5ea266f8880c"), prompt: "Find me a beach luxury hotel in Dubai." },
-  { label: "Swiss Alps", country: "Switzerland", image: img("1531366936337-7c912a4589a7"), prompt: "Find me a mountain retreat in the Swiss Alps." },
+  { label: "Maui", country: "Hawaii", image: img("1507525428034-b723cf961d3e"), prompt: "Find me a beachfront luxury resort in Maui." },
 ];
 
 export function PopularDestinations() {

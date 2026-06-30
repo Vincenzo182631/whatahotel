@@ -19,9 +19,9 @@ const sans = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "WhataHotel — Your AI Luxury Travel Advisor",
+  title: "WhataHotel — Search, Rank & Compare the Best Luxury Hotels",
   description:
-    "Tell us how you want to feel. WhataHotel's AI advisor curates the world's finest hotels, explains every choice, and books it all — with advisor-exclusive perks.",
+    "Tell WhataHotel a city and what matters to you. Our AI advisor searches the finest hotels, ranks them out of 10 for your needs, and helps you compare the top picks side by side — with advisor-exclusive perks.",
   keywords: [
     "luxury hotels",
     "AI travel advisor",
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
     "hotel booking",
   ],
   openGraph: {
-    title: "WhataHotel — Your AI Luxury Travel Advisor",
+    title: "WhataHotel — Search, Rank & Compare the Best Luxury Hotels",
     description:
-      "An expert luxury travel advisor, powered by AI. From inspiration to booking, in conversation.",
+      "Search a city's finest hotels, ranked out of 10 for your needs, and compared side by side — powered by AI, in conversation.",
     type: "website",
   },
 };

@@ -98,10 +98,18 @@ export function HotelCard({
                 {hotel.city}, {hotel.country}
               </p>
             </div>
-            <div className="flex shrink-0 items-center gap-1 rounded-full bg-black/[0.04] px-2.5 py-1 text-sm">
-              <Star className="size-3.5 fill-primary text-primary" />
-              <span className="font-semibold">{hotel.rating}</span>
-            </div>
+            {hotel.rating > 0 ? (
+              <div className="flex shrink-0 items-center gap-1 rounded-full bg-black/[0.04] px-2.5 py-1 text-sm">
+                <Star className="size-3.5 fill-primary text-primary" />
+                <span className="font-semibold">{hotel.rating}</span>
+              </div>
+            ) : (
+              <div className="flex shrink-0 items-center gap-0.5 rounded-full bg-black/[0.04] px-2.5 py-1">
+                {Array.from({ length: hotel.starRating }).map((_, i) => (
+                  <Star key={i} className="size-3 fill-primary text-primary" strokeWidth={1.5} />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* AI reasoning */}

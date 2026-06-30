@@ -103,16 +103,16 @@ export default async function HotelPage({ params }: Params) {
             </h1>
             <p className="mt-2 flex items-center gap-1.5 text-foreground/72">
               <MapPin className="size-4 text-primary" />
-              {hotel.neighborhood} · {hotel.city}, {hotel.country}
+              {hotel.neighborhood && hotel.neighborhood !== hotel.city
+                ? `${hotel.neighborhood} · ${hotel.city}, ${hotel.country}`
+                : `${hotel.city}, ${hotel.country}`}
             </p>
           </div>
           <div className="text-right">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-black/[0.04] px-3 py-1.5">
-              <Star className="size-4 fill-primary text-primary" />
-              <span className="font-semibold">{hotel.rating}</span>
-              <span className="text-sm text-foreground/65">
-                ({hotel.reviewCount.toLocaleString()})
-              </span>
+              {Array.from({ length: hotel.starRating }).map((_, i) => (
+                <Star key={i} className="size-3.5 fill-primary text-primary" strokeWidth={1.5} />
+              ))}
             </span>
             <p className="mt-2 font-display text-2xl text-gradient-gold">
               {formatCurrency(hotel.startingRate)}
@@ -141,24 +141,26 @@ export default async function HotelPage({ params }: Params) {
               </div>
             </section>
 
-            <section>
-              <h2 className="font-display text-2xl font-medium">Amenities</h2>
-              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {hotel.amenities.map((a) => {
-                  const meta = AMENITY_META[a];
-                  if (!meta) return null;
-                  return (
-                    <div
-                      key={a}
-                      className="flex items-center gap-2.5 rounded-2xl glass px-4 py-3 text-sm"
-                    >
-                      <meta.icon className="size-4 text-primary" />
-                      {meta.label}
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
+            {hotel.amenities.length > 0 && (
+              <section>
+                <h2 className="font-display text-2xl font-medium">Amenities</h2>
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {hotel.amenities.map((a) => {
+                    const meta = AMENITY_META[a];
+                    if (!meta) return null;
+                    return (
+                      <div
+                        key={a}
+                        className="flex items-center gap-2.5 rounded-2xl glass px-4 py-3 text-sm"
+                      >
+                        <meta.icon className="size-4 text-primary" />
+                        {meta.label}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
 
             <section>
               <h2 className="flex items-center gap-2 font-display text-2xl font-medium">
@@ -180,19 +182,21 @@ export default async function HotelPage({ params }: Params) {
               </ul>
             </section>
 
-            <section>
-              <h2 className="font-display text-2xl font-medium">
-                Getting around
-              </h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                {hotel.distances.map((d) => (
-                  <div key={d.label} className="rounded-2xl glass p-4">
-                    <p className="text-sm text-foreground/72">{d.label}</p>
-                    <p className="mt-1 font-display text-lg">{d.value}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
+            {hotel.distances.length > 0 && (
+              <section>
+                <h2 className="font-display text-2xl font-medium">
+                  Getting around
+                </h2>
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  {hotel.distances.map((d) => (
+                    <div key={d.label} className="rounded-2xl glass p-4">
+                      <p className="text-sm text-foreground/72">{d.label}</p>
+                      <p className="mt-1 font-display text-lg">{d.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             <section>
               <h2 className="font-display text-2xl font-medium">

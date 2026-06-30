@@ -44,20 +44,20 @@ export function HeroSearch() {
             submit();
           }
         }}
-        placeholder="Describe your perfect stay, e.g. a romantic hotel in Paris near the Eiffel Tower with great views"
+        placeholder="Tell me a city and what you want — e.g. the best spa hotels in Tokyo for a honeymoon under $1,300 a night"
         className="no-scrollbar w-full resize-none bg-transparent px-3 pt-3 pb-2 text-base leading-relaxed text-foreground placeholder:text-foreground/55 focus:outline-none"
       />
       <div className="flex items-center justify-between px-1.5 pb-1">
         <span className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.15em] text-foreground/60">
-          <Sparkles className="size-3.5 text-primary" strokeWidth={1.5} /> Powered by
-          AI
+          <Sparkles className="size-3.5 text-primary" strokeWidth={1.5} /> AI search
+          &amp; ranking
         </span>
         <button
           onClick={submit}
           disabled={isStreaming || !value.trim()}
           className="inline-flex items-center gap-2 rounded-2xl bg-gold-sheen px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_30px_-10px_rgba(183,79,84,0.6)] transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-50"
         >
-          <Send className="size-4" strokeWidth={1.5} /> Find hotels
+          <Send className="size-4" strokeWidth={1.5} /> Find &amp; rank
         </button>
       </div>
     </div>

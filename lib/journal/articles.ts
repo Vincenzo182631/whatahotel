@@ -102,7 +102,7 @@ export const ARTICLES: Article[] = [
       },
       { h2: "The role of the right hotel" },
       {
-        p: "When you're staying longer, the hotel stops being a place to sleep and becomes the heart of the trip. This is where slow travel and luxury meet: a property with a genuine sense of place, a spa worth lingering in, and a team who learns your name. A serene urban sanctuary like [Aman Tokyo](/hotel/aman-tokyo) or a river-valley retreat like [Four Seasons Resort Bali at Sayan](/hotel/four-seasons-sayan) isn't a backdrop — it's the destination itself.",
+        p: "When you're staying longer, the hotel stops being a place to sleep and becomes the heart of the trip. This is where slow travel and luxury meet: a property with a genuine sense of place, a spa worth lingering in, and a team who learns your name. A serene urban sanctuary like [Aman Tokyo](/) or a river-valley retreat like [Four Seasons Resort Bali at Sayan](/) isn't a backdrop — it's the destination itself.",
       },
       {
         p: "This is exactly the kind of trip our [AI travel advisor](/) was built to plan. Tell it how you want to feel — unhurried, restored, far away — and it will curate the stay around that intention, not around a checklist.",
@@ -171,15 +171,15 @@ export const ARTICLES: Article[] = [
       },
       { h3: "For timeless grandeur" },
       {
-        p: "[The Ritz Paris](/hotel/ritz-paris) on Place Vendôme is the original Parisian palace: Belle Époque opulence, the only Chanel spa in the world, and a Michelin-starred kitchen. It is romance and history in equal measure, and within walking distance of the Louvre.",
+        p: "[The Ritz Paris](/) on Place Vendôme is the original Parisian palace: Belle Époque opulence, the only Chanel spa in the world, and a Michelin-starred kitchen. It is romance and history in equal measure, and within walking distance of the Louvre.",
       },
       { h3: "For contemporary drama" },
       {
-        p: "[Cheval Blanc Paris](/hotel/cheval-blanc-paris), above the restored La Samaritaine, offers the city's most coveted Seine views, a Dior spa, and a three-Michelin-star table. It is Paris reimagined for the modern luxury traveller.",
+        p: "[Cheval Blanc Paris](/), above the restored La Samaritaine, offers the city's most coveted Seine views, a Dior spa, and a three-Michelin-star table. It is Paris reimagined for the modern luxury traveller.",
       },
       { h3: "For families and garden lovers" },
       {
-        p: "[Le Bristol Paris](/hotel/le-bristol-paris) wraps around a 1,200 m² garden and crowns it with a rooftop pool. With a celebrated kids' programme and Epicure's three stars, it's quietly perfect for multi-generational stays.",
+        p: "[Le Bristol Paris](/) wraps around a 1,200 m² garden and crowns it with a rooftop pool. With a celebrated kids' programme and Epicure's three stars, it's quietly perfect for multi-generational stays.",
       },
       { h2: "Where to dine" },
       {
@@ -277,12 +277,12 @@ export const ARTICLES: Article[] = [
           "**A private pool** if you value seclusion — many overwater villas now include one.",
           "**Sunset vs sunrise orientation.** Sunset villas glow in the evening; sunrise villas are cooler in the afternoon.",
           "**Proximity to the house reef** if snorkelling is a priority — some villas have coral just off the deck.",
-          "**A retractable roof or stargazing deck** for unforgettable nights, a signature of resorts like [Soneva Jani](/hotel/soneva-jani).",
+          "**A retractable roof or stargazing deck** for unforgettable nights, a signature of resorts like [Soneva Jani](/).",
         ],
       },
       { h2: "Seaplane or speedboat?" },
       {
-        p: "How you reach your resort depends on its distance from Malé. Resorts within about 30 minutes use speedboats — fast, frequent, and operating after dark. More remote resorts require a seaplane transfer, a spectacular flight over turquoise atolls that becomes part of the adventure (note that seaplanes fly only in daylight, so plan arrival times accordingly). A resort like [Waldorf Astoria Maldives Ithaafushi](/hotel/waldorf-astoria-maldives) sits a short speedboat from the airport, while the most secluded private-island retreats lean on the seaplane experience.",
+        p: "How you reach your resort depends on its distance from Malé. Resorts within about 30 minutes use speedboats — fast, frequent, and operating after dark. More remote resorts require a seaplane transfer, a spectacular flight over turquoise atolls that becomes part of the adventure (note that seaplanes fly only in daylight, so plan arrival times accordingly). A resort like [Waldorf Astoria Maldives Ithaafushi](/) sits a short speedboat from the airport, while the most secluded private-island retreats lean on the seaplane experience.",
       },
       { h2: "Dining and all-inclusive plans" },
       {
@@ -360,11 +360,11 @@ export const ARTICLES: Article[] = [
       },
       { h3: "An urban sanctuary in the sky" },
       {
-        p: "[Aman Tokyo](/hotel/aman-tokyo) occupies the top floors of the Otemachi Tower as a vertical ryokan — washi-paper lanterns, soaring stone, and one of Asia's finest spas. It is the definition of calm in a restless city.",
+        p: "[Aman Tokyo](/) occupies the top floors of the Otemachi Tower as a vertical ryokan — washi-paper lanterns, soaring stone, and one of Asia's finest spas. It is the definition of calm in a restless city.",
       },
       { h3: "Skyline glamour with a Fuji view" },
       {
-        p: "[Four Seasons Hotel Tokyo at Otemachi](/hotel/four-seasons-otemachi) crowns a glass tower with an infinity pool, sky spa, and — on clear days — a view of Mount Fuji. It's flawless for couples and business travellers alike.",
+        p: "[Four Seasons Hotel Tokyo at Otemachi](/) crowns a glass tower with an infinity pool, sky spa, and — on clear days — a view of Mount Fuji. It's flawless for couples and business travellers alike.",
       },
       { h2: "The art of omakase" },
       {
@@ -495,7 +495,7 @@ export const ARTICLES: Article[] = [
       },
       { h2: "Where you're going shapes what you pack" },
       {
-        p: "A barefoot-luxury island like the [Maldives](/journal/maldives-overwater-villa-guide) calls for less than a glamorous beach-club resort such as [The Mulia, Nusa Dua](/hotel/the-mulia-bali), where evenings can be dressier. Once you've chosen your destination with our [AI advisor](/), tailor the capsule to the place — and pack lighter than you think you should.",
+        p: "A barefoot-luxury island like the [Maldives](/journal/maldives-overwater-villa-guide) calls for less than a glamorous beach-club resort such as [The Mulia, Nusa Dua](/), where evenings can be dressier. Once you've chosen your destination with our [AI advisor](/), tailor the capsule to the place — and pack lighter than you think you should.",
       },
     ],
     essentials: {
@@ -562,7 +562,7 @@ export const ARTICLES: Article[] = [
       },
       { h2: "The hotel is half the trip" },
       {
-        p: "For an anniversary, the hotel isn't a base — it's part of the gift. Look for properties that do romance effortlessly: a renowned spa, exceptional dining, and a team that knows how to make a celebration feel personal. [The Ritz Paris](/hotel/ritz-paris) turns an anniversary into an occasion; [Soneva Jani](/hotel/soneva-jani) in the Maldives turns it into a fantasy. When you book, always mention the occasion — it unlocks thoughtful touches.",
+        p: "For an anniversary, the hotel isn't a base — it's part of the gift. Look for properties that do romance effortlessly: a renowned spa, exceptional dining, and a team that knows how to make a celebration feel personal. [The Ritz Paris](/) turns an anniversary into an occasion; [Soneva Jani](/) in the Maldives turns it into a fantasy. When you book, always mention the occasion — it unlocks thoughtful touches.",
       },
       { h2: "Orchestrate small surprises" },
       {
@@ -655,11 +655,11 @@ export const ARTICLES: Article[] = [
         h3: "Andermatt: design-led and snow-sure",
       },
       {
-        p: "[The Chedi Andermatt](/hotel/the-chedi-andermatt) is a serene fusion of Alpine chalet and Asian minimalism — fireplaces, floor-to-ceiling glass, a spectacular 35-metre indoor pool, and ski-in/ski-out access to the Gemsstock. Its cheese cellar alone is worth the trip.",
+        p: "[The Chedi Andermatt](/) is a serene fusion of Alpine chalet and Asian minimalism — fireplaces, floor-to-ceiling glass, a spectacular 35-metre indoor pool, and ski-in/ski-out access to the Gemsstock. Its cheese cellar alone is worth the trip.",
       },
       { h3: "Zermatt: skiing beneath the Matterhorn" },
       {
-        p: "[CERVO Mountain Resort](/hotel/the-cervo-zermatt) is a cluster of contemporary chalets above car-free Zermatt, framing the Matterhorn from its terraces. With a standout spa and lively après-ski, it balances adventure and indulgence beautifully.",
+        p: "[CERVO Mountain Resort](/) is a cluster of contemporary chalets above car-free Zermatt, framing the Matterhorn from its terraces. With a standout spa and lively après-ski, it balances adventure and indulgence beautifully.",
       },
       { h2: "Beyond the slopes" },
       {
@@ -748,11 +748,11 @@ export const ARTICLES: Article[] = [
         h3: "City sophistication with a kids' programme",
       },
       {
-        p: "[Le Bristol Paris](/hotel/le-bristol-paris) proves a palace hotel can be wonderful for families — a rooftop pool, a celebrated children's programme, and connecting rooms held for advisor guests, all in the heart of the city.",
+        p: "[Le Bristol Paris](/) proves a palace hotel can be wonderful for families — a rooftop pool, a celebrated children's programme, and connecting rooms held for advisor guests, all in the heart of the city.",
       },
       { h3: "Big-resort adventure" },
       {
-        p: "[Atlantis The Royal](/hotel/atlantis-the-royal) in Dubai pairs sky pools and celebrity-chef dining with a water park on the doorstep — endless energy for kids, genuine luxury for parents. For a beach option, [The Mulia, Nusa Dua](/hotel/the-mulia-bali) offers oceanfront pools and a kids' club on Bali's best stretch of sand.",
+        p: "[Atlantis The Royal](/) in Dubai pairs sky pools and celebrity-chef dining with a water park on the doorstep — endless energy for kids, genuine luxury for parents. For a beach option, [The Mulia, Nusa Dua](/) offers oceanfront pools and a kids' club on Bali's best stretch of sand.",
       },
       { h2: "The magic of connecting rooms" },
       {
@@ -843,7 +843,7 @@ export const ARTICLES: Article[] = [
       },
       { h3: "Where to stay in the jungle" },
       {
-        p: "[Four Seasons Resort Bali at Sayan](/hotel/four-seasons-sayan) is reached across a teak bridge into the rainforest canopy — plunge-pool villas, a riverside spa, and sound-healing among the rice paddies. It is serenity made tangible, and minutes from Ubud's culture.",
+        p: "[Four Seasons Resort Bali at Sayan](/) is reached across a teak bridge into the rainforest canopy — plunge-pool villas, a riverside spa, and sound-healing among the rice paddies. It is serenity made tangible, and minutes from Ubud's culture.",
       },
       { h2: "The wellness rituals worth doing" },
       {
@@ -864,7 +864,7 @@ export const ARTICLES: Article[] = [
       },
       { h2: "When you do want the beach" },
       {
-        p: "Bali's coast still beckons, and the contrast is part of the pleasure. The Bukit Peninsula in the south offers dramatic clifftop views and calmer luxury, while [The Mulia, Nusa Dua](/hotel/the-mulia-bali) delivers beachfront grandeur with cascading oceanfront pools — an easy, glamorous counterpoint to Ubud's calm. Many travellers split their stay: a few restorative days inland, then a few indulgent days by the sea.",
+        p: "Bali's coast still beckons, and the contrast is part of the pleasure. The Bukit Peninsula in the south offers dramatic clifftop views and calmer luxury, while [The Mulia, Nusa Dua](/) delivers beachfront grandeur with cascading oceanfront pools — an easy, glamorous counterpoint to Ubud's calm. Many travellers split their stay: a few restorative days inland, then a few indulgent days by the sea.",
       },
       { h2: "Practical notes" },
       {

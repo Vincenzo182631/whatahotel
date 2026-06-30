@@ -97,6 +97,9 @@ export interface Hotel {
   bestFor?: string; // human "best suited for" summary
   pros?: string[];
   cons?: string[];
+  /** Provenance for hotels imported from the WhataHotel directory. */
+  sourceHotelId?: string;
+  bookingUrl?: string;
 }
 
 /** A hotel plus the advisor's reasoning for surfacing it. */

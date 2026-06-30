@@ -132,14 +132,24 @@ export function HotelCompare({
       ),
     },
     {
+      key: "brand",
+      label: "Brand / collection",
+      cell: (h) => (
+        <span className="text-sm text-foreground/80">{h.brand || "Independent"}</span>
+      ),
+    },
+    {
       key: "guest",
       label: "Guest rating",
-      cell: (h) => (
-        <span className="text-sm">
-          <span className="font-semibold">{h.rating}</span>
-          <span className="text-foreground/55"> / 10 · {h.reviewCount.toLocaleString()} reviews</span>
-        </span>
-      ),
+      cell: (h) =>
+        h.rating > 0 ? (
+          <span className="text-sm">
+            <span className="font-semibold">{h.rating}</span>
+            <span className="text-foreground/55"> / 10 · {h.reviewCount.toLocaleString()} reviews</span>
+          </span>
+        ) : (
+          <span className="text-sm text-foreground/45">—</span>
+        ),
     },
     {
       key: "location",
@@ -156,6 +166,7 @@ export function HotelCompare({
     {
       key: "amenities",
       label: "Key amenities",
+      visible: hotels.some((h) => h.amenities.length),
       cell: (h) => (
         <div className="flex flex-wrap gap-1.5">
           {h.amenities
@@ -177,6 +188,7 @@ export function HotelCompare({
     {
       key: "highlights",
       label: "Highlights",
+      visible: hotels.some((h) => h.highlights.length),
       cell: (h) => (
         <ul className="space-y-1">
           {h.highlights.slice(0, 3).map((hl) => (
@@ -191,9 +203,10 @@ export function HotelCompare({
     {
       key: "usp",
       label: "Stands out for",
+      visible: hotels.some((h) => h.usp || h.highlights.length),
       cell: (h) => (
         <span className="text-sm leading-snug text-foreground/80">
-          {h.usp ?? h.highlights[0]}
+          {h.usp ?? h.highlights[0] ?? "—"}
         </span>
       ),
     },

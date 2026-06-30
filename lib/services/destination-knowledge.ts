@@ -33,14 +33,14 @@ function toInfo(key: string): DestinationInfo {
 }
 
 const VIBE_DESTINATIONS: Record<Vibe, string[]> = {
-  romantic: ["paris", "maldives", "alps"],
-  beach: ["maldives", "bali", "dubai"],
+  romantic: ["paris", "maldives", "maui"],
+  beach: ["maldives", "bali", "maui"],
   city: ["paris", "tokyo", "newyork", "london"],
-  mountain: ["alps"],
-  family: ["bali", "dubai", "london"],
+  mountain: ["maui", "bali"],
+  family: ["bali", "dubai", "maui"],
   business: ["tokyo", "newyork", "london"],
-  wellness: ["bali", "tokyo", "alps"],
-  adventure: ["bali", "alps", "dubai"],
+  wellness: ["bali", "tokyo", "maui"],
+  adventure: ["bali", "dubai", "maui"],
   cruise: ["dubai", "maldives"],
 };
 
@@ -55,6 +55,6 @@ export const destinationKnowledgeService: DestinationKnowledgeService = {
     const keys = new Set<string>();
     for (const v of vibes) (VIBE_DESTINATIONS[v] ?? []).forEach((k) => keys.add(k));
     if (keys.size === 0) ["paris", "maldives", "tokyo"].forEach((k) => keys.add(k));
-    return [...keys].map(toInfo);
+    return [...keys].filter((k) => DESTINATIONS[k]).map(toInfo);
   },
 };

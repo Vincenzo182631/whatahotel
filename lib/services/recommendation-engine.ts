@@ -45,8 +45,27 @@ const OCCASION_PHRASE: Record<string, string> = {
   leisure: "you're after a proper getaway",
 };
 
+// Brand prestige tiers — the ranking baseline (guest ratings aren't published).
+const PRESTIGE: Record<string, number> = {
+  Aman: 10, "Cheval Blanc": 10, Bvlgari: 10, "Four Seasons": 10, "Ritz-Carlton": 10,
+  "Mandarin Oriental": 10, Rosewood: 10, Peninsula: 10, "Park Hyatt": 10, "St. Regis": 10,
+  "Waldorf Astoria": 10, Raffles: 10, "Dorchester Collection": 10, "One&Only": 10,
+  "Six Senses": 10, Soneva: 10, Belmond: 10, "The Ritz": 10,
+  "Shangri-La": 9, Jumeirah: 9, Corinthia: 9, Langham: 9, Taj: 9, Kempinski: 9,
+  "Banyan Tree": 9, Regent: 9, "The Luxury Collection": 9, EDITION: 9, Conrad: 9, Faena: 9, Pendry: 9,
+  "JW Marriott": 8, Sofitel: 8, Fairmont: 8, Westin: 8, InterContinental: 8, Andaz: 8,
+  "Grand Hyatt": 8, "Hyatt Centric": 8, "Hyatt Regency": 8, "Autograph Collection": 8,
+  "Le Méridien": 8, Renaissance: 8, Kimpton: 8, Thompson: 8, Loews: 8, "The Standard": 8,
+  SLS: 8, LXR: 8, Pullman: 8, Sheraton: 8, "W Hotels": 8, "Tribute Portfolio": 8,
+  Marriott: 7.5, Hilton: 7.5, Hyatt: 7.5,
+};
+function prestige(brand?: string): number {
+  if (!brand) return 7;
+  return PRESTIGE[brand] ?? 7.5;
+}
+
 function scoreHotel(hotel: Hotel, c: SearchCriteria) {
-  let score = hotel.rating * 7; // quality baseline (up to ~70)
+  let score = prestige(hotel.brand) * 8; // brand-prestige baseline (56–80)
   const tags: string[] = [];
 
   // Budget fit
@@ -202,36 +221,27 @@ export interface HotelComparison {
   recommendation: string;
 }
 
-const has = (h: Hotel, a: string) => (h.amenities.includes(a) ? "Yes" : "—");
-
 export function buildComparison(hotels: Hotel[]): HotelComparison {
-  const valueScores = hotels.map(
-    (h) => Math.round((h.rating / (h.startingRate / 1000)) * 10) / 10,
-  );
-  const bestValueIdx = valueScores.indexOf(Math.max(...valueScores));
-  const bestRatedIdx = hotels.indexOf(
-    hotels.reduce((a, b) => (b.rating > a.rating ? b : a)),
+  const hasRatings = hotels.some((h) => h.rating > 0);
+  // Best value = lowest nightly rate when ratings aren't available.
+  const bestValueIdx = hotels.reduce(
+    (best, h, i) => (h.startingRate > 0 && h.startingRate < hotels[best].startingRate ? i : best),
+    0,
   );
 
   const rows: ComparisonRow[] = [
-    { label: "Starting rate / night", values: hotels.map((h) => `$${h.startingRate.toLocaleString()}`) },
-    { label: "Guest rating", values: hotels.map((h) => `${h.rating} (${h.reviewCount.toLocaleString()} reviews)`) },
-    { label: "Neighborhood", values: hotels.map((h) => h.neighborhood) },
-    { label: "Best for couples", values: hotels.map((h) => (h.vibes.includes("romantic") ? "Excellent" : "Good")) },
-    { label: "Family friendly", values: hotels.map((h) => (h.amenities.includes("kidsclub") || h.amenities.includes("connecting") ? "Yes" : "Limited")) },
-    { label: "Signature room", values: hotels.map((h) => `${h.name.split(" ")[0]} Signature Suite`) },
-    { label: "Dining", values: hotels.map((h) => (h.amenities.includes("michelin") ? "Michelin-level" : "Excellent")) },
-    { label: "Spa", values: hotels.map((h) => has(h, "spa")) },
-    { label: "Pool", values: hotels.map((h) => has(h, "pool")) },
-    { label: "Walking score", values: hotels.map((h) => (h.distances[0]?.value.includes("walk") ? "Very walkable" : "Drive required")) },
-    { label: "Advisor perks", values: hotels.map((h) => `${h.perks.length} included`) },
-    { label: "Value score", values: valueScores.map((v) => `${v}`) },
+    { label: "Starting rate / night", values: hotels.map((h) => (h.startingRate ? `$${h.startingRate.toLocaleString()}` : "On request")) },
+    { label: "Brand / collection", values: hotels.map((h) => h.brand || "Independent") },
+    { label: "Star rating", values: hotels.map((h) => "★".repeat(h.starRating)) },
+    { label: "Guest rating", values: hotels.map((h) => (h.rating > 0 ? `${h.rating} (${h.reviewCount.toLocaleString()} reviews)` : "—")) },
+    { label: "Location", values: hotels.map((h) => `${h.city}, ${h.country}`) },
+    { label: "Advisor perks", values: hotels.map((h) => (h.perks.length ? "Included" : "—")) },
+    { label: "Photos", values: hotels.map((h) => `${1 + h.gallery.length}`) },
   ];
 
-  const recommendation =
-    bestValueIdx === bestRatedIdx
-      ? `${hotels[bestRatedIdx].name} is my pick — it's both the highest-rated and the best value of the two.`
-      : `For outright luxury I'd choose ${hotels[bestRatedIdx].name}; for the smartest value, ${hotels[bestValueIdx].name}. Tell me what matters most and I'll make the call.`;
+  const recommendation = hasRatings
+    ? `${hotels[bestValueIdx].name} offers the smartest value of these. Tell me what matters most and I'll make the call.`
+    : `On price, ${hotels[bestValueIdx].name} is the best value of these. Pick your dates and I'll pull live rates so you can compare precisely.`;
 
   return {
     hotels: hotels.map((h) => ({ id: h.id, name: h.name, image: h.image, city: h.city })),

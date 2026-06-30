@@ -27,7 +27,7 @@ export function Hero() {
         transition={{ duration: 0.6 }}
         className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs uppercase tracking-[0.22em] text-white/90 backdrop-blur"
       >
-        Your personal luxury travel advisor
+        Search · Rank · Compare luxury hotels
       </motion.span>
 
       <motion.h1
@@ -36,7 +36,7 @@ export function Hero() {
         transition={{ duration: 0.7, delay: 0.05 }}
         className="balance font-display text-5xl font-semibold leading-[1.02] tracking-tight text-cream drop-shadow-[0_2px_20px_rgba(0,0,0,0.4)] sm:text-6xl md:text-7xl"
       >
-        Find your perfect stay
+        The best hotels in any city,
         <br />
         <span
           className="italic font-medium"
@@ -47,7 +47,7 @@ export function Hero() {
             color: "transparent",
           }}
         >
-          by chatting.
+          ranked for you.
         </span>
       </motion.h1>
 
@@ -57,8 +57,9 @@ export function Hero() {
         transition={{ duration: 0.7, delay: 0.15 }}
         className="balance mt-5 max-w-xl text-lg leading-relaxed text-white/85 drop-shadow-[0_1px_12px_rgba(0,0,0,0.45)]"
       >
-        Describe your ideal stay — your AI advisor curates the world&apos;s finest
-        hotels, explains every choice, and books it with exclusive perks.
+        Tell me a city and what matters most — I&apos;ll search its finest hotels,
+        rank them out of 10 for your needs, and help you compare the top picks.
+        Just by chatting.
       </motion.p>
 
       <motion.div
