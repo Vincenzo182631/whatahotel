@@ -2,6 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { PasswordResetToken, Trip, User } from "./types";
+import { RedisStore, redisConfigured } from "./redis-store";
 
 /**
  * Data store abstraction.
@@ -104,4 +105,8 @@ class FileStore implements DataStore {
   }
 }
 
-export const store: DataStore = new FileStore();
+// Prefer a durable Redis store (Vercel KV / Upstash) when configured; otherwise
+// fall back to the bundled file store. No code changes needed to switch — just
+// set the KV_REST_API_* (or UPSTASH_REDIS_REST_*) env vars.
+export const store: DataStore = redisConfigured() ? new RedisStore() : new FileStore();
+
