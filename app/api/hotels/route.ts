@@ -18,6 +18,38 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
 
+  const minimal = (h: Awaited<ReturnType<typeof hotelDetailsService.getAllHotels>>[number]) => ({
+    id: h.id,
+    name: h.name,
+    brand: h.brand,
+    city: h.city,
+    country: h.country,
+    image: h.image,
+    startingRate: h.startingRate,
+    starRating: h.starRating,
+    rating: h.rating,
+  });
+
+  // Every hotel, grouped by city (homepage sections). Cities ordered by size.
+  if (searchParams.get("byCity")) {
+    const all = await hotelDetailsService.getAllHotels();
+    const grouped: Record<string, typeof all> = {};
+    for (const h of all) (grouped[h.destinationKey] ??= []).push(h);
+    const cities = Object.values(grouped)
+      .map((list) => {
+        const sorted = [...list].sort((a, b) => b.startingRate - a.startingRate);
+        return {
+          key: sorted[0].destinationKey,
+          label: sorted[0].city,
+          country: sorted[0].country,
+          count: sorted.length,
+          hotels: sorted.map(minimal),
+        };
+      })
+      .sort((a, b) => b.count - a.count);
+    return NextResponse.json({ cities });
+  }
+
   // Lightweight curated set for the homepage grid (a spread across destinations).
   if (searchParams.get("featured")) {
     const all = await hotelDetailsService.getAllHotels();
@@ -28,19 +60,7 @@ export async function GET(req: Request) {
       const sorted = [...byCity[key]].sort((a, b) => b.startingRate - a.startingRate);
       featured.push(...sorted.slice(0, 2));
     }
-    return NextResponse.json({
-      hotels: featured.slice(0, 16).map((h) => ({
-        id: h.id,
-        name: h.name,
-        brand: h.brand,
-        city: h.city,
-        country: h.country,
-        image: h.image,
-        startingRate: h.startingRate,
-        starRating: h.starRating,
-        rating: h.rating,
-      })),
-    });
+    return NextResponse.json({ hotels: featured.slice(0, 16).map(minimal) });
   }
 
   if (!id) {

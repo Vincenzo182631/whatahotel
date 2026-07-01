@@ -77,6 +77,27 @@ export function useFeaturedHotels() {
   });
 }
 
+export interface CityGroup {
+  key: string;
+  label: string;
+  country: string;
+  count: number;
+  hotels: FeaturedHotel[];
+}
+
+/** Every hotel grouped by city, cities ordered by size (homepage sections). */
+export function useHotelsByCity() {
+  return useQuery({
+    queryKey: ["hotels-by-city"],
+    queryFn: async (): Promise<{ cities: CityGroup[] }> => {
+      const res = await fetch("/api/hotels?byCity=1");
+      if (!res.ok) throw new Error("Failed to load hotels");
+      return res.json();
+    },
+    staleTime: 10 * 60_000,
+  });
+}
+
 export interface LiveRoom {
   name: string;
   nightly: number;

@@ -15,15 +15,104 @@ import {
   Users,
   Flower2,
   Sparkles,
+  ChevronRight,
   type LucideIcon,
 } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useConversation } from "@/store/conversation-store";
 import { usePreferences } from "@/store/preferences-store";
-import { useFeaturedHotels } from "@/hooks/use-hotels";
+import { useHotelsByCity, type FeaturedHotel } from "@/hooks/use-hotels";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const CORAL = "#FF385C";
+// How many hotels to show per city before "See more".
+const PER_CITY = 8;
+
+function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
+  const isSaved = usePreferences((s) => s.isSaved);
+  const toggleSave = usePreferences((s) => s.toggleSave);
+  const saved = isSaved(hotel.id);
+  return (
+    <div className="group">
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#eee]">
+        <Link href={`/hotel/${hotel.id}`} className="absolute inset-0 z-0 block">
+          <ImageWithFallback
+            src={hotel.image}
+            seed={hotel.id}
+            alt={hotel.name}
+            fill
+            sizes="(max-width:768px) 50vw, 25vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </Link>
+        {hotel.brand && (
+          <span className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-[#222] shadow-sm">
+            {hotel.brand}
+          </span>
+        )}
+        <button
+          onClick={() => toggleSave(hotel)}
+          aria-label={saved ? "Remove from saved" : "Save"}
+          className="absolute right-3 top-3 z-10 transition-transform hover:scale-110"
+        >
+          <Heart
+            className="size-6"
+            style={saved ? { fill: CORAL, color: CORAL } : { fill: "rgba(0,0,0,0.5)", color: "#fff" }}
+            strokeWidth={2}
+          />
+        </button>
+      </div>
+      <Link href={`/hotel/${hotel.id}`} className="mt-3 block">
+        <p className="font-semibold leading-tight text-[#222]">{hotel.name}</p>
+        <p className="mt-0.5 text-sm text-[#717171]">
+          {hotel.city}, {hotel.country}
+        </p>
+        <p className="mt-1.5 text-sm text-[#222]">
+          <span className="font-semibold">{formatCurrency(hotel.startingRate)}</span> night
+          <span className="text-[#717171]"> · perks included</span>
+        </p>
+      </Link>
+    </div>
+  );
+}
+
+function CitySection({ city }: { city: { key: string; label: string; country: string; count: number; hotels: FeaturedHotel[] } }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasMore = city.hotels.length > PER_CITY;
+  const shown = expanded ? city.hotels : city.hotels.slice(0, PER_CITY);
+  return (
+    <section className="scroll-mt-24" id={`city-${city.key}`}>
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          {city.label}
+          <span className="ml-2 text-sm font-normal text-[#717171]">
+            {city.count} hotel{city.count > 1 ? "s" : ""}
+          </span>
+        </h2>
+        {hasMore && (
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="group inline-flex shrink-0 items-center gap-0.5 rounded-full px-1 text-sm font-semibold text-[#222] underline-offset-4 hover:underline"
+          >
+            {expanded ? "Show less" : `See all ${city.count}`}
+            <ChevronRight
+              className={cn(
+                "size-4 transition-transform",
+                expanded && "rotate-90",
+              )}
+              strokeWidth={2.5}
+            />
+          </button>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
+        {shown.map((hotel) => (
+          <HotelGridCard key={hotel.id} hotel={hotel} />
+        ))}
+      </div>
+    </section>
+  );
+}
 
 const CATS: { icon: LucideIcon; label: string; prompt: string }[] = [
   { icon: Scale, label: "Compare", prompt: "I'd like to compare the best luxury hotels side by side. Which city?" },
@@ -71,10 +160,8 @@ function PillSearch() {
 export function AirbnbLanding() {
   const send = useConversation((s) => s.send);
   const savedCount = usePreferences((s) => s.saved.length);
-  const isSaved = usePreferences((s) => s.isSaved);
-  const toggleSave = usePreferences((s) => s.toggleSave);
-  const { data, isLoading } = useFeaturedHotels();
-  const hotels = data?.hotels ?? [];
+  const { data, isLoading } = useHotelsByCity();
+  const cities = data?.cities ?? [];
 
   return (
     <div className="min-h-dvh bg-white text-[#222]">
@@ -153,65 +240,44 @@ export function AirbnbLanding() {
           <Sparkles className="size-4" style={{ color: CORAL }} strokeWidth={2} />
           Describe a city and what matters — your AI advisor searches, scores /10, and compares.
         </p>
+
+        {/* Quick jump to a city */}
+        {cities.length > 0 && (
+          <div className="no-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1">
+            {cities.map((c) => (
+              <a
+                key={c.key}
+                href={`#city-${c.key}`}
+                className="shrink-0 rounded-full border border-[#EBEBEB] px-3.5 py-1.5 text-sm font-medium text-[#222] transition-colors hover:border-[#222]"
+              >
+                {c.label}
+                <span className="ml-1.5 text-[#717171]">{c.count}</span>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* GRID */}
-      <main className="mx-auto max-w-[1360px] px-6 pb-16 pt-6">
-        <div className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-          {isLoading &&
-            Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-square rounded-xl bg-[#eee]" />
-                <div className="mt-3 h-4 w-2/3 rounded bg-[#eee]" />
-                <div className="mt-2 h-3 w-1/2 rounded bg-[#f2f2f2]" />
+      {/* CITY SECTIONS */}
+      <main className="mx-auto max-w-[1360px] space-y-12 px-6 pb-16 pt-8">
+        {isLoading &&
+          Array.from({ length: 2 }).map((_, s) => (
+            <div key={s}>
+              <div className="mb-4 h-6 w-40 animate-pulse rounded bg-[#eee]" />
+              <div className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="aspect-square rounded-xl bg-[#eee]" />
+                    <div className="mt-3 h-4 w-2/3 rounded bg-[#eee]" />
+                    <div className="mt-2 h-3 w-1/2 rounded bg-[#f2f2f2]" />
+                  </div>
+                ))}
               </div>
-            ))}
-          {hotels.map((hotel) => {
-            const saved = isSaved(hotel.id);
-            return (
-              <div key={hotel.id} className="group">
-                <div className="relative aspect-square overflow-hidden rounded-xl bg-[#eee]">
-                  <Link href={`/hotel/${hotel.id}`} className="absolute inset-0 z-0 block">
-                    <ImageWithFallback
-                      src={hotel.image}
-                      seed={hotel.id}
-                      alt={hotel.name}
-                      fill
-                      sizes="(max-width:768px) 50vw, 25vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </Link>
-                  {hotel.brand && (
-                    <span className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-[#222] shadow-sm">
-                      {hotel.brand}
-                    </span>
-                  )}
-                  <button
-                    onClick={() => toggleSave(hotel)}
-                    aria-label={saved ? "Remove from saved" : "Save"}
-                    className="absolute right-3 top-3 z-10 transition-transform hover:scale-110"
-                  >
-                    <Heart
-                      className="size-6"
-                      style={saved ? { fill: CORAL, color: CORAL } : { fill: "rgba(0,0,0,0.5)", color: "#fff" }}
-                      strokeWidth={2}
-                    />
-                  </button>
-                </div>
-                <Link href={`/hotel/${hotel.id}`} className="mt-3 block">
-                  <p className="font-semibold leading-tight text-[#222]">{hotel.name}</p>
-                  <p className="mt-0.5 text-sm text-[#717171]">
-                    {hotel.city}, {hotel.country}
-                  </p>
-                  <p className="mt-1.5 text-sm text-[#222]">
-                    <span className="font-semibold">{formatCurrency(hotel.startingRate)}</span> night
-                    <span className="text-[#717171]"> · perks included</span>
-                  </p>
-                </Link>
-              </div>
-            );
-          })}
-        </div>
+            </div>
+          ))}
+        {cities.map((city) => (
+          <CitySection key={city.key} city={city} />
+        ))}
       </main>
 
       {/* FOOTER */}
