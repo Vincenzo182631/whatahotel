@@ -17,7 +17,14 @@ function AdvisorMark() {
   );
 }
 
-export function MessageBubble({ message }: { message: ChatMessage }) {
+export function MessageBubble({
+  message,
+  canvasActive = false,
+}: {
+  message: ChatMessage;
+  /** When the right-hand results canvas is shown, hide inline attachments on desktop. */
+  canvasActive?: boolean;
+}) {
   const isUser = message.role === "user";
   const payload = message.payload;
   const showTyping = message.streaming && !message.content;
@@ -57,20 +64,22 @@ export function MessageBubble({ message }: { message: ChatMessage }) {
           )}
         </div>
 
-        {/* Attachments */}
-        {payload?.recommendations && payload.recommendations.length > 0 && (
-          <div className="space-y-4">
-            {payload.recommendations.map((hotel, i) => (
-              <HotelCard key={hotel.id} hotel={hotel} index={i} />
-            ))}
-          </div>
-        )}
+        {/* Attachments — inline on mobile; hoisted to the results canvas on desktop */}
+        <div className={cn("space-y-4", canvasActive && "lg:hidden")}>
+          {payload?.recommendations && payload.recommendations.length > 0 && (
+            <div className="space-y-4">
+              {payload.recommendations.map((hotel, i) => (
+                <HotelCard key={hotel.id} hotel={hotel} index={i} />
+              ))}
+            </div>
+          )}
 
-        {payload?.comparison && (
-          <ComparisonTable comparison={payload.comparison} />
-        )}
+          {payload?.comparison && (
+            <ComparisonTable comparison={payload.comparison} />
+          )}
 
-        {payload?.booking && <BookingSummary booking={payload.booking} />}
+          {payload?.booking && <BookingSummary booking={payload.booking} />}
+        </div>
       </div>
     </motion.div>
   );
