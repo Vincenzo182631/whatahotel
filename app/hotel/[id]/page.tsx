@@ -11,6 +11,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { DockedAdvisor } from "@/components/hotel/docked-advisor";
 import { RoomsSection } from "@/components/hotel/rooms-section";
+import { TrackView } from "@/components/hotel/track-view";
 import { HotelCompare } from "@/components/hotel/hotel-compare";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { Badge } from "@/components/ui/badge";
@@ -47,6 +48,15 @@ export default async function HotelPage({ params }: Params) {
 
   return (
     <main className="min-h-dvh">
+      <TrackView
+        hotel={{
+          id: hotel.id,
+          name: hotel.name,
+          city: hotel.city,
+          image: hotel.image,
+          startingRate: hotel.startingRate,
+        }}
+      />
       <SiteHeader />
 
       <div className="container py-8">

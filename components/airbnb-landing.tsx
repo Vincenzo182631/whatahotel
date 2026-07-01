@@ -22,6 +22,7 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useConversation } from "@/store/conversation-store";
 import { usePreferences } from "@/store/preferences-store";
 import { useHotelsByCity, type FeaturedHotel } from "@/hooks/use-hotels";
+import { useAuth } from "@/hooks/use-auth";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const CORAL = "#FF385C";
@@ -162,6 +163,7 @@ function PillSearch() {
 export function AirbnbLanding() {
   const send = useConversation((s) => s.send);
   const savedCount = usePreferences((s) => s.saved.length);
+  const { user, isAuthenticated } = useAuth();
   const { data, isLoading } = useHotelsByCity();
   const cities = data?.cities ?? [];
 
@@ -179,15 +181,48 @@ export function AirbnbLanding() {
             <PillSearch />
           </div>
 
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-1.5">
             <Link
               href="/journal"
               className="hidden rounded-full px-3.5 py-2.5 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7] lg:block"
             >
               Journal
             </Link>
+
+            {isAuthenticated ? (
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2 rounded-full border border-[#EBEBEB] py-1 pl-1 pr-3.5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
+              >
+                <span
+                  className="grid size-7 place-items-center rounded-full text-xs font-bold text-white"
+                  style={{ background: CORAL }}
+                >
+                  {(user?.name?.[0] ?? "U").toUpperCase()}
+                </span>
+                <span className="text-sm font-semibold text-[#222]">Dashboard</span>
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="hidden rounded-full px-3.5 py-2.5 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7] sm:block"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/signup"
+                  className="rounded-full px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                  style={{ background: CORAL }}
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
+
             <Link
               href="/saved"
+              aria-label="Saved hotels"
               className="flex items-center gap-2 rounded-full border border-[#EBEBEB] py-1.5 pl-3.5 pr-1.5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
             >
               <Menu className="size-4 text-[#222]" />
