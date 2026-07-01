@@ -25,14 +25,14 @@ const config: Config = {
         },
         // Accent kept under the "gold" keys so existing classes re-theme cleanly.
         gold: {
-          DEFAULT: "#B74F54",
-          soft: "#CD6F73",
-          deep: "#9C3A40",
+          DEFAULT: "#FF385C",
+          soft: "#FF5A78",
+          deep: "#E61E4D",
         },
         maroon: {
-          DEFAULT: "#B74F54",
-          soft: "#CD6F73",
-          deep: "#9C3A40",
+          DEFAULT: "#FF385C",
+          soft: "#FF5A78",
+          deep: "#E61E4D",
         },
         ink: "#10213A",
         cream: "#FBF7F2",
@@ -70,16 +70,16 @@ const config: Config = {
         "3xl": "1.75rem",
       },
       fontFamily: {
-        display: ["var(--font-display)", "Georgia", "serif"],
+        display: ["var(--font-sans)", "system-ui", "sans-serif"],
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        glow: "0 0 0 1px rgba(183,79,84,0.22), 0 30px 80px -30px rgba(183,79,84,0.35)",
-        card: "0 30px 70px -32px rgba(16,33,58,0.30)",
+        glow: "0 0 0 1px rgba(0,0,0,0.06), 0 12px 30px -12px rgba(0,0,0,0.18)",
+        card: "0 6px 20px -8px rgba(0,0,0,0.12)",
       },
       backgroundImage: {
         "gold-sheen":
-          "linear-gradient(135deg, #CD6F73 0%, #B74F54 55%, #9C3A40 100%)",
+          "linear-gradient(135deg, #FF5A78 0%, #FF385C 55%, #E61E4D 100%)",
       },
       keyframes: {
         "fade-up": {

@@ -4,36 +4,36 @@
 
 @layer base {
   :root {
-    /* WhataHotel — warm ivory, deep navy ink + #B74F54 accent (premium light) */
-    --background: 36 38% 96%; /* warm ivory */
-    --foreground: 213 50% 11%; /* near-black navy */
+    /* WhataHotel — Airbnb-style: white, coral (#FF385C), clean */
+    --background: 0 0% 100%; /* white */
+    --foreground: 0 0% 13%; /* #222 ink */
 
-    --card: 0 0% 100%; /* white cards pop on ivory */
-    --card-foreground: 213 50% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 213 50% 11%;
+    --popover-foreground: 0 0% 13%;
 
-    --primary: 357 42% 51%; /* #B74F54 */
+    --primary: 349 100% 61%; /* #FF385C coral */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 357 38% 95%;
-    --secondary-foreground: 357 44% 40%;
+    --secondary: 349 100% 97%;
+    --secondary-foreground: 349 72% 45%;
 
-    --muted: 36 24% 93%;
-    --muted-foreground: 213 16% 32%; /* darker -> more legible */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 44%; /* #717171 */
 
-    --accent: 357 44% 94%;
-    --accent-foreground: 357 44% 40%;
+    --accent: 349 100% 97%;
+    --accent-foreground: 349 72% 45%;
 
     --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 36 22% 86%;
-    --input: 36 22% 86%;
-    --ring: 357 42% 51%;
+    --border: 0 0% 92%; /* #EBEBEB */
+    --input: 0 0% 92%;
+    --ring: 349 100% 61%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
   }
 }
 
@@ -46,16 +46,14 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background-color: #faf6f0;
-    font-feature-settings: "ss01", "cv01";
+    background-color: #ffffff;
   }
 
   ::selection {
-    background: hsl(var(--primary) / 0.18);
+    background: hsl(var(--primary) / 0.16);
     color: hsl(var(--primary));
   }
 
-  /* Refined scrollbar */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -64,39 +62,34 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary) / 0.28);
+    background: rgba(0, 0, 0, 0.18);
     border-radius: 9999px;
     border: 3px solid transparent;
     background-clip: content-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.5);
+    background: rgba(0, 0, 0, 0.32);
     background-clip: content-box;
   }
 }
 
 @layer components {
-  /* Frosted glass — works on light surfaces and over imagery */
+  /* Clean white cards with soft shadow (was glassmorphism) */
   .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    border: 1px solid rgba(30, 18, 20, 0.08);
-    box-shadow: 0 1px 2px rgba(183, 79, 84, 0.05);
+    background: #ffffff;
+    border: 1px solid #ebebeb;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
   .glass-strong {
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(22px) saturate(150%);
-    -webkit-backdrop-filter: blur(22px) saturate(150%);
-    border: 1px solid rgba(30, 18, 20, 0.07);
+    background: #ffffff;
+    border: 1px solid #ebebeb;
+    box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.12);
   }
 
-  /* Maroon text treatment (kept class name for drop-in theming) */
+  /* Accent text (kept class name for drop-in theming) — solid coral */
   .text-gradient-gold {
-    background: linear-gradient(135deg, #cd6f73 0%, #b74f54 55%, #9c3a40 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: #ff385c;
+    -webkit-text-fill-color: #ff385c;
   }
 
   .hairline {
@@ -109,44 +102,10 @@
       1;
   }
 
-  /* Ambient page atmosphere */
-  .aurora {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    overflow: hidden;
-  }
-  .aurora::before,
-  .aurora::after {
-    content: "";
-    position: absolute;
-    border-radius: 9999px;
-    filter: blur(120px);
-    opacity: 0.6;
-  }
-  .aurora::before {
-    width: 48vw;
-    height: 48vw;
-    top: -16vw;
-    right: -10vw;
-    background: radial-gradient(circle, rgba(183, 79, 84, 0.14), transparent 70%);
-  }
-  .aurora::after {
-    width: 42vw;
-    height: 42vw;
-    bottom: -16vw;
-    left: -12vw;
-    background: radial-gradient(circle, rgba(212, 175, 140, 0.16), transparent 70%);
-  }
-
+  /* Ambient overlays disabled for the clean Airbnb look */
+  .aurora,
   .grain {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    opacity: 0.02;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    display: none;
   }
 }
 
