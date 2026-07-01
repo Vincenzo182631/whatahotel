@@ -23,6 +23,7 @@ import { useConversation } from "@/store/conversation-store";
 import { usePreferences } from "@/store/preferences-store";
 import { useHotelsByCity, type FeaturedHotel } from "@/hooks/use-hotels";
 import { useAuth } from "@/hooks/use-auth";
+import { CompareWizard } from "@/components/compare/compare-wizard";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const CORAL = "#FF385C";
@@ -166,6 +167,7 @@ export function AirbnbLanding() {
   const { user, isAuthenticated } = useAuth();
   const { data, isLoading } = useHotelsByCity();
   const cities = data?.cities ?? [];
+  const [compareOpen, setCompareOpen] = useState(false);
 
   return (
     <div className="min-h-dvh bg-white text-[#222]">
@@ -252,7 +254,7 @@ export function AirbnbLanding() {
             {CATS.map((c, i) => (
               <button
                 key={c.label}
-                onClick={() => send(c.prompt)}
+                onClick={() => (c.label === "Compare" ? setCompareOpen(true) : send(c.prompt))}
                 className={cn(
                   "group flex shrink-0 flex-col items-center gap-2 border-b-2 pb-2 text-xs font-semibold transition-colors",
                   i === 0
@@ -328,6 +330,8 @@ export function AirbnbLanding() {
           </span>
         </div>
       </footer>
+
+      <CompareWizard open={compareOpen} onClose={() => setCompareOpen(false)} cities={cities} />
     </div>
   );
 }
