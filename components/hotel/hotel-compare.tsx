@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { AMENITY_META } from "./amenity-meta";
-import { useCompareRates } from "@/hooks/use-hotels";
+import { useCompareLiveRates } from "@/hooks/use-hotels";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { Hotel, Occasion } from "@/lib/services/types";
 
@@ -76,9 +76,10 @@ export function HotelCompare({
   }, [checkIn, checkOut]);
 
   const datesValid = nights > 0;
-  const rates = useCompareRates(
+  const rates = useCompareLiveRates(
     hotels.map((h) => h.id),
-    nights,
+    checkIn,
+    checkOut,
     datesValid,
   );
 
@@ -97,18 +98,24 @@ export function HotelCompare({
       return <Loader2 className="size-5 animate-spin text-primary" />;
     if (r?.isError || !r?.data)
       return <span className="text-sm text-foreground/55">Unavailable</span>;
-    const q = r.data.quote;
+    const q = r.data;
     return (
       <div>
         <div className="font-display text-2xl leading-none text-gradient-gold">
-          {formatCurrency(q.nightlyRate)}
+          {formatCurrency(q.entryNightly, q.currency)}
           <span className="ml-1 text-xs font-normal text-foreground/55">
             /night
           </span>
         </div>
         <div className="mt-1.5 text-xs text-foreground/65">
-          {formatCurrency(q.total)} total · {nights} night{nights > 1 ? "s" : ""}
+          {formatCurrency(q.total, q.currency)} total · {nights} night
+          {nights > 1 ? "s" : ""}
         </div>
+        {q.live && (
+          <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+            <span className="size-1.5 rounded-full bg-primary" /> Live rate
+          </div>
+        )}
       </div>
     );
   };
@@ -119,6 +126,31 @@ export function HotelCompare({
       label: "Entry-level rate",
       highlight: true,
       cell: priceCell,
+    },
+    {
+      key: "perks",
+      label: "Exclusive perks",
+      cell: (h, i) => {
+        const perks = rates[i]?.data?.perks ?? h.perks;
+        if (!perks?.length)
+          return <span className="text-sm text-foreground/45">—</span>;
+        return (
+          <ul className="space-y-1">
+            {perks.slice(0, 5).map((p) => (
+              <li
+                key={p.id}
+                className="flex gap-1.5 text-xs leading-snug text-foreground/75"
+              >
+                <Sparkles
+                  className="mt-0.5 size-3 shrink-0 text-primary"
+                  strokeWidth={1.5}
+                />
+                {p.label}
+              </li>
+            ))}
+          </ul>
+        );
+      },
     },
     {
       key: "stars",

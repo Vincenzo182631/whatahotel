@@ -1,0 +1,86 @@
+import { NextResponse } from "next/server";
+import { hotelDetailsService, pricingService } from "@/lib/services";
+import { getLiveRates } from "@/lib/services/live-rates";
+
+export const runtime = "nodejs";
+
+/**
+ * GET /api/rates?id=<hotel-slug>&checkIn=YYYY-MM-DD&checkOut=YYYY-MM-DD[&guests=2]
+ *
+ * Returns real, date-specific room rates + advisor perks fetched live from the
+ * WhataHotel booking page. Falls back to an estimate (starting rate × nights)
+ * when the live page can't be reached, so the UI always has something to show.
+ */
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+  const checkIn = searchParams.get("checkIn") || "";
+  const checkOut = searchParams.get("checkOut") || "";
+  const guests = Number(searchParams.get("guests")) || 2;
+
+  if (!id) {
+    return NextResponse.json({ error: "Missing hotel id" }, { status: 400 });
+  }
+
+  const hotel = await hotelDetailsService.getHotelById(id);
+  if (!hotel) {
+    return NextResponse.json({ error: "Hotel not found" }, { status: 404 });
+  }
+
+  const nights = nightsBetween(checkIn, checkOut);
+  if (nights <= 0) {
+    return NextResponse.json(
+      { error: "Provide valid checkIn and checkOut dates" },
+      { status: 400 },
+    );
+  }
+
+  // Try live rates from the source page.
+  if (hotel.sourceHotelId) {
+    const live = await getLiveRates({
+      sourceHotelId: hotel.sourceHotelId,
+      checkIn,
+      checkOut,
+      guests,
+    });
+    if (live) {
+      return NextResponse.json({
+        id: hotel.id,
+        name: hotel.name,
+        live: true,
+        checkIn,
+        checkOut,
+        nights: live.nights,
+        currency: live.currency,
+        entryNightly: live.entryNightly,
+        total: live.rooms[0]?.total ?? live.entryNightly * live.nights,
+        rooms: live.rooms,
+        perks: live.perks.length ? live.perks : hotel.perks,
+      });
+    }
+  }
+
+  // Fallback: deterministic estimate from the stored starting rate.
+  const quote = pricingService.quote(hotel, nights);
+  return NextResponse.json({
+    id: hotel.id,
+    name: hotel.name,
+    live: false,
+    checkIn,
+    checkOut,
+    nights,
+    currency: quote.currency,
+    entryNightly: quote.nightlyRate,
+    total: quote.total,
+    rooms: [],
+    perks: hotel.perks,
+  });
+}
+
+function nightsBetween(checkIn: string, checkOut: string): number {
+  if (!checkIn || !checkOut) return 0;
+  const diff = Math.round(
+    (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86_400_000,
+  );
+  return diff > 0 ? diff : 0;
+}

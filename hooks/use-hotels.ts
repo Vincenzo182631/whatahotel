@@ -76,3 +76,71 @@ export function useFeaturedHotels() {
     staleTime: 10 * 60_000,
   });
 }
+
+export interface LiveRoom {
+  name: string;
+  nightly: number;
+  total: number;
+  currency: string;
+}
+
+export interface LiveRates {
+  id: string;
+  name: string;
+  live: boolean; // true = real source rates, false = estimate fallback
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  currency: string;
+  entryNightly: number;
+  total: number;
+  rooms: LiveRoom[];
+  perks: { id: string; label: string; detail: string }[];
+}
+
+async function fetchLiveRates(
+  id: string,
+  checkIn: string,
+  checkOut: string,
+  guests: number,
+): Promise<LiveRates> {
+  const res = await fetch(
+    `/api/rates?id=${encodeURIComponent(id)}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`,
+  );
+  if (!res.ok) throw new Error("Failed to load rates");
+  return res.json();
+}
+
+/** Real, date-specific rates for a single hotel (details page). */
+export function useLiveRates(
+  id: string,
+  checkIn: string,
+  checkOut: string,
+  guests = 2,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: ["live-rates", id, checkIn, checkOut, guests],
+    queryFn: () => fetchLiveRates(id, checkIn, checkOut, guests),
+    enabled: enabled && Boolean(id && checkIn && checkOut),
+    staleTime: 15 * 60_000,
+  });
+}
+
+/** Real, date-specific rates for several hotels at once (comparison grid). */
+export function useCompareLiveRates(
+  ids: string[],
+  checkIn: string,
+  checkOut: string,
+  enabled: boolean,
+  guests = 2,
+) {
+  return useQueries({
+    queries: ids.map((id) => ({
+      queryKey: ["live-rates", id, checkIn, checkOut, guests],
+      queryFn: () => fetchLiveRates(id, checkIn, checkOut, guests),
+      enabled: enabled && Boolean(id && checkIn && checkOut),
+      staleTime: 15 * 60_000,
+    })),
+  });
+}
