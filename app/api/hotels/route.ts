@@ -18,6 +18,31 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
 
+  // Lightweight curated set for the homepage grid (a spread across destinations).
+  if (searchParams.get("featured")) {
+    const all = await hotelDetailsService.getAllHotels();
+    const byCity: Record<string, typeof all> = {};
+    for (const h of all) (byCity[h.destinationKey] ??= []).push(h);
+    const featured: typeof all = [];
+    for (const key of Object.keys(byCity)) {
+      const sorted = [...byCity[key]].sort((a, b) => b.startingRate - a.startingRate);
+      featured.push(...sorted.slice(0, 2));
+    }
+    return NextResponse.json({
+      hotels: featured.slice(0, 16).map((h) => ({
+        id: h.id,
+        name: h.name,
+        brand: h.brand,
+        city: h.city,
+        country: h.country,
+        image: h.image,
+        startingRate: h.startingRate,
+        starRating: h.starRating,
+        rating: h.rating,
+      })),
+    });
+  }
+
   if (!id) {
     const hotels = await hotelDetailsService.getAllHotels();
     return NextResponse.json({ hotels });

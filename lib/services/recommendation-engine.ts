@@ -68,6 +68,12 @@ function scoreHotel(hotel: Hotel, c: SearchCriteria) {
   let score = prestige(hotel.brand) * 8; // brand-prestige baseline (56–80)
   const tags: string[] = [];
 
+  // Real guest rating (from Google Places, /10) nudges genuinely great hotels up.
+  if (hotel.rating > 0) {
+    score += Math.max(0, (hotel.rating - 8.5) * 6);
+    if (hotel.rating >= 9) tags.push(`${hotel.rating}/10 guest rating`);
+  }
+
   // Budget fit
   if (c.budgetMax) {
     if (hotel.startingRate <= c.budgetMax) {

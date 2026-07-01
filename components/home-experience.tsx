@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useConversation } from "@/store/conversation-store";
 import { SiteHeader } from "@/components/layout/site-header";
-import { Landing } from "@/components/landing";
+import { AirbnbLanding } from "@/components/airbnb-landing";
 import { ChatInterface } from "@/components/chat/chat-interface";
 
 export function HomeExperience() {
@@ -11,7 +11,7 @@ export function HomeExperience() {
 
   return (
     <main className="min-h-dvh">
-      <SiteHeader heroMode={!started} />
+      {started && <SiteHeader />}
       <AnimatePresence mode="wait">
         {started ? (
           <motion.div
@@ -28,10 +28,9 @@ export function HomeExperience() {
             key="landing"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.3 }}
           >
-            <Landing />
+            <AirbnbLanding />
           </motion.div>
         )}
       </AnimatePresence>

@@ -52,3 +52,27 @@ async function fetchHotels(): Promise<{ hotels: Hotel[] }> {
 export function useHotels() {
   return useQuery({ queryKey: ["hotels"], queryFn: fetchHotels });
 }
+
+export interface FeaturedHotel {
+  id: string;
+  name: string;
+  brand?: string;
+  city: string;
+  country: string;
+  image: string;
+  startingRate: number;
+  starRating: number;
+  rating: number;
+}
+
+export function useFeaturedHotels() {
+  return useQuery({
+    queryKey: ["featured-hotels"],
+    queryFn: async (): Promise<{ hotels: FeaturedHotel[] }> => {
+      const res = await fetch("/api/hotels?featured=1");
+      if (!res.ok) throw new Error("Failed to load featured hotels");
+      return res.json();
+    },
+    staleTime: 10 * 60_000,
+  });
+}
