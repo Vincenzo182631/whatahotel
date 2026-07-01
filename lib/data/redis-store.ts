@@ -21,6 +21,26 @@ export function redisConfigured(): boolean {
   return Boolean(URL && TOKEN);
 }
 
+/** Which env var pair supplied the config (for diagnostics; never the token). */
+export function redisSource(): string | null {
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) return "vercel-kv";
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
+    return "upstash";
+  return null;
+}
+
+/** Round-trips a health key to confirm the connection actually works. */
+export async function redisPing(): Promise<{ ok: boolean; error?: string }> {
+  if (!redisConfigured()) return { ok: false, error: "not configured" };
+  try {
+    await redis(["SET", "health:ping", "1", "EX", 60]);
+    const v = await redis<string | null>(["GET", "health:ping"]);
+    return { ok: v === "1" };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 async function redis<T = unknown>(command: (string | number)[]): Promise<T> {
   const res = await fetch(URL, {
     method: "POST",
