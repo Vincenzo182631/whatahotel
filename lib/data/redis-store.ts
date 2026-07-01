@@ -33,8 +33,9 @@ export function redisSource(): string | null {
 export async function redisPing(): Promise<{ ok: boolean; error?: string }> {
   if (!redisConfigured()) return { ok: false, error: "not configured" };
   try {
-    await redis(["SET", "health:ping", "1", "EX", 60]);
+    await redis(["SET", "health:ping", "1"]);
     const v = await redis<string | null>(["GET", "health:ping"]);
+    await redis(["DEL", "health:ping"]);
     return { ok: v === "1" };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
