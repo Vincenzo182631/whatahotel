@@ -15,7 +15,25 @@ export async function getSessionClaims(): Promise<SessionClaims | null> {
 export async function getCurrentUser(): Promise<User | null> {
   const claims = await getSessionClaims();
   if (!claims) return null;
-  return store.getUserById(claims.sub);
+
+  const existing = await store.getUserById(claims.sub);
+  if (existing) return existing;
+
+  // The session (a signed, self-contained JWT) is valid, but this serverless
+  // instance's file store doesn't hold the record — the bundled store isn't
+  // shared across instances. Re-hydrate a minimal account from the trusted
+  // claims so the authenticated portal always works. (Connect a real DB adapter
+  // in lib/data/store.ts to make accounts fully durable + consistent.)
+  return store.createUser({
+    id: claims.sub,
+    email: claims.email,
+    name: claims.name,
+    passwordHash: "", // cannot log in with a password until re-hydrated by a DB
+    membership: "free",
+    subscription: { plan: "free", status: "none", since: null, renewsAt: null, billing: [] },
+    profile: {},
+    createdAt: new Date().toISOString(),
+  });
 }
 
 /** Current user, safe for returning to the client. */
