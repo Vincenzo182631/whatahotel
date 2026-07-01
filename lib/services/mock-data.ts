@@ -13,6 +13,7 @@ import type { AdvisorPerk, Hotel } from "./types";
 import { DESTINATIONS, HOTELS as RAW_HOTELS } from "./hotels-generated";
 import enrichment from "@/data/place-enrichment.json";
 import rateEnrichment from "@/data/hotel-enrichment.json";
+import geoEnrichment from "@/data/hotel-geo.json";
 
 export { DESTINATIONS };
 
@@ -32,6 +33,8 @@ interface RateEnrichment {
   localCurrency?: string;
 }
 const RATES = rateEnrichment as Record<string, RateEnrichment>;
+
+const GEO = geoEnrichment as Record<string, { lat: number; lng: number }>;
 
 /**
  * Base inventory with two overlays applied where available:
@@ -54,6 +57,12 @@ export const HOTELS: Hotel[] = RAW_HOTELS.map((h) => {
       amenities,
       startingRate: r.startingRate || hotel.startingRate,
     };
+  }
+
+  // 1b) Real coordinates (OpenStreetMap geocoding) for the city map.
+  const g = h.sourceHotelId ? GEO[h.sourceHotelId] : undefined;
+  if (g && g.lat && g.lng) {
+    hotel = { ...hotel, coordinates: { lat: g.lat, lng: g.lng } };
   }
 
   // 2) Google Places rating + photos.

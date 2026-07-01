@@ -37,7 +37,8 @@ export async function GET(req: Request) {
     for (const h of all) (grouped[h.destinationKey] ??= []).push(h);
     const cities = Object.values(grouped)
       .map((list) => {
-        const sorted = [...list].sort((a, b) => b.startingRate - a.startingRate);
+        // Ranked by price, lowest first.
+        const sorted = [...list].sort((a, b) => a.startingRate - b.startingRate);
         return {
           key: sorted[0].destinationKey,
           label: sorted[0].city,

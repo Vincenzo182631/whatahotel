@@ -25,10 +25,10 @@ import { useHotelsByCity, type FeaturedHotel } from "@/hooks/use-hotels";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const CORAL = "#FF385C";
-// How many hotels to show per city before "See more".
-const PER_CITY = 8;
+// How many hotels to show per city (single row) before "See all" links out.
+const PER_CITY = 7;
 
-function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
+export function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
   const isSaved = usePreferences((s) => s.isSaved);
   const toggleSave = usePreferences((s) => s.toggleSave);
   const saved = isSaved(hotel.id);
@@ -77,9 +77,8 @@ function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
 }
 
 function CitySection({ city }: { city: { key: string; label: string; country: string; count: number; hotels: FeaturedHotel[] } }) {
-  const [expanded, setExpanded] = useState(false);
-  const hasMore = city.hotels.length > PER_CITY;
-  const shown = expanded ? city.hotels : city.hotels.slice(0, PER_CITY);
+  const hasMore = city.count > PER_CITY;
+  const shown = city.hotels.slice(0, PER_CITY);
   return (
     <section className="scroll-mt-24" id={`city-${city.key}`}>
       <div className="mb-4 flex items-end justify-between gap-4">
@@ -90,24 +89,27 @@ function CitySection({ city }: { city: { key: string; label: string; country: st
           </span>
         </h2>
         {hasMore && (
-          <button
-            onClick={() => setExpanded((v) => !v)}
+          <Link
+            href={`/city/${city.key}`}
             className="group inline-flex shrink-0 items-center gap-0.5 rounded-full px-1 text-sm font-semibold text-[#222] underline-offset-4 hover:underline"
           >
-            {expanded ? "Show less" : `See all ${city.count}`}
+            See all {city.count}
             <ChevronRight
-              className={cn(
-                "size-4 transition-transform",
-                expanded && "rotate-90",
-              )}
+              className="size-4 transition-transform group-hover:translate-x-0.5"
               strokeWidth={2.5}
             />
-          </button>
+          </Link>
         )}
       </div>
-      <div className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
+      {/* Single horizontal line of 7 per city (scrolls on smaller screens) */}
+      <div className="no-scrollbar flex gap-4 overflow-x-auto pb-1">
         {shown.map((hotel) => (
-          <HotelGridCard key={hotel.id} hotel={hotel} />
+          <div
+            key={hotel.id}
+            className="w-40 shrink-0 sm:w-48 lg:w-[calc((100%-6rem)/7)]"
+          >
+            <HotelGridCard hotel={hotel} />
+          </div>
         ))}
       </div>
     </section>
