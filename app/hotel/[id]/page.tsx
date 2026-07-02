@@ -199,7 +199,7 @@ export default async function HotelPage({ params }: Params) {
                 Rooms & availability
               </h2>
               <div className="mt-4">
-                <RoomsSection hotelId={hotel.id} />
+                <RoomsSection hotelId={hotel.id} sourceHotelId={hotel.sourceHotelId} />
               </div>
             </section>
           </div>
