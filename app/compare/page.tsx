@@ -13,7 +13,7 @@ import type { AdvisorPerk, Hotel } from "@/lib/services/types";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
-type Search = { a?: string; b?: string; checkIn?: string; checkOut?: string };
+type Search = { a?: string; b?: string; c?: string; checkIn?: string; checkOut?: string };
 type Params = { searchParams: Promise<Search> };
 
 export const metadata: Metadata = {
@@ -118,20 +118,24 @@ function kmApart(a: Hotel, b: Hotel): number | null {
 }
 
 export default async function ComparePage({ searchParams }: Params) {
-  const { a, b, checkIn = "", checkOut = "" } = await searchParams;
+  const { a, b, c, checkIn = "", checkOut = "" } = await searchParams;
   if (!a || !b) notFound();
 
-  const [ha, hb] = await Promise.all([resolveHotel(a), resolveHotel(b)]);
-  if (!ha || !hb) notFound();
+  // Compare 2 or 3 hotels, in the order chosen.
+  const ids = [a, b, c].filter((x): x is string => Boolean(x));
+  const resolved = await Promise.all(ids.map((id) => resolveHotel(id)));
+  const hotels = resolved.filter((h): h is Hotel => Boolean(h));
+  if (hotels.length < 2) notFound();
+  const ha = hotels[0];
 
   const nights = nightsBetween(checkIn, checkOut);
   // Sequential (not Promise.all) to keep peak concurrency to the source API low
-  // — firing all 4 calls at once gets the info requests throttled from Vercel.
-  const ca = await buildCol(ha, checkIn, checkOut, nights);
-  const cb = await buildCol(hb, checkIn, checkOut, nights);
-  const cols = [ca, cb];
-  const anyLive = ca.live || cb.live;
-  const dist = kmApart(ha, hb);
+  // — firing every call at once gets the info requests throttled from Vercel.
+  const cols: Col[] = [];
+  for (const h of hotels) cols.push(await buildCol(h, checkIn, checkOut, nights));
+  const anyLive = cols.some((col) => col.live);
+  // Pairwise distance only reads cleanly for two; skip it for three.
+  const dist = hotels.length === 2 ? kmApart(hotels[0], hotels[1]) : null;
 
   const dateLabel =
     nights > 0
@@ -379,7 +383,13 @@ export default async function ComparePage({ searchParams }: Params) {
         </p>
 
         <div className="no-scrollbar mt-6 overflow-x-auto">
-          <div className="grid min-w-[640px]" style={{ gridTemplateColumns: "150px 1fr 1fr" }}>
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: `150px repeat(${cols.length}, minmax(0, 1fr))`,
+              minWidth: 150 + cols.length * 240,
+            }}
+          >
             {/* Hotel header row */}
             <div />
             {cols.map((c) => (

@@ -103,8 +103,11 @@ export function CompareWizard({
   if (!open) return null;
 
   const canContinue = Boolean(cityText.trim() && nights > 0);
+  const MAX = 3;
   const toggle = (id: string) =>
-    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length < 2 ? [...s, id] : [s[1], id]));
+    setSelected((s) =>
+      s.includes(id) ? s.filter((x) => x !== id) : s.length < MAX ? [...s, id] : [...s.slice(1), id],
+    );
 
   const reset = () => {
     setStep(1);
@@ -116,9 +119,13 @@ export function CompareWizard({
     onClose();
   };
   const go = () => {
-    if (selected.length !== 2) return;
+    if (selected.length < 2) return;
     close();
-    router.push(`/compare?a=${selected[0]}&b=${selected[1]}&checkIn=${checkIn}&checkOut=${checkOut}`);
+    const params = new URLSearchParams({ a: selected[0], b: selected[1] });
+    if (selected[2]) params.set("c", selected[2]);
+    params.set("checkIn", checkIn);
+    params.set("checkOut", checkOut);
+    router.push(`/compare?${params.toString()}`);
   };
 
   const inputCls =
@@ -190,7 +197,7 @@ export function CompareWizard({
               {cityText} · {new Date(checkIn).toLocaleDateString()} → {new Date(checkOut).toLocaleDateString()} · {nights} night{nights > 1 ? "s" : ""}
             </div>
             <p className="mb-4 text-sm font-medium">
-              Select <span className="text-[#FF385C]">two</span> hotels to compare ({selected.length}/2)
+              Select <span className="text-[#FF385C]">2 or 3</span> hotels to compare ({selected.length}/3)
               {loading && <span className="ml-2 font-normal text-[#717171]">· searching…</span>}
             </p>
 
@@ -268,10 +275,10 @@ export function CompareWizard({
               </button>
               <button
                 onClick={go}
-                disabled={selected.length !== 2}
+                disabled={selected.length < 2}
                 className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
               >
-                <Star className="size-4" /> Compare these two
+                <Star className="size-4" /> Compare {selected.length >= 2 ? `these ${selected.length}` : "hotels"}
               </button>
             </>
           )}
