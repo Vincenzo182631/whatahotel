@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ArrowLeft, Star, MapPin, Check, BedDouble, Sparkles, ArrowUpRight, UtensilsCrossed } from "lucide-react";
 import { hotelDetailsService } from "@/lib/services";
-import { getLiveRates, getHotelInfo, type HotelInfo } from "@/lib/services/live-rates";
+import { getLiveRates, getHotelInfo, getLiveHotel, type HotelInfo } from "@/lib/services/live-rates";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { formatCurrency, cn } from "@/lib/utils";
@@ -67,6 +67,44 @@ async function buildCol(hotel: Hotel, checkIn: string, checkOut: string, nights:
   return col;
 }
 
+/**
+ * Resolve an id to a Hotel — a local slug via the catalogue, or a live
+ * WhataHotel id (from typed-city / name search) shaped into a minimal Hotel so
+ * the comparison renders the same for both.
+ */
+async function resolveHotel(id: string): Promise<Hotel | null> {
+  const local = await hotelDetailsService.getHotelById(id);
+  if (local) return local;
+  const live = await getLiveHotel(id);
+  if (!live) return null;
+  return {
+    id: live.sourceHotelId,
+    sourceHotelId: live.sourceHotelId,
+    name: live.name,
+    city: live.city,
+    destinationKey: "",
+    country: live.country,
+    neighborhood: live.address || live.city,
+    shortPitch: "",
+    description: "",
+    image: live.image,
+    gallery: live.gallery,
+    rating: 0,
+    reviewCount: 0,
+    starRating: 0,
+    startingRate: 0,
+    currency: "USD",
+    amenities: [],
+    highlights: [],
+    perks: live.perks.map((p, i) => ({ id: `p${i}`, label: p, detail: "" })),
+    vibes: [],
+    goodFor: [],
+    distances: [],
+    coordinates: live.coordinates ?? { lat: 0, lng: 0 },
+    bookingUrl: live.bookingUrl,
+  };
+}
+
 // Distance between the two hotels (real datum when both are geocoded).
 function kmApart(a: Hotel, b: Hotel): number | null {
   const c1 = a.coordinates, c2 = b.coordinates;
@@ -83,10 +121,7 @@ export default async function ComparePage({ searchParams }: Params) {
   const { a, b, checkIn = "", checkOut = "" } = await searchParams;
   if (!a || !b) notFound();
 
-  const [ha, hb] = await Promise.all([
-    hotelDetailsService.getHotelById(a),
-    hotelDetailsService.getHotelById(b),
-  ]);
+  const [ha, hb] = await Promise.all([resolveHotel(a), resolveHotel(b)]);
   if (!ha || !hb) notFound();
 
   const nights = nightsBetween(checkIn, checkOut);
@@ -116,22 +151,25 @@ export default async function ComparePage({ searchParams }: Params) {
       key: "price",
       label: "Rate for your dates",
       highlight: true,
-      cell: (c) => (
-        <div>
-          <div className="text-2xl font-semibold text-[#FF385C]">
-            {formatCurrency(c.entryNightly, c.currency)}
-            <span className="ml-1 text-xs font-normal text-[#717171]">/night</span>
-          </div>
-          {nights > 0 && (
-            <div className="mt-1 text-xs text-[#717171]">
-              {formatCurrency(c.total, c.currency)} total · {nights} night{nights > 1 ? "s" : ""}
+      cell: (c) =>
+        c.entryNightly > 0 ? (
+          <div>
+            <div className="text-2xl font-semibold text-[#FF385C]">
+              {formatCurrency(c.entryNightly, c.currency)}
+              <span className="ml-1 text-xs font-normal text-[#717171]">/night</span>
             </div>
-          )}
-          <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-[#FF385C]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FF385C]">
-            <span className="size-1.5 rounded-full bg-[#FF385C]" /> {c.live ? "Live rate" : "Indicative"}
+            {nights > 0 && (
+              <div className="mt-1 text-xs text-[#717171]">
+                {formatCurrency(c.total, c.currency)} total · {nights} night{nights > 1 ? "s" : ""}
+              </div>
+            )}
+            <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-[#FF385C]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FF385C]">
+              <span className="size-1.5 rounded-full bg-[#FF385C]" /> {c.live ? "Live rate" : "Indicative"}
+            </div>
           </div>
-        </div>
-      ),
+        ) : (
+          <span className="text-sm text-[#9a9a9a]">Rate on request for these dates</span>
+        ),
     },
     {
       key: "rooms",
