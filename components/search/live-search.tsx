@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Search, Sparkles, ArrowUpRight, MapPin, CalendarDays, Loader2 } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
@@ -30,27 +30,54 @@ export function LiveSearch() {
   const canSearch =
     mode === "city" ? Boolean(city.trim() && nights > 0) : Boolean(name.trim());
 
-  const run = async (e: React.FormEvent) => {
+  const doSearch = useCallback(
+    async (m: Mode, opts: { city?: string; name?: string; checkIn?: string; checkOut?: string; id?: string }) => {
+      setLoading(true);
+      setError(null);
+      setHotels(null);
+      const url = opts.id
+        ? `/api/live-search?id=${encodeURIComponent(opts.id)}`
+        : m === "city"
+          ? `/api/live-search?city=${encodeURIComponent((opts.city ?? "").trim())}&checkIn=${opts.checkIn ?? ""}&checkOut=${opts.checkOut ?? ""}`
+          : `/api/live-search?q=${encodeURIComponent((opts.name ?? "").trim())}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        let list: LiveHotel[] = data.hotels ?? [];
+        // If an id lookup came back empty, fall back to a name search.
+        if (opts.id && list.length === 0 && (opts.name ?? "").trim()) {
+          const alt = await (await fetch(`/api/live-search?q=${encodeURIComponent((opts.name ?? "").trim())}`)).json();
+          list = alt.hotels ?? [];
+        }
+        setHotels(list);
+        setSearched(opts.id ? (opts.name ?? "").trim() : m === "city" ? (opts.city ?? "").trim() : (opts.name ?? "").trim());
+      } catch {
+        setError("Something went wrong. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const run = (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSearch) return;
-    setLoading(true);
-    setError(null);
-    setHotels(null);
-    const url =
-      mode === "city"
-        ? `/api/live-search?city=${encodeURIComponent(city.trim())}&checkIn=${checkIn}&checkOut=${checkOut}`
-        : `/api/live-search?q=${encodeURIComponent(name.trim())}`;
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-      setHotels(data.hotels ?? []);
-      setSearched(mode === "city" ? city.trim() : name.trim());
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    doSearch(mode, { city, name, checkIn, checkOut });
   };
+
+  // Prefill + auto-search when arriving from a hotel card:
+  //   /find?q=<hotel name>[&id=<sourceHotelId>]
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const q = p.get("q")?.trim();
+    const id = p.get("id")?.trim();
+    if (q || id) {
+      setMode("name");
+      if (q) setName(q);
+      doSearch("name", { name: q ?? "", id: id ?? undefined });
+    }
+  }, [doSearch]);
 
   const input =
     "w-full rounded-xl border border-[#DDDDDD] bg-white px-3.5 py-2.5 text-sm text-[#222] outline-none focus:border-[#FF385C] focus:ring-2 focus:ring-[#FF385C]/20";

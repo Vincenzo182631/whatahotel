@@ -55,6 +55,7 @@ export function useHotels() {
 
 export interface FeaturedHotel {
   id: string;
+  sourceHotelId?: string;
   name: string;
   brand?: string;
   city: string;

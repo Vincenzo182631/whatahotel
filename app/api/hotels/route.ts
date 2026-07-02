@@ -20,6 +20,7 @@ export async function GET(req: Request) {
 
   const minimal = (h: Awaited<ReturnType<typeof hotelDetailsService.getAllHotels>>[number]) => ({
     id: h.id,
+    sourceHotelId: h.sourceHotelId,
     name: h.name,
     brand: h.brand,
     city: h.city,

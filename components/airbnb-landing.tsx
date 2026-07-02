@@ -34,10 +34,16 @@ export function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
   const isSaved = usePreferences((s) => s.isSaved);
   const toggleSave = usePreferences((s) => s.toggleSave);
   const saved = isSaved(hotel.id);
+  // Clicking a hotel goes to the live search, pre-filled with this hotel's name,
+  // so the guest lands on live rates for their dates (not a stored-price page).
+  // The id guarantees the exact hotel resolves even if its name isn't indexed.
+  const findHref = hotel.sourceHotelId
+    ? `/find?q=${encodeURIComponent(hotel.name)}&id=${encodeURIComponent(hotel.sourceHotelId)}`
+    : `/find?q=${encodeURIComponent(hotel.name)}`;
   return (
     <div className="group">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-[#eee]">
-        <Link href={`/hotel/${hotel.id}`} className="absolute inset-0 z-0 block">
+        <Link href={findHref} className="absolute inset-0 z-0 block">
           <ImageWithFallback
             src={hotel.image}
             seed={hotel.id}
@@ -64,7 +70,7 @@ export function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
           />
         </button>
       </div>
-      <Link href={`/hotel/${hotel.id}`} className="mt-3 block">
+      <Link href={findHref} className="mt-3 block">
         <p className="font-semibold leading-tight text-[#222]">{hotel.name}</p>
         <p className="mt-0.5 text-sm text-[#717171]">
           {hotel.city}, {hotel.country}
