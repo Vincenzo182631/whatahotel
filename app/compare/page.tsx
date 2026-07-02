@@ -48,12 +48,13 @@ async function buildCol(hotel: Hotel, checkIn: string, checkOut: string, nights:
     perks: hotel.perks,
     info: null,
   };
-  const [r, info] = await Promise.all([
+  // Fully sequential — the source API throttles concurrent requests, which was
+  // intermittently dropping the info call.
+  const r =
     hotel.sourceHotelId && nights > 0
-      ? getLiveRates({ sourceHotelId: hotel.sourceHotelId, checkIn, checkOut })
-      : Promise.resolve(null),
-    getHotelInfo(hotel.name, hotel.city),
-  ]);
+      ? await getLiveRates({ sourceHotelId: hotel.sourceHotelId, checkIn, checkOut })
+      : null;
+  const info = await getHotelInfo(hotel.name, hotel.city);
   if (r) {
     col.live = true;
     col.currency = r.currency;

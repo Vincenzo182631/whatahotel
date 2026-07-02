@@ -267,7 +267,7 @@ export async function getHotelInfo(hotelName: string, city: string): Promise<Hot
           .filter((s) => AMENITY_SECTIONS.test(s.HOTELTITLE || ""))
           .flatMap((s) => (s.HOTELDESC || "").split(/\r?\n/))
           .map((line) => line.replace(/^[-•\s]+/, "").trim())
-          .filter((l) => l.length > 1 && l.length < 60),
+          .filter((l) => l.length > 1 && l.length < 60 && !/please contact|information$/i.test(l)),
       ),
     ];
     const restaurants = (hotel.RESTAURANTS ?? [])
