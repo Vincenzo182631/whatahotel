@@ -17,6 +17,9 @@ export const hasLLM = Boolean(process.env.ANTHROPIC_API_KEY);
 // Current-generation default; override via AI_MODEL. Sonnet 5 balances quality,
 // speed and cost for a streaming chat advisor (use claude-opus-4-8 for max quality).
 const MODEL = process.env.AI_MODEL || "claude-sonnet-5";
+// A fast, cheap model for structured extraction + routing (runs before the reply
+// streams, so latency here is felt directly). Override via AI_FAST_MODEL.
+const FAST_MODEL = process.env.AI_FAST_MODEL || "claude-haiku-4-5-20251001";
 
 const criteriaPatchSchema = z.object({
   destination: z.string().optional().describe("the city the traveller names, e.g. 'paris', 'miami', 'scottsdale', 'rome' — any city, lowercased"),
@@ -56,7 +59,7 @@ export async function extractCriteriaPatch(
     const { anthropic } = await import("@ai-sdk/anthropic");
     const { generateObject } = await import("ai");
     const { object } = await generateObject({
-      model: anthropic(MODEL),
+      model: anthropic(FAST_MODEL),
       schema: criteriaPatchSchema,
       system:
         "Extract ONLY the hotel-search details the user newly states or changes in their latest message. Omit anything not mentioned. Return canonical destination keys.",
@@ -91,6 +94,63 @@ export async function extractCriteriaPatch(
     return merged;
   } catch {
     return base; // any failure -> deterministic result
+  }
+}
+
+/** What the router decided the traveller wants this turn. */
+export interface TurnRoute {
+  action: "recommend" | "compare" | "book" | "explain" | "qa" | "live" | "smalltalk" | "ask";
+  /** Names/ordinals of already-shown hotels the message refers to (explain/qa). */
+  targetHotels?: string[];
+  /** For qa: the exact factual question to answer. */
+  question?: string;
+}
+
+const routeSchema = z.object({
+  action: z.enum(["recommend", "compare", "book", "explain", "qa", "live", "smalltalk", "ask"]),
+  targetHotels: z.array(z.string()).optional(),
+  question: z.string().optional(),
+});
+
+/**
+ * Classify what the traveller wants THIS turn with a fast LLM — far broader than
+ * the regex fallback. Returns null when no LLM is configured (caller uses regex).
+ */
+export async function classifyTurn(
+  messages: { role: string; content: string }[],
+  current: SearchCriteria,
+  shownHotels: { name: string }[],
+): Promise<TurnRoute | null> {
+  if (!hasLLM) return null;
+  const lastUser = [...messages].reverse().find((m) => m.role === "user");
+  if (!lastUser) return null;
+  const shown = shownHotels.length
+    ? shownHotels.map((h, i) => `${i + 1}. ${h.name}`).join("; ")
+    : "none yet";
+  try {
+    const { anthropic } = await import("@ai-sdk/anthropic");
+    const { generateObject } = await import("ai");
+    const { object } = await generateObject({
+      model: anthropic(FAST_MODEL),
+      schema: routeSchema,
+      system: `Classify what the traveller wants in their latest message to a luxury hotel concierge. Actions:
+- recommend: wants hotel suggestions or to search a destination
+- compare: wants two or more hotels compared side by side
+- book: wants to book / reserve
+- explain: wants to understand or contrast hotels already shown ("why this one", "which is better", "pros and cons")
+- qa: asks a specific factual question about a hotel already shown (breakfast, spa, pool, gym, pets, kids, airport/distance, transfers, view, dining, connecting rooms, cancellation, perks, etc.)
+- live: wants hotels in a specific city/place
+- smalltalk: greeting, thanks, or a general question about how the service works
+- ask: anything else, or not enough information yet
+Set targetHotels to the shown hotels referenced (by name or ordinal like "the first"). For qa, also put the precise question in "question". Only choose qa/explain/compare when hotels are already shown.`,
+      prompt: `Hotels currently shown: ${shown}\nKnown trip so far: ${summarizeCriteria(current)}\nRecent conversation:\n${messages
+        .slice(-6)
+        .map((m) => `${m.role}: ${m.content}`)
+        .join("\n")}\nLatest message: "${lastUser.content}"`,
+    });
+    return object as TurnRoute;
+  } catch {
+    return null;
   }
 }
 
@@ -167,6 +227,13 @@ function buildSituation(ctx: ReplyContext): string {
     }
     case "live":
       return `SITUATION: ${ctx.liveCity} is outside your curated set, so you searched WhataHotel's live availability. The app is showing ${ctx.liveHotels?.length ?? 0} real hotels with live rates and advisor perks (each opens the hotel's booking page). Introduce the live results for ${ctx.liveCity} in one or two sentences — note the rates are live for their dates and perks are included. Do NOT list them; the cards do that.`;
+    case "qa": {
+      const h = ctx.focus?.[0] ?? ctx.recommendations[0];
+      if (!h)
+        return `SITUATION: The traveller asked a specific question but no hotel is in focus yet. Answer generally if you can, otherwise ask which hotel (or their destination and dates) so you can be precise.`;
+      const dist = (h.distances ?? []).map((d) => `${d.label} ${d.value}`).join(", ");
+      return `SITUATION: The traveller asked a specific question about ${h.name}: "${ctx.qaQuestion ?? ctx.lastUserMessage}". Answer it directly and honestly using ONLY these facts about ${h.name} — brand: ${h.brand ?? "independent"}; amenities: ${(h.amenities ?? []).join(", ") || "not listed"}; perks: ${(h.perks ?? []).map((p) => p.label).join(", ") || "advisor perks"}${dist ? `; distances: ${dist}` : ""}; highlights: ${(h.highlights ?? []).slice(0, 3).join("; ") || "n/a"}. If the facts don't cover the question, say you'll confirm it directly with the hotel — never invent. Never quote a nightly price (say "live rates for your dates"). Keep it to 1–3 sentences.`;
+    }
     case "compare":
       return `SITUATION: The app is rendering a comparison table for: ${ctx.comparison?.hotels
         .map((h) => h.name)
@@ -181,6 +248,8 @@ function buildSituation(ctx: ReplyContext): string {
             .map((d) => d.label)
             .join(", ")}.`
         : `SITUATION: Ask only for these missing details, grouped naturally: ${ctx.missing.join(", ") || "none"}.`;
+    case "chat":
+      return `SITUATION: Respond warmly and helpfully to the traveller's message: "${ctx.lastUserMessage}". If it's a general question about how WhataHotel works (advisor rates, complimentary perks, in-app booking, comparing hotels), answer it briefly and accurately. Then, in one line, invite them to share their destination, dates and the vibe they're after so you can find the perfect stay.`;
     default:
       return `SITUATION: Open the conversation and invite them to describe the trip.`;
   }

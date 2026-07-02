@@ -42,6 +42,11 @@ export async function redisPing(): Promise<{ ok: boolean; error?: string }> {
   }
 }
 
+/** Run an arbitrary Redis command over the REST API (for stores beyond DataStore). */
+export async function redisCommand<T = unknown>(command: (string | number)[]): Promise<T> {
+  return redis<T>(command);
+}
+
 async function redis<T = unknown>(command: (string | number)[]): Promise<T> {
   const res = await fetch(URL, {
     method: "POST",

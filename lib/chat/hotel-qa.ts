@@ -78,7 +78,7 @@ export function answerHotelQuestion(hotel: Hotel, question: string): string {
     return `Let me confirm the current pet policy at ${name} directly with the hotel for you.`;
   }
   if (/price|cost|rate|how much|expensive/.test(q)) {
-    return `Rooms at ${name} start from $${hotel.startingRate.toLocaleString()} per night — and your advisor rate includes ${hotel.perks.length} exclusive perks.`;
+    return `Tell me your check-in and check-out and I'll pull live rates for ${name} for those exact dates — your advisor rate includes ${hotel.perks.length} exclusive perks.`;
   }
   if (/perk|benefit|included|amenit/.test(q)) {
     return `Your advisor-exclusive perks at ${name}: ${hotel.perks.map((p) => p.label).join(", ")}.`;

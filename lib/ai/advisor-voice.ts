@@ -1,5 +1,6 @@
 import type { CriteriaField } from "@/lib/services/conversation-memory";
 import type { Recommendation, SearchCriteria } from "@/lib/services/types";
+import { answerHotelQuestion } from "@/lib/chat/hotel-qa";
 import type { AdvisorUser, ReplyContext } from "./context";
 
 /** A warm, personalised opener for a signed-in traveller's first turn. */
@@ -200,6 +201,13 @@ function composeChat(ctx: ReplyContext): string {
   return `${hi}Tell me a little about the trip you have in mind — a destination, the occasion, or just the feeling you're after — and I'll take it from there.`;
 }
 
+function composeQa(ctx: ReplyContext): string {
+  const h = ctx.focus?.[0] ?? ctx.recommendations[0];
+  if (!h)
+    return "Happy to help — which hotel are you asking about? Or tell me your destination and dates and I'll be precise.";
+  return answerHotelQuestion(h, ctx.qaQuestion ?? ctx.lastUserMessage);
+}
+
 export function composeReply(ctx: ReplyContext): string {
   switch (ctx.action) {
     case "recommend":
@@ -208,6 +216,8 @@ export function composeReply(ctx: ReplyContext): string {
       return composeCompare(ctx);
     case "explain":
       return composeExplain(ctx);
+    case "qa":
+      return composeQa(ctx);
     case "live":
       return composeLive(ctx);
     case "book":

@@ -11,7 +11,8 @@ export type AdvisorAction =
   | "book"
   | "chat"
   | "explain"
-  | "live";
+  | "live"
+  | "qa";
 
 export interface BookingDraft {
   hotelId?: string;

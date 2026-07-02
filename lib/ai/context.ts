@@ -25,8 +25,10 @@ export interface ReplyContext {
   comparison?: HotelComparison;
   booking?: BookingDraft;
   destinationSuggestions?: DestinationInfo[];
-  /** The specific hotels the user asked about, for the "explain" action. */
+  /** The specific hotels the user asked about, for the "explain"/"qa" actions. */
   focus?: Recommendation[];
+  /** The exact factual question to answer for the "qa" action. */
+  qaQuestion?: string;
   /** Live results + the city they're for, when searching beyond the local set. */
   liveCity?: string;
   liveHotels?: import("@/lib/services/live-rates").LiveHotel[];

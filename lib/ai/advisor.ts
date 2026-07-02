@@ -14,7 +14,7 @@ import type {
   ChatRequestBody,
 } from "@/lib/chat/types";
 import type { AdvisorUser, ReplyContext } from "./context";
-import { extractCriteriaPatch } from "./provider";
+import { extractCriteriaPatch, classifyTurn } from "./provider";
 import { getCurrentUser } from "@/lib/auth/session";
 import { store } from "@/lib/data/store";
 import { getCityHotels } from "@/lib/services/live-rates";
@@ -110,20 +110,45 @@ function resolveHotels(
   return picked;
 }
 
+/** Resolve router-provided hotel references (names or ordinals) to shown hotels. */
+function resolveByNames(names: string[], last: Recommendation[]): Recommendation[] {
+  const out: Recommendation[] = [];
+  for (const raw of names) {
+    const t = raw.trim().toLowerCase();
+    const ord = ORDINALS[t];
+    if (ord !== undefined && last[ord] && !out.includes(last[ord])) {
+      out.push(last[ord]);
+      continue;
+    }
+    const match = last.find(
+      (h) => h.name.toLowerCase().includes(t) || t.includes(h.name.toLowerCase()),
+    );
+    if (match && !out.includes(match)) out.push(match);
+  }
+  return out;
+}
+
 function detectIntent(
   text: string,
-): "compare" | "book" | "explain" | "recommend" | null {
+): "compare" | "book" | "explain" | "recommend" | "qa" | null {
   const t = text.toLowerCase();
   if (/\bcompare\b|side by side|versus|\bvs\b|difference between/.test(t)) return "compare";
   if (/\bbook\b|reserve|booking|i'?ll take|let'?s book/.test(t)) return "book";
   // "why did you pick", "tell me more about the first", "which is better" — talk
   // about the hotels already shown. Checked before recommend so "why…rank" wins.
   if (
-    /\bwhy\b|tell me (more|about)|more about|what about the|\bexplain\b|which (one|is|hotel)|worth it|pros and cons/.test(
+    /\bwhy\b|tell me (more|about)|more about|what about the|\bexplain\b|which (one|is|hotel|of)|worth it|pros and cons|better/.test(
       t,
     )
   )
     return "explain";
+  // Factual questions about a hotel (breakfast, spa, airport distance, pets…).
+  if (
+    /how far|distance|near(est)?|airport|breakfast|\bspa\b|\bpool\b|\bgym\b|fitness|\bpets?\b|\bdogs?\b|parking|wi-?fi|cancel|refund|connecting|adjoin|\bview\b|\bkids?\b|children|check.?in|check.?out|\bincluded\b|dining|restaurant|transfer|smoking|accessible/.test(
+      t,
+    )
+  )
+    return "qa";
   if (
     /recommend|show me|find me|options|suggestions?|what do you|go ahead|best hotel|top hotel|best place|rank|search/.test(
       t,
@@ -189,7 +214,7 @@ export async function runTurn(
   body: ChatRequestBody,
 ): Promise<{ ctx: ReplyContext; payload: AdvisorPayload }> {
   const { sessionId, messages, intent } = body;
-  const session = sessionStorageService.get(sessionId);
+  const session = await sessionStorageService.get(sessionId);
   const lastUserMessage =
     [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
 
@@ -202,9 +227,13 @@ export async function runTurn(
     return continueBooking(sessionId, session.booking, lastUserMessage);
   }
 
-  // ---- 2. Update conversation memory --------------------------------------
+  // ---- 2. Update conversation memory + classify intent (in parallel) ------
   const user = await buildAdvisorUser(!messages.some((m) => m.role === "assistant"));
-  const patch = await extractCriteriaPatch(messages, session.criteria);
+  const [patch, route] = await Promise.all([
+    extractCriteriaPatch(messages, session.criteria),
+    classifyTurn(messages, session.criteria, session.lastRecommendations),
+  ]);
+  const routed = route?.action;
   const criteria = mergeCriteria(session.criteria, patch);
   // Fill concrete dates from any ISO date the user typed (LLM covers loose dates).
   if (!criteria.checkIn || !criteria.checkOut) {
@@ -212,7 +241,7 @@ export async function runTurn(
     if (d.checkIn && d.checkOut) {
       criteria.checkIn = criteria.checkIn || d.checkIn;
       criteria.checkOut = criteria.checkOut || d.checkOut;
-      sessionStorageService.save(sessionId, { criteria });
+      await sessionStorageService.save(sessionId, { criteria });
     }
   }
   const learned = [
@@ -222,9 +251,32 @@ export async function runTurn(
         .filter(Boolean),
     ),
   ];
-  sessionStorageService.save(sessionId, { criteria });
+  await sessionStorageService.save(sessionId, { criteria });
 
-  const explicitIntent = intent?.type ?? detectIntent(lastUserMessage);
+  const regexIntent = detectIntent(lastUserMessage);
+  // When the traveller clearly points at hotels already on screen ("the first",
+  // "these", "which of them", "it"), trust the deterministic explain/qa/compare
+  // read over a re-search — a follow-up should never silently re-run the search.
+  const refersToShown =
+    session.lastRecommendations.length > 0 &&
+    /\b(the (first|second|third|1st|2nd|3rd)|first one|second one|third one|it|its|it's|this one|that one|these|those|them|which (one|of))\b/i.test(
+      lastUserMessage,
+    );
+  const routedIntent =
+    routed === "compare" ||
+    routed === "book" ||
+    routed === "explain" ||
+    routed === "recommend" ||
+    routed === "qa"
+      ? routed
+      : undefined;
+  const explicitIntent =
+    intent?.type ??
+    (refersToShown && (regexIntent === "explain" || regexIntent === "qa" || regexIntent === "compare")
+      ? regexIntent
+      : undefined) ??
+    routedIntent ??
+    regexIntent;
 
   // ---- 3. Booking start ---------------------------------------------------
   if (explicitIntent === "book") {
@@ -238,7 +290,7 @@ export async function runTurn(
         nextField: "guestName",
         complete: false,
       };
-      sessionStorageService.save(sessionId, { booking });
+      await sessionStorageService.save(sessionId, { booking });
       const ctx: ReplyContext = {
         action: "book",
         criteria,
@@ -294,6 +346,27 @@ export async function runTurn(
     return { ctx, payload: { action: "explain", criteria } };
   }
 
+  // ---- 4b-2. Q&A — a specific factual question about a shown hotel ---------
+  if (explicitIntent === "qa" && session.lastRecommendations.length) {
+    let focus = route?.targetHotels?.length
+      ? resolveByNames(route.targetHotels, session.lastRecommendations)
+      : (resolveHotels(lastUserMessage, session.lastRecommendations) as Recommendation[]);
+    if (!focus.length) focus = session.lastRecommendations.slice(0, 1);
+    const ctx: ReplyContext = {
+      action: "qa",
+      criteria,
+      missing: [],
+      recommendations: session.lastRecommendations,
+      totalFound: session.lastRecommendations.length,
+      focus,
+      qaQuestion: route?.question || lastUserMessage,
+      learned,
+      lastUserMessage,
+      user,
+    };
+    return { ctx, payload: { action: "qa", criteria } };
+  }
+
   // ---- 4c. Live search — any city beyond the local set, via the API -------
   const liveCity = !criteria.destination
     ? criteria.destinationLabel || heuristicCity(lastUserMessage)
@@ -302,7 +375,7 @@ export async function runTurn(
     // Remember the named city so a follow-up ("here are my dates") still has it.
     if (criteria.destinationLabel !== liveCity) {
       criteria.destinationLabel = liveCity;
-      sessionStorageService.save(sessionId, { criteria });
+      await sessionStorageService.save(sessionId, { criteria });
     }
     if (criteria.checkIn && criteria.checkOut) {
       const live = await getCityHotels({
@@ -340,17 +413,26 @@ export async function runTurn(
     return { ctx, payload: { action: "ask", criteria, missing: ["dates"], liveCity } };
   }
 
-  // ---- 5. Recommend (explicit ask OR enough signal) -----------------------
+  // ---- 5. Recommend (explicit ask OR enough NEW signal) -------------------
+  // Only auto-recommend when the traveller explicitly asks, or when they gave
+  // new search criteria this turn, or when nothing's been shown yet — otherwise
+  // a plain follow-up would keep re-running the search.
+  const SEARCH_FIELDS = new Set([
+    "destination", "dates", "budget", "occasion", "amenities", "vibes", "brands", "nearby", "guests",
+  ]);
+  const changedSearch = learned.some((f) => SEARCH_FIELDS.has(f));
   const shouldRecommend =
     criteria.destination &&
-    (explicitIntent === "recommend" || readyToRecommend(criteria));
+    (explicitIntent === "recommend" ||
+      (readyToRecommend(criteria) &&
+        (changedSearch || session.lastRecommendations.length === 0)));
 
   if (shouldRecommend) {
     const { recommendations, totalFound } = await recommendationService.recommend(
       criteria,
       5,
     );
-    sessionStorageService.save(sessionId, { lastRecommendations: recommendations });
+    await sessionStorageService.save(sessionId, { lastRecommendations: recommendations });
     const ctx: ReplyContext = {
       action: "recommend",
       criteria,
@@ -380,9 +462,12 @@ export async function runTurn(
     /^(hi|hey|hello|good (morning|evening|afternoon)|yo|howdy)\b/i.test(
       lastUserMessage.trim(),
     );
+  // Greetings, thanks, and general "how does this work?" questions get a warm,
+  // helpful reply rather than a demand for missing trip details.
+  const isChat = isGreeting || routed === "smalltalk";
 
   const ctx: ReplyContext = {
-    action: isGreeting ? "chat" : "ask",
+    action: isChat ? "chat" : "ask",
     criteria,
     missing,
     recommendations: session.lastRecommendations,
@@ -398,11 +483,11 @@ export async function runTurn(
   };
 }
 
-function continueBooking(
+async function continueBooking(
   sessionId: string,
   booking: BookingDraft,
   message: string,
-): { ctx: ReplyContext; payload: AdvisorPayload } {
+): Promise<{ ctx: ReplyContext; payload: AdvisorPayload }> {
   const field = (booking.nextField as BookingField) ?? nextBookingField(booking.collected);
   if (field) {
     const value = valueForBookingField(field, message);
@@ -411,13 +496,13 @@ function continueBooking(
   }
   booking.nextField = nextBookingField(booking.collected);
   booking.complete = booking.nextField === null;
-  sessionStorageService.save(sessionId, { booking });
+  const session = await sessionStorageService.save(sessionId, { booking });
 
   const ctx: ReplyContext = {
     action: "book",
-    criteria: sessionStorageService.get(sessionId).criteria,
+    criteria: session.criteria,
     missing: [],
-    recommendations: sessionStorageService.get(sessionId).lastRecommendations,
+    recommendations: session.lastRecommendations,
     totalFound: 0,
     booking,
     learned: [],
