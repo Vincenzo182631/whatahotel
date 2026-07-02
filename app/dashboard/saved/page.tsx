@@ -8,7 +8,6 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { Card, PageHeader } from "@/components/dashboard/ui";
 import { usePreferences } from "@/store/preferences-store";
 import { useConversation } from "@/store/conversation-store";
-import { formatCurrency } from "@/lib/utils";
 
 interface MiniHotel {
   id: string;
@@ -48,7 +47,7 @@ export default function SavedPage() {
               {hotel.name}
             </Link>
             <p className="truncate text-sm text-[#717171]">{hotel.city}</p>
-            <p className="mt-0.5 text-sm font-semibold">{formatCurrency(hotel.startingRate)}<span className="font-normal text-[#717171]"> / night</span></p>
+            <p className="mt-0.5 text-sm text-[#717171]">Live rates for your dates</p>
           </div>
           {saveable && (
             <button

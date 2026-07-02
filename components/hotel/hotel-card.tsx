@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { AMENITY_META } from "./amenity-meta";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { useConversation } from "@/store/conversation-store";
 import { usePreferences } from "@/store/preferences-store";
 import type { Recommendation } from "@/lib/services/types";
@@ -173,19 +173,14 @@ export function HotelCard({
           <div className="mt-auto flex flex-wrap items-end justify-between gap-4 pt-5">
             <div>
               <p className="text-[11px] uppercase tracking-wider text-foreground/65">
-                From
+                Rate
               </p>
-              <p className="font-display text-2xl text-gradient-gold">
-                {formatCurrency(hotel.startingRate)}
-                <span className="ml-1 text-sm font-normal text-foreground/65">
-                  / night
-                </span>
+              <p className="font-display text-lg text-gradient-gold">
+                Live rates for your dates
               </p>
-              {hotel.estimatedTotal && (
-                <p className="text-xs text-foreground/65">
-                  ≈ {formatCurrency(hotel.estimatedTotal)} for your stay
-                </p>
-              )}
+              <p className="text-xs text-foreground/65">
+                Advisor perks included
+              </p>
             </div>
           </div>
 

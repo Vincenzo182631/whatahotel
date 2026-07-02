@@ -6,7 +6,6 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { Button } from "@/components/ui/button";
 import { usePreferences } from "@/store/preferences-store";
-import { formatCurrency } from "@/lib/utils";
 
 export default function SavedPage() {
   const saved = usePreferences((s) => s.saved);
@@ -70,12 +69,8 @@ export default function SavedPage() {
                   <h3 className="font-display text-lg font-medium">{hotel.name}</h3>
                   <p className="text-sm text-foreground/70">{hotel.city}</p>
                   <div className="mt-3 flex items-center justify-between">
-                    <span className="font-display text-lg text-gradient-gold">
-                      {formatCurrency(hotel.startingRate)}
-                      <span className="text-xs font-normal text-foreground/65">
-                        {" "}
-                        / night
-                      </span>
+                    <span className="text-sm text-foreground/70">
+                      Live rates for your dates
                     </span>
                     <Button size="sm" variant="outline" asChild>
                       <Link href={`/hotel/${hotel.id}`}>View</Link>

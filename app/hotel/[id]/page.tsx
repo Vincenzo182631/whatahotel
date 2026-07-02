@@ -15,7 +15,6 @@ import { TrackView } from "@/components/hotel/track-view";
 import { HotelCompare } from "@/components/hotel/hotel-compare";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency } from "@/lib/utils";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -124,13 +123,10 @@ export default async function HotelPage({ params }: Params) {
                 <Star key={i} className="size-3.5 fill-primary text-primary" strokeWidth={1.5} />
               ))}
             </span>
-            <p className="mt-2 font-display text-2xl text-gradient-gold">
-              {formatCurrency(hotel.startingRate)}
-              <span className="text-sm font-normal text-foreground/65">
-                {" "}
-                / night
-              </span>
+            <p className="mt-2 font-display text-lg text-gradient-gold">
+              Live rates for your dates
             </p>
+            <p className="text-xs text-foreground/65">Pick dates below for live pricing</p>
           </div>
         </div>
 

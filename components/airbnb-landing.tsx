@@ -24,7 +24,7 @@ import { usePreferences } from "@/store/preferences-store";
 import { useHotelsByCity, type FeaturedHotel } from "@/hooks/use-hotels";
 import { useAuth } from "@/hooks/use-auth";
 import { CompareWizard } from "@/components/compare/compare-wizard";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 const CORAL = "#FF385C";
 // How many hotels to show per city (single row) before "See all" links out.
@@ -70,7 +70,7 @@ export function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
           {hotel.city}, {hotel.country}
         </p>
         <p className="mt-1.5 text-sm text-[#222]">
-          <span className="font-semibold">{formatCurrency(hotel.startingRate)}</span> night
+          <span className="font-semibold">Live rates for your dates</span>
           <span className="text-[#717171]"> · perks included</span>
         </p>
       </Link>

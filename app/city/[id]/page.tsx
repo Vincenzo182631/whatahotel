@@ -6,7 +6,6 @@ import { hotelDetailsService } from "@/lib/services";
 import { DESTINATIONS } from "@/lib/services/mock-data";
 import { HotelGridCard } from "@/components/airbnb-landing";
 import { CityMap, type MapHotel } from "@/components/hotel/city-map";
-import { formatCurrency } from "@/lib/utils";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -48,7 +47,7 @@ export default async function CityPage({ params }: Params) {
     .map((h) => ({
       id: h.id,
       name: h.name,
-      priceLabel: formatCurrency(h.startingRate),
+      priceLabel: h.name,
       lat: h.coordinates.lat,
       lng: h.coordinates.lng,
     }));

@@ -150,18 +150,18 @@ async function* streamFromClaude(
 function buildSituation(ctx: ReplyContext): string {
   switch (ctx.action) {
     case "recommend":
-      return `SITUATION: You searched the best hotels in this city and RANKED them best-fit first for the traveller's needs. The app is showing ${ctx.recommendations.length} ranked hotel cards (out of ${ctx.totalFound} found). Real facts for each (use ONLY these — never invent prices, ratings, or perks):\n${ctx.recommendations
+      return `SITUATION: You searched the best hotels in this city and RANKED them best-fit first for the traveller's needs. The app is showing ${ctx.recommendations.length} ranked hotel cards (out of ${ctx.totalFound} found). Real facts for each (use ONLY these — never invent ratings or perks, and NEVER state a nightly price: rates are only confirmed live for specific dates, so say "live rates for your dates" instead of any number):\n${ctx.recommendations
         .map(
           (r) =>
-            `#${r.rank} ${r.name}${r.brand ? ` (${r.brand})` : ""} — fit ${r.fitScore.toFixed(1)}/10, from $${Math.round(r.startingRate).toLocaleString()}/night${r.rating > 0 ? `, guest ${r.rating}/10` : ""}${r.perks?.[0] ? ` · perk: ${r.perks[0].label}` : ""}`,
+            `#${r.rank} ${r.name}${r.brand ? ` (${r.brand})` : ""} — fit ${r.fitScore.toFixed(1)}/10${r.rating > 0 ? `, guest ${r.rating}/10` : ""}${r.perks?.[0] ? ` · perk: ${r.perks[0].label}` : ""}`,
         )
-        .join("\n")}\nBriefly introduce the ranked shortlist and name why #1 leads, citing one concrete detail. Do NOT list full details for all — the cards do that.`;
+        .join("\n")}\nBriefly introduce the ranked shortlist and name why #1 leads, citing one concrete detail (never a price). Do NOT list full details for all — the cards do that.`;
     case "explain": {
       const focus = ctx.focus?.length ? ctx.focus : ctx.recommendations.slice(0, 2);
-      return `SITUATION: The traveller wants to understand specific hotels already on screen. Speak specifically and honestly about them using ONLY these facts: ${focus
+      return `SITUATION: The traveller wants to understand specific hotels already on screen. Speak specifically and honestly about them using ONLY these facts (NEVER state a nightly price — rates are only confirmed live for specific dates, so say "live rates for your dates"): ${focus
         .map(
           (r) =>
-            `${r.name}${r.brand ? ` (${r.brand})` : ""} — from $${Math.round(r.startingRate).toLocaleString()}/night${r.rating > 0 ? `, guest ${r.rating}/10` : ""}; amenities: ${(r.amenities ?? []).slice(0, 4).join(", ") || "not listed"}; perk: ${r.perks?.[0]?.label ?? "advisor perks"}; why ranked: ${r.reason ?? "strong overall fit"}`,
+            `${r.name}${r.brand ? ` (${r.brand})` : ""}${r.rating > 0 ? ` — guest ${r.rating}/10` : ""}; amenities: ${(r.amenities ?? []).slice(0, 4).join(", ") || "not listed"}; perk: ${r.perks?.[0]?.label ?? "advisor perks"}; why ranked: ${r.reason ?? "strong overall fit"}`,
         )
         .join(" | ")}. Give the real trade-offs and who each suits. Invent nothing.`;
     }

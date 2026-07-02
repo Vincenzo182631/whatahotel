@@ -2,8 +2,6 @@ import type { CriteriaField } from "@/lib/services/conversation-memory";
 import type { Recommendation, SearchCriteria } from "@/lib/services/types";
 import type { AdvisorUser, ReplyContext } from "./context";
 
-const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
-
 /** A warm, personalised opener for a signed-in traveller's first turn. */
 function greeting(user?: AdvisorUser): string {
   if (!user?.greet) return "";
@@ -18,11 +16,11 @@ function greeting(user?: AdvisorUser): string {
 
 /** One grounded clause about a specific hotel, from real data only. */
 function hotelClause(r: Recommendation): string {
-  const brand = r.brand ? `${r.brand} — ` : "";
   const perk = r.perks?.[0]?.label;
-  const rating = r.rating > 0 ? `, guest-rated ${r.rating}/10` : "";
+  const rating = r.rating > 0 ? `guest-rated ${r.rating}/10` : "";
+  const meta = [r.brand, rating].filter(Boolean).join(", ");
   const tail = perk ? `, with ${perk.replace(/\.$/, "").toLowerCase()}` : "";
-  return `${r.name} (${brand}from ${money(r.startingRate)}/night${rating})${tail}`;
+  return `${r.name}${meta ? ` (${meta})` : ""}${tail}`;
 }
 
 /**

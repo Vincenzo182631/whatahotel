@@ -5,7 +5,6 @@ import { BedDouble, Check, Loader2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useHotelBundle } from "@/hooks/use-hotels";
 import { useConversation } from "@/store/conversation-store";
-import { formatCurrency } from "@/lib/utils";
 
 export function RoomsSection({ hotelId }: { hotelId: string }) {
   const { data, isLoading, isError } = useHotelBundle(hotelId);
@@ -35,20 +34,15 @@ export function RoomsSection({ hotelId }: { hotelId: string }) {
 
   return (
     <div className="space-y-4">
-      {data.quote && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm">
-          <span className="text-foreground/75">
-            Advisor rate saves you{" "}
-            <span className="font-semibold text-primary">
-              {formatCurrency(data.quote.advisorSaving)}
-            </span>{" "}
-            vs. public rate over {data.quote.nights} nights
-          </span>
-          <span className="text-foreground/65">
-            incl. {data.perks.length} exclusive perks
-          </span>
-        </div>
-      )}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm">
+        <span className="text-foreground/75">
+          Rates are confirmed live for your dates — pick your dates to see the
+          exact advisor rate.
+        </span>
+        <span className="text-foreground/65">
+          incl. {data.perks.length} exclusive perks
+        </span>
+      </div>
 
       {data.rooms.map((room) => (
         <div
@@ -78,10 +72,10 @@ export function RoomsSection({ hotelId }: { hotelId: string }) {
           </div>
           <div className="flex shrink-0 items-end justify-between gap-4 sm:flex-col sm:items-end">
             <div className="text-right">
-              <p className="font-display text-xl text-gradient-gold">
-                {formatCurrency(room.pricePerNight)}
+              <p className="font-display text-base text-gradient-gold">
+                Live rate for your dates
               </p>
-              <p className="text-xs text-foreground/65">per night</p>
+              <p className="text-xs text-foreground/65">Advisor rate + perks</p>
             </div>
             <Button size="sm" onClick={reserve}>
               <Check className="size-4" /> Reserve

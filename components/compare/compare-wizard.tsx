@@ -79,7 +79,7 @@ export function CompareWizard({
             image: h.image,
             priceLabel: rates[h.id]
               ? `${formatCurrency(rates[h.id].nightly, rates[h.id].currency)} / night`
-              : `${formatCurrency(h.startingRate)} from / night`,
+              : undefined,
           }));
           if (!cancelled) setOptions(opts);
         } else {

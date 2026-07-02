@@ -152,7 +152,7 @@ export default async function ComparePage({ searchParams }: Params) {
       label: "Rate for your dates",
       highlight: true,
       cell: (c) =>
-        c.entryNightly > 0 ? (
+        c.live && c.entryNightly > 0 ? (
           <div>
             <div className="text-2xl font-semibold text-[#FF385C]">
               {formatCurrency(c.entryNightly, c.currency)}
@@ -164,11 +164,13 @@ export default async function ComparePage({ searchParams }: Params) {
               </div>
             )}
             <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-[#FF385C]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FF385C]">
-              <span className="size-1.5 rounded-full bg-[#FF385C]" /> {c.live ? "Live rate" : "Indicative"}
+              <span className="size-1.5 rounded-full bg-[#FF385C]" /> Live rate
             </div>
           </div>
         ) : (
-          <span className="text-sm text-[#9a9a9a]">Rate on request for these dates</span>
+          <span className="text-sm text-[#9a9a9a]">
+            {nights > 0 ? "Rate on request for these dates" : "Select dates for live pricing"}
+          </span>
         ),
     },
     {
@@ -367,7 +369,7 @@ export default async function ComparePage({ searchParams }: Params) {
         <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#717171]">
           <span className="flex items-center gap-1.5"><MapPin className="size-4 text-[#FF385C]" /> {ha.city} · {dateLabel}</span>
           {dist != null && <span>· {dist} km apart</span>}
-          {!anyLive && nights > 0 && <span className="text-[#E61E4D]">· live rates unavailable, showing indicative prices</span>}
+          {!anyLive && nights > 0 && <span className="text-[#E61E4D]">· live rates unavailable for these dates — shown as rate on request</span>}
         </p>
 
         <div className="no-scrollbar mt-6 overflow-x-auto">
