@@ -333,7 +333,11 @@ export default async function ComparePage({ searchParams }: Params) {
       label: "",
       cell: (c) => (
         <Link
-          href={`/hotel/${c.hotel.id}`}
+          href={
+            c.hotel.destinationKey
+              ? `/hotel/${c.hotel.id}`
+              : `/stay/${c.hotel.id}${nights > 0 ? `?checkIn=${checkIn}&checkOut=${checkOut}` : ""}`
+          }
           className="inline-flex items-center gap-1 rounded-full bg-[#FF385C] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
         >
           View hotel <ArrowUpRight className="size-3.5" />
