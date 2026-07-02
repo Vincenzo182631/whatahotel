@@ -7,6 +7,7 @@ import { TypingIndicator } from "./typing-indicator";
 import { HotelCard } from "@/components/hotel/hotel-card";
 import { ComparisonTable } from "@/components/hotel/comparison-table";
 import { BookingSummary } from "@/components/hotel/booking-summary";
+import { LiveHotelCards } from "./live-hotel-cards";
 
 function AdvisorMark() {
   return (
@@ -76,6 +77,10 @@ export function MessageBubble({
 
           {payload?.comparison && (
             <ComparisonTable comparison={payload.comparison} />
+          )}
+
+          {payload?.liveHotels && payload.liveHotels.length > 0 && (
+            <LiveHotelCards hotels={payload.liveHotels} />
           )}
 
           {payload?.booking && <BookingSummary booking={payload.booking} />}

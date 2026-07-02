@@ -27,6 +27,9 @@ export interface ReplyContext {
   destinationSuggestions?: DestinationInfo[];
   /** The specific hotels the user asked about, for the "explain" action. */
   focus?: Recommendation[];
+  /** Live results + the city they're for, when searching beyond the local set. */
+  liveCity?: string;
+  liveHotels?: import("@/lib/services/live-rates").LiveHotel[];
   /** Field names just learned this turn, for natural acknowledgements. */
   learned: string[];
   lastUserMessage: string;

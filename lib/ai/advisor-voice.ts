@@ -92,7 +92,20 @@ function summaryClause(c: SearchCriteria): string {
   return `${bits.slice(0, -1).join(", ")} and ${bits.slice(-1)}`;
 }
 
+function composeLive(ctx: ReplyContext): string {
+  const city = ctx.liveCity ?? "there";
+  const n = ctx.liveHotels?.length ?? 0;
+  if (n === 0) {
+    return `I searched ${city} live but couldn't find availability for those dates. Try nudging the dates or a nearby city and I'll look again.`;
+  }
+  return `${greeting(ctx.user)}${city} isn't in my curated list, so I checked WhataHotel's live availability — here ${n === 1 ? "is a match" : `are ${n} matches`} with live rates and advisor perks for your dates. Tap any to view rates and book.`;
+}
+
 function composeAsk(ctx: ReplyContext): string {
+  // Live search for a city outside the local set needs concrete dates.
+  if (ctx.liveCity && (!ctx.criteria.checkIn || !ctx.criteria.checkOut)) {
+    return `${greeting(ctx.user)}I can search ${ctx.liveCity} live across WhataHotel — just tell me your check-in and check-out dates and I'll pull real rates and perks.`;
+  }
   const ack = acknowledge(ctx);
 
   // Undecided on destination but we know the mood — suggest places.
@@ -197,6 +210,8 @@ export function composeReply(ctx: ReplyContext): string {
       return composeCompare(ctx);
     case "explain":
       return composeExplain(ctx);
+    case "live":
+      return composeLive(ctx);
     case "book":
       return composeBook(ctx);
     case "chat":

@@ -222,6 +222,119 @@ export async function getCityRates(params: {
   }
 }
 
+/* ------------------------------------------------------- live hotel search */
+
+/**
+ * A hotel returned by the live WhataHotel API — covers ANY city/hotel, not just
+ * the local scraped set. `nightly` is present for dated city searches.
+ */
+export interface LiveHotel {
+  sourceHotelId: string;
+  name: string;
+  city: string;
+  country: string;
+  image: string;
+  bookingUrl: string;
+  perks: string[];
+  nightly?: number;
+  currency?: string;
+  rank?: number;
+}
+
+interface WahListHotel {
+  hotelID?: string;
+  name?: string;
+  city?: string;
+  country?: string;
+  images?: string;
+  url?: string;
+  "rates-url"?: string;
+  "checkout-url"?: string;
+  perks?: { perk?: string }[];
+  rateDaily?: string;
+  rank?: string;
+}
+
+function toLiveHotel(h: WahListHotel, dated: boolean): LiveHotel | null {
+  if (!h.hotelID || !h.name) return null;
+  return {
+    sourceHotelId: String(h.hotelID),
+    name: h.name.trim(),
+    city: (h.city ?? "").trim(),
+    country: (h.country ?? "").trim(),
+    image: (h.images ?? "").trim(),
+    bookingUrl: (h.url || h["rates-url"] || h["checkout-url"] || "").trim(),
+    perks: (h.perks ?? []).map((p) => (p.perk ?? "").trim()).filter(Boolean).slice(0, 6),
+    nightly: dated ? num(h.rateDaily) || undefined : undefined,
+    currency: dated ? currencyFrom(h.rateDaily) : undefined,
+    rank: h.rank ? Number(h.rank) : undefined,
+  };
+}
+
+const cityHotelsCache = new Map<string, { ts: number; data: LiveHotel[] }>();
+
+/** All hotels the API ranks in ANY city, with live dated rates. */
+export async function getCityHotels(params: {
+  city: string;
+  checkIn: string;
+  checkOut: string;
+  guests?: number;
+}): Promise<LiveHotel[]> {
+  const { city, checkIn, checkOut, guests = 2 } = params;
+  if (!API_KEY || !city || nightsBetween(checkIn, checkOut) <= 0) return [];
+  const key = `hotels|${city}|${checkIn}|${checkOut}|${guests}`;
+  const hit = cityHotelsCache.get(key);
+  if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
+
+  const url =
+    `${API_BASE}?method=cityrates&city=${encodeURIComponent(city)}` +
+    `&guests=${guests}&checkIn=${checkIn}&checkOut=${checkOut}` +
+    `&apiKey=${encodeURIComponent(API_KEY)}`;
+  try {
+    const json = parseWahJson<{ wahData?: { status?: { code?: string }; hotels?: WahListHotel[] } }>(
+      await fetchJson(url),
+    );
+    const wah = json.wahData;
+    if (!wah || wah.status?.code !== "200" || !Array.isArray(wah.hotels)) return [];
+    const data = wah.hotels
+      .map((h) => toLiveHotel(h, true))
+      .filter((h): h is LiveHotel => Boolean(h))
+      .sort((a, b) => (a.nightly ?? Infinity) - (b.nightly ?? Infinity));
+    cityHotelsCache.set(key, { ts: Date.now(), data });
+    return data;
+  } catch {
+    return [];
+  }
+}
+
+const searchCache = new Map<string, { ts: number; data: LiveHotel[] }>();
+
+/** Find hotels by name across the whole WhataHotel catalogue (no rates). */
+export async function searchHotelsByName(query: string): Promise<LiveHotel[]> {
+  if (!API_KEY || !query.trim()) return [];
+  const key = `search|${query.trim().toLowerCase()}`;
+  const hit = searchCache.get(key);
+  if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
+
+  const url =
+    `${API_BASE}?method=search&hotelSearch=${encodeURIComponent(query.trim())}` +
+    `&apiKey=${encodeURIComponent(API_KEY)}`;
+  try {
+    const json = parseWahJson<{ wahData?: { status?: { code?: string }; hotels?: WahListHotel[] } }>(
+      await fetchJson(url),
+    );
+    const wah = json.wahData;
+    if (!wah || wah.status?.code !== "200" || !Array.isArray(wah.hotels)) return [];
+    const data = wah.hotels
+      .map((h) => toLiveHotel(h, false))
+      .filter((h): h is LiveHotel => Boolean(h));
+    searchCache.set(key, { ts: Date.now(), data });
+    return data;
+  } catch {
+    return [];
+  }
+}
+
 /* --------------------------------------------------------------------- info */
 
 export interface HotelInfo {

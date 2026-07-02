@@ -5,11 +5,13 @@ import type { ChatMessage } from "@/lib/chat/types";
 import { HotelCard } from "@/components/hotel/hotel-card";
 import { ComparisonTable } from "@/components/hotel/comparison-table";
 import { BookingSummary } from "@/components/hotel/booking-summary";
+import { LiveHotelCards } from "./live-hotel-cards";
 
 export function messageHasResults(m: ChatMessage): boolean {
   const p = m.payload;
   return Boolean(
     (p?.recommendations && p.recommendations.length > 0) ||
+      (p?.liveHotels && p.liveHotels.length > 0) ||
       p?.comparison ||
       p?.booking,
   );
@@ -49,6 +51,9 @@ export function ResultsCanvas({ messages }: { messages: ChatMessage[] }) {
               </div>
             )}
             {p.comparison && <ComparisonTable comparison={p.comparison} />}
+            {p.liveHotels && p.liveHotels.length > 0 && (
+              <LiveHotelCards hotels={p.liveHotels} />
+            )}
             {p.booking && <BookingSummary booking={p.booking} />}
           </motion.div>
         );

@@ -19,7 +19,9 @@ export const hasLLM = Boolean(process.env.ANTHROPIC_API_KEY);
 const MODEL = process.env.AI_MODEL || "claude-sonnet-5";
 
 const criteriaPatchSchema = z.object({
-  destination: z.string().optional().describe("canonical lowercase city key, e.g. 'paris', 'tokyo', 'bali', 'maldives', 'newyork', 'london', 'lasvegas', 'dubai', 'alps'"),
+  destination: z.string().optional().describe("the city the traveller names, e.g. 'paris', 'miami', 'scottsdale', 'rome' — any city, lowercased"),
+  checkIn: z.string().optional().describe("check-in date as YYYY-MM-DD, only if the user gives a concrete date"),
+  checkOut: z.string().optional().describe("check-out date as YYYY-MM-DD, only if the user gives a concrete date"),
   travelMonth: z.string().optional(),
   nights: z.number().optional(),
   adults: z.number().optional(),
@@ -66,14 +68,21 @@ export async function extractCriteriaPatch(
     // Deterministic base first, LLM refinements win on conflicts.
     const merged = { ...base, ...pruneUndefined(object) } as Partial<SearchCriteria>;
 
-    // Normalize the LLM's destination to a known key + canonical label.
+    // Normalize the LLM's destination. Known cities → canonical key + label.
+    // Unknown cities are kept as a label only (no key) so the advisor can search
+    // them live via the WhataHotel API instead of giving up.
     if (merged.destination) {
       const key = merged.destination.toLowerCase();
       if (DESTINATIONS[key]) {
         merged.destination = key;
         merged.destinationLabel = DESTINATIONS[key].label;
       } else if (!base.destination) {
-        delete merged.destination; // unknown place -> let the advisor ask
+        const raw = merged.destination.trim();
+        merged.destination = undefined;
+        merged.destinationLabel = raw
+          .split(/\s+/)
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ");
       }
     }
     // Trust the deterministic parser for canonical amenity/brand keys.
@@ -156,6 +165,8 @@ function buildSituation(ctx: ReplyContext): string {
         )
         .join(" | ")}. Give the real trade-offs and who each suits. Invent nothing.`;
     }
+    case "live":
+      return `SITUATION: ${ctx.liveCity} is outside your curated set, so you searched WhataHotel's live availability. The app is showing ${ctx.liveHotels?.length ?? 0} real hotels with live rates and advisor perks (each opens the hotel's booking page). Introduce the live results for ${ctx.liveCity} in one or two sentences — note the rates are live for their dates and perks are included. Do NOT list them; the cards do that.`;
     case "compare":
       return `SITUATION: The app is rendering a comparison table for: ${ctx.comparison?.hotels
         .map((h) => h.name)

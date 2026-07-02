@@ -185,6 +185,12 @@ export function AirbnbLanding() {
 
           <div className="flex shrink-0 items-center gap-1.5">
             <Link
+              href="/find"
+              className="hidden rounded-full px-3.5 py-2.5 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7] md:block"
+            >
+              Find a hotel
+            </Link>
+            <Link
               href="/journal"
               className="hidden rounded-full px-3.5 py-2.5 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7] lg:block"
             >

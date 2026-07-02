@@ -17,6 +17,33 @@ import type { AdvisorUser, ReplyContext } from "./context";
 import { extractCriteriaPatch } from "./provider";
 import { getCurrentUser } from "@/lib/auth/session";
 import { store } from "@/lib/data/store";
+import { getCityHotels } from "@/lib/services/live-rates";
+
+/** Pull concrete ISO dates the user typed (checkIn = earliest, checkOut = next). */
+function parseIsoDates(text: string): { checkIn?: string; checkOut?: string } {
+  const found = [...text.matchAll(/\b(\d{4}-\d{2}-\d{2})\b/g)].map((m) => m[1]);
+  if (found.length >= 2) {
+    const [a, b] = found.slice(0, 2).sort();
+    return { checkIn: a, checkOut: b };
+  }
+  return {};
+}
+
+const CITY_STOPWORDS = new Set([
+  "the", "a", "an", "there", "here", "home", "town", "city",
+  "january", "february", "march", "april", "may", "june", "july",
+  "august", "september", "october", "november", "december",
+  "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+]);
+
+/** Best-effort city name after a preposition, for the no-LLM path. */
+function heuristicCity(text: string): string | undefined {
+  const m = text.match(/\b(?:in|to|at|near|visiting|visit|around)\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)/);
+  if (!m) return undefined;
+  const candidate = m[1].trim();
+  if (CITY_STOPWORDS.has(candidate.toLowerCase())) return undefined;
+  return candidate;
+}
 
 const ORDINALS: Record<string, number> = {
   first: 0, "1st": 0, one: 0,
@@ -179,6 +206,15 @@ export async function runTurn(
   const user = await buildAdvisorUser(!messages.some((m) => m.role === "assistant"));
   const patch = await extractCriteriaPatch(messages, session.criteria);
   const criteria = mergeCriteria(session.criteria, patch);
+  // Fill concrete dates from any ISO date the user typed (LLM covers loose dates).
+  if (!criteria.checkIn || !criteria.checkOut) {
+    const d = parseIsoDates(lastUserMessage);
+    if (d.checkIn && d.checkOut) {
+      criteria.checkIn = criteria.checkIn || d.checkIn;
+      criteria.checkOut = criteria.checkOut || d.checkOut;
+      sessionStorageService.save(sessionId, { criteria });
+    }
+  }
   const learned = [
     ...new Set(
       Object.keys(patch)
@@ -256,6 +292,52 @@ export async function runTurn(
     };
     // No recommendations in the payload — the cards are already on screen.
     return { ctx, payload: { action: "explain", criteria } };
+  }
+
+  // ---- 4c. Live search — any city beyond the local set, via the API -------
+  const liveCity = !criteria.destination
+    ? criteria.destinationLabel || heuristicCity(lastUserMessage)
+    : undefined;
+  if (liveCity) {
+    // Remember the named city so a follow-up ("here are my dates") still has it.
+    if (criteria.destinationLabel !== liveCity) {
+      criteria.destinationLabel = liveCity;
+      sessionStorageService.save(sessionId, { criteria });
+    }
+    if (criteria.checkIn && criteria.checkOut) {
+      const live = await getCityHotels({
+        city: liveCity,
+        checkIn: criteria.checkIn,
+        checkOut: criteria.checkOut,
+      });
+      const liveHotels = live.slice(0, 9);
+      const ctx: ReplyContext = {
+        action: "live",
+        criteria,
+        missing: [],
+        recommendations: session.lastRecommendations,
+        totalFound: session.lastRecommendations.length,
+        liveCity,
+        liveHotels,
+        learned,
+        lastUserMessage,
+        user,
+      };
+      return { ctx, payload: { action: "live", criteria, liveCity, liveHotels } };
+    }
+    // Named a city we don't hold locally but no dates yet — ask for them.
+    const ctx: ReplyContext = {
+      action: "ask",
+      criteria,
+      missing: ["dates"],
+      recommendations: session.lastRecommendations,
+      totalFound: 0,
+      liveCity,
+      learned,
+      lastUserMessage,
+      user,
+    };
+    return { ctx, payload: { action: "ask", criteria, missing: ["dates"], liveCity } };
   }
 
   // ---- 5. Recommend (explicit ask OR enough signal) -----------------------
