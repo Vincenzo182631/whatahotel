@@ -5,11 +5,13 @@ import Link from "next/link";
 import { Search, Sparkles, ArrowUpRight, MapPin, CalendarDays, Loader2 } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import type { LiveHotel } from "@/lib/services/live-rates";
+import { useTravelDates } from "@/store/travel-dates-store";
 import { cn } from "@/lib/utils";
 
 type Mode = "city" | "name";
 
 export function LiveSearch() {
+  const { checkIn: storeIn, checkOut: storeOut, setDates } = useTravelDates();
   const [mode, setMode] = useState<Mode>("city");
   const [city, setCity] = useState("");
   const [name, setName] = useState("");
@@ -26,6 +28,18 @@ export function LiveSearch() {
     const d = Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86_400_000);
     return d > 0 ? d : 0;
   }, [checkIn, checkOut]);
+
+  // Prefill from the remembered dates, and remember any picked here.
+  useEffect(() => {
+    if (storeIn && storeOut && !checkIn && !checkOut) {
+      setCheckIn(storeIn);
+      setCheckOut(storeOut);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeIn, storeOut]);
+  useEffect(() => {
+    if (nights > 0) setDates(checkIn, checkOut);
+  }, [checkIn, checkOut, nights, setDates]);
 
   const canSearch =
     mode === "city" ? Boolean(city.trim() && nights > 0) : Boolean(name.trim());
@@ -157,7 +171,7 @@ export function LiveSearch() {
             {hotels.map((h) => (
               <Link
                 key={h.sourceHotelId}
-                href={`/stay/${h.sourceHotelId}${mode === "city" && checkIn && checkOut ? `?checkIn=${checkIn}&checkOut=${checkOut}` : ""}`}
+                href={`/stay/${h.sourceHotelId}${checkIn && checkOut ? `?checkIn=${checkIn}&checkOut=${checkOut}` : ""}`}
                 className="group overflow-hidden rounded-2xl border border-[#EBEBEB] bg-white transition-shadow hover:shadow-[0_6px_20px_-10px_rgba(0,0,0,0.18)]"
               >
                 <div className="relative aspect-[4/3] bg-[#eee]">

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { X, Check, Scale, CalendarDays, ArrowRight, Star, Loader2 } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import type { CityGroup } from "@/hooks/use-hotels";
+import { useTravelDates } from "@/store/travel-dates-store";
 import { cn } from "@/lib/utils";
 
 interface Opt {
@@ -30,6 +31,7 @@ export function CompareWizard({
   cities: CityGroup[];
 }) {
   const router = useRouter();
+  const { checkIn: storeIn, checkOut: storeOut, setDates } = useTravelDates();
   const [step, setStep] = useState(1);
   const [cityText, setCityText] = useState("");
   const [checkIn, setCheckIn] = useState("");
@@ -44,6 +46,18 @@ export function CompareWizard({
     const d = Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86_400_000);
     return d > 0 ? d : 0;
   }, [checkIn, checkOut]);
+
+  // Prefill from the remembered dates, and remember any picked here.
+  useEffect(() => {
+    if (storeIn && storeOut && !checkIn && !checkOut) {
+      setCheckIn(storeIn);
+      setCheckOut(storeOut);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeIn, storeOut]);
+  useEffect(() => {
+    if (nights > 0) setDates(checkIn, checkOut);
+  }, [checkIn, checkOut, nights, setDates]);
 
   // Match the typed text to one of the curated cities (else it's a live city).
   const localCity = useMemo(() => {

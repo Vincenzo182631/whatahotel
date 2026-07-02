@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { CalendarDays } from "lucide-react";
+import { useTravelDates } from "@/store/travel-dates-store";
 
 /** Updates ?checkIn/?checkOut on the live stay page to refresh live rates. */
 export function StayDatePicker({
@@ -14,9 +15,26 @@ export function StayDatePicker({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { checkIn: storeIn, checkOut: storeOut, setDates } = useTravelDates();
   const [checkIn, setCheckIn] = useState(initIn ?? "");
   const [checkOut, setCheckOut] = useState(initOut ?? "");
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  // Remember dates that arrived via the URL (e.g. from search/chat).
+  useEffect(() => {
+    if (initIn && initOut) setDates(initIn, initOut);
+  }, [initIn, initOut, setDates]);
+
+  // If the page opened without dates but we remember some, apply them so live
+  // rates show straight away.
+  useEffect(() => {
+    if (!initIn && !initOut && storeIn && storeOut && !checkIn && !checkOut) {
+      setCheckIn(storeIn);
+      setCheckOut(storeOut);
+      router.replace(`${pathname}?checkIn=${storeIn}&checkOut=${storeOut}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeIn, storeOut]);
 
   const nights =
     checkIn && checkOut
@@ -25,6 +43,7 @@ export function StayDatePicker({
 
   const apply = () => {
     if (nights <= 0) return;
+    setDates(checkIn, checkOut);
     router.push(`${pathname}?checkIn=${checkIn}&checkOut=${checkOut}`);
   };
 

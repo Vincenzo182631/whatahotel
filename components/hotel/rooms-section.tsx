@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useHotelBundle } from "@/hooks/use-hotels";
 import { useConversation } from "@/store/conversation-store";
+import { useTravelDates } from "@/store/travel-dates-store";
 import { formatCurrency } from "@/lib/utils";
 import type { LiveRoom } from "@/lib/services/live-rates";
 
@@ -34,6 +35,7 @@ export function RoomsSection({
   const { data, isLoading, isError } = useHotelBundle(hotelId);
   const send = useConversation((s) => s.send);
   const router = useRouter();
+  const { checkIn: storeIn, checkOut: storeOut, setDates } = useTravelDates();
 
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
@@ -47,6 +49,20 @@ export function RoomsSection({
     return d > 0 ? d : 0;
   }, [checkIn, checkOut]);
   const hasDates = nights > 0;
+
+  // Prefill from the remembered dates.
+  useEffect(() => {
+    if (storeIn && storeOut && !checkIn && !checkOut) {
+      setCheckIn(storeIn);
+      setCheckOut(storeOut);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeIn, storeOut]);
+
+  // Remember any valid dates the guest picks here.
+  useEffect(() => {
+    if (hasDates) setDates(checkIn, checkOut);
+  }, [checkIn, checkOut, hasDates, setDates]);
 
   // A near-future range used only to fetch the room catalogue + photos before
   // the guest picks dates. Once they pick dates we re-fetch and show real rates.
