@@ -60,6 +60,9 @@ export interface Trip {
   total: number; // USD
   currency: string;
   confirmation: string;
+  /** Room booked (live bookings) + where its detail page lives. */
+  roomName?: string;
+  detailPath?: string; // e.g. /stay/1089 for live hotels; defaults to /hotel/<id>
 }
 
 export interface PasswordResetToken {

@@ -16,7 +16,7 @@ function TripRow({ trip }: { trip: Trip }) {
   return (
     <Card className="flex flex-col gap-4 sm:flex-row sm:items-center">
       <Link
-        href={`/hotel/${trip.hotelId}`}
+        href={trip.detailPath ?? `/hotel/${trip.hotelId}`}
         className="relative h-24 w-full shrink-0 overflow-hidden rounded-xl sm:w-36"
       >
         <ImageWithFallback src={trip.image} seed={trip.hotelId} alt={trip.hotelName} fill sizes="150px" className="object-cover" />

@@ -6,6 +6,7 @@ import { getLiveHotel, getLiveRates, getHotelInfo } from "@/lib/services/live-ra
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { CityMap } from "@/components/hotel/city-map";
 import { StayDatePicker } from "@/components/search/stay-date-picker";
+import { StayBooking } from "@/components/search/stay-booking";
 import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -40,7 +41,6 @@ export default async function StayPage({ params, searchParams }: Params) {
 
   const perks = hotel.perks.length ? hotel.perks : info ? [] : [];
   const gallery = hotel.gallery.filter((g) => g !== hotel.image).slice(0, 6);
-  const reserveMsg = `I'd like to book ${hotel.name} in ${hotel.city}${nights > 0 ? ` from ${checkIn} to ${checkOut}` : ""}.`;
 
   return (
     <div className="min-h-dvh bg-white text-[#222]">
@@ -172,12 +172,20 @@ export default async function StayPage({ params, searchParams }: Params) {
                 )}
               </div>
 
-              <Link
-                href={`/search?q=${encodeURIComponent(reserveMsg)}`}
-                className="mt-5 block rounded-xl bg-[#FF385C] px-4 py-2.5 text-center text-sm font-semibold text-white hover:opacity-90"
-              >
-                Reserve with your advisor
-              </Link>
+              <StayBooking
+                sourceHotelId={hotel.sourceHotelId}
+                name={hotel.name}
+                city={hotel.city}
+                country={hotel.country}
+                image={hotel.image}
+                checkIn={checkIn}
+                checkOut={checkOut}
+                rooms={(rates?.rooms ?? []).map((r) => ({
+                  name: r.name,
+                  nightly: r.nightly,
+                  currency: r.currency,
+                }))}
+              />
               {info?.tax && (
                 <p className="mt-3 text-[11px] leading-snug text-[#9a9a9a]">
                   {info.tax.length > 160 ? info.tax.slice(0, 160) + "…" : info.tax}
