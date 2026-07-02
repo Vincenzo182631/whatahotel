@@ -14,7 +14,9 @@ import type { ReplyContext } from "./context";
  */
 
 export const hasLLM = Boolean(process.env.ANTHROPIC_API_KEY);
-const MODEL = process.env.AI_MODEL || "claude-sonnet-4-6";
+// Current-generation default; override via AI_MODEL. Sonnet 5 balances quality,
+// speed and cost for a streaming chat advisor (use claude-opus-4-8 for max quality).
+const MODEL = process.env.AI_MODEL || "claude-sonnet-5";
 
 const criteriaPatchSchema = z.object({
   destination: z.string().optional().describe("canonical lowercase city key, e.g. 'paris', 'tokyo', 'bali', 'maldives', 'newyork', 'london', 'lasvegas', 'dubai', 'alps'"),
