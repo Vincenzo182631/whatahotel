@@ -26,7 +26,7 @@ interface Col {
   currency: string;
   entryNightly: number;
   total: number;
-  rooms: { name: string; nightly: number; currency: string }[];
+  rooms: { name: string; nightly: number; currency: string; image?: string }[];
   perks: AdvisorPerk[];
   info: HotelInfo | null;
 }
@@ -182,7 +182,13 @@ export default async function ComparePage({ searchParams }: Params) {
             {c.rooms.slice(0, 6).map((r) => (
               <li key={r.name} className="flex items-center justify-between gap-2 text-sm">
                 <span className="flex min-w-0 items-center gap-1.5 text-[#222]">
-                  <BedDouble className="size-3.5 shrink-0 text-[#FF385C]/80" />
+                  {r.image ? (
+                    <span className="relative size-8 shrink-0 overflow-hidden rounded-md bg-[#eee]">
+                      <ImageWithFallback src={r.image} seed={r.name} alt={r.name} fill sizes="32px" className="object-cover" />
+                    </span>
+                  ) : (
+                    <BedDouble className="size-3.5 shrink-0 text-[#FF385C]/80" />
+                  )}
                   <span className="truncate">{r.name}</span>
                 </span>
                 <span className="shrink-0 font-medium text-[#717171]">{formatCurrency(r.nightly, r.currency)}</span>

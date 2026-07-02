@@ -28,6 +28,7 @@ export interface LiveRoom {
   nightly: number;
   total: number;
   currency: string;
+  image?: string;
 }
 
 export interface LiveRates {
@@ -72,6 +73,7 @@ interface WahRoom {
   currency?: string;
   rateDaily?: string;
   rateTotal?: string;
+  images?: { imgFile?: string; imgDesc?: string }[];
 }
 interface WahRatesResponse {
   wahData?: {
@@ -136,6 +138,7 @@ export async function getLiveRates(params: {
         nightly,
         total: num(r.rateTotal) || nightly * nights,
         currency: (r.currency || "USD").toUpperCase(),
+        image: (r.images ?? []).map((i) => i.imgFile?.trim()).find(Boolean) || undefined,
       };
       const existing = byName.get(name);
       if (!existing || room.nightly < existing.nightly) byName.set(name, room);

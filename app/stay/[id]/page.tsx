@@ -153,11 +153,17 @@ export default async function StayPage({ params, searchParams }: Params) {
                     </p>
                     <ul className="space-y-2">
                       {rates.rooms.slice(0, 6).map((r) => (
-                        <li key={r.name} className="flex items-center justify-between gap-2 rounded-xl bg-[#f7f7f7] px-3 py-2 text-sm">
-                          <span className="flex min-w-0 items-center gap-1.5">
-                            <BedDouble className="size-3.5 shrink-0 text-[#FF385C]/80" />
-                            <span className="truncate">{r.name}</span>
-                          </span>
+                        <li key={r.name} className="flex items-center gap-3 rounded-xl bg-[#f7f7f7] p-2 text-sm">
+                          {r.image ? (
+                            <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-[#eee]">
+                              <ImageWithFallback src={r.image} seed={r.name} alt={r.name} fill sizes="56px" className="object-cover" />
+                            </div>
+                          ) : (
+                            <span className="grid size-14 shrink-0 place-items-center rounded-lg bg-[#eee] text-[#FF385C]/70">
+                              <BedDouble className="size-5" strokeWidth={1.5} />
+                            </span>
+                          )}
+                          <span className="min-w-0 flex-1 truncate">{r.name}</span>
                           <span className="shrink-0 font-semibold">{formatCurrency(r.nightly, r.currency)}</span>
                         </li>
                       ))}
