@@ -99,6 +99,9 @@ export function HotelCompare({
     if (r?.isError || !r?.data)
       return <span className="text-sm text-foreground/55">Unavailable</span>;
     const q = r.data;
+    // Only ever show a rate that was confirmed live for these dates.
+    if (!q.live || !q.entryNightly)
+      return <span className="text-sm text-foreground/55">Rate on request</span>;
     return (
       <div>
         <div className="font-display text-2xl leading-none text-gradient-gold">
@@ -111,11 +114,9 @@ export function HotelCompare({
           {formatCurrency(q.total, q.currency)} total · {nights} night
           {nights > 1 ? "s" : ""}
         </div>
-        {q.live && (
-          <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-            <span className="size-1.5 rounded-full bg-primary" /> Live rate
-          </div>
-        )}
+        <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+          <span className="size-1.5 rounded-full bg-primary" /> Live rate
+        </div>
       </div>
     );
   };

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ArrowUpRight, MapPin, Sparkles } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import type { LiveHotel } from "@/lib/services/live-rates";
-import { formatCurrency } from "@/lib/utils";
 
 /** Live API results rendered in the chat — each opens the in-app stay page. */
 export function LiveHotelCards({
@@ -34,12 +33,7 @@ export function LiveHotelCards({
             <p className="mt-0.5 flex items-center gap-1 text-xs text-foreground/60">
               <MapPin className="size-3" /> {[h.city, h.country].filter(Boolean).join(", ")}
             </p>
-            {h.nightly ? (
-              <p className="mt-1 text-sm">
-                <span className="font-semibold text-gradient-gold">{formatCurrency(h.nightly, h.currency)}</span>
-                <span className="text-xs text-foreground/55"> / night</span>
-              </p>
-            ) : null}
+            <p className="mt-1 text-xs text-foreground/55">Live rates for your dates</p>
             {h.perks[0] && (
               <p className="mt-1 flex items-start gap-1 text-[11px] leading-snug text-foreground/60">
                 <Sparkles className="mt-0.5 size-3 shrink-0 text-primary" strokeWidth={1.5} />

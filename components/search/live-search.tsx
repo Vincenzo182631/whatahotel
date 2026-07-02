@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Search, Sparkles, ArrowUpRight, MapPin, CalendarDays, Loader2 } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import type { LiveHotel } from "@/lib/services/live-rates";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 type Mode = "city" | "name";
 
@@ -141,15 +141,10 @@ export function LiveSearch() {
                   <p className="mt-0.5 flex items-center gap-1 text-sm text-[#717171]">
                     <MapPin className="size-3.5" /> {[h.city, h.country].filter(Boolean).join(", ")}
                   </p>
-                  {h.nightly ? (
-                    <p className="mt-1.5 text-sm text-[#222]">
-                      <span className="font-semibold">{formatCurrency(h.nightly, h.currency)}</span> / night
-                    </p>
-                  ) : (
-                    <p className="mt-1.5 flex items-center gap-1 text-xs text-[#717171]">
-                      <CalendarDays className="size-3.5" /> Add dates for live rates
-                    </p>
-                  )}
+                  <p className="mt-1.5 flex items-center gap-1 text-xs text-[#717171]">
+                    <CalendarDays className="size-3.5" />
+                    {checkIn && checkOut ? "Live rates for your dates" : "Add dates for live rates"}
+                  </p>
                   {h.perks.length > 0 && (
                     <ul className="mt-2 space-y-1">
                       {h.perks.slice(0, 2).map((p) => (

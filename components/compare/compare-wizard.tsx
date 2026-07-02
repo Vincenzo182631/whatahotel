@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { X, Check, Scale, CalendarDays, ArrowRight, Star, Loader2 } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import type { CityGroup } from "@/hooks/use-hotels";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface Opt {
   id: string;
@@ -66,20 +66,13 @@ export function CompareWizard({
     (async () => {
       try {
         if (localCity) {
-          const res = await fetch(
-            `/api/city-rates?city=${encodeURIComponent(localCity.label)}&checkIn=${checkIn}&checkOut=${checkOut}`,
-          )
-            .then((r) => (r.ok ? r.json() : { rates: {} }))
-            .catch(() => ({ rates: {} }));
-          const rates: Record<string, { nightly: number; currency: string }> = res.rates ?? {};
+          // No per-night price here: the city-level rate is not reliable. The
+          // exact live rate for these dates is shown on the comparison itself.
           const opts: Opt[] = localCity.hotels.map((h) => ({
             id: h.id,
             name: h.name,
             sub: h.brand,
             image: h.image,
-            priceLabel: rates[h.id]
-              ? `${formatCurrency(rates[h.id].nightly, rates[h.id].currency)} / night`
-              : undefined,
           }));
           if (!cancelled) setOptions(opts);
         } else {
@@ -89,12 +82,11 @@ export function CompareWizard({
             .then((r) => (r.ok ? r.json() : { hotels: [] }))
             .catch(() => ({ hotels: [] }));
           const opts: Opt[] = (res.hotels ?? []).map(
-            (h: { sourceHotelId: string; name: string; city: string; image: string; nightly?: number; currency?: string }) => ({
+            (h: { sourceHotelId: string; name: string; city: string; image: string }) => ({
               id: h.sourceHotelId,
               name: h.name,
               sub: h.city,
               image: h.image,
-              priceLabel: h.nightly ? `${formatCurrency(h.nightly, h.currency)} / night` : undefined,
             }),
           );
           if (!cancelled) setOptions(opts);

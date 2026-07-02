@@ -252,10 +252,11 @@ interface WahListHotel {
   "checkout-url"?: string;
   perks?: { perk?: string }[];
   rateDaily?: string;
+  rateTotal?: string;
   rank?: string;
 }
 
-function toLiveHotel(h: WahListHotel, dated: boolean): LiveHotel | null {
+function toLiveHotel(h: WahListHotel): LiveHotel | null {
   if (!h.hotelID || !h.name) return null;
   return {
     sourceHotelId: String(h.hotelID),
@@ -265,8 +266,12 @@ function toLiveHotel(h: WahListHotel, dated: boolean): LiveHotel | null {
     image: (h.images ?? "").trim(),
     bookingUrl: (h.url || h["rates-url"] || h["checkout-url"] || "").trim(),
     perks: (h.perks ?? []).map((p) => (p.perk ?? "").trim()).filter(Boolean).slice(0, 6),
-    nightly: dated ? num(h.rateDaily) || undefined : undefined,
-    currency: dated ? currencyFrom(h.rateDaily) : undefined,
+    // The cityrates/search endpoints' `rateDaily` is unreliable (e.g. returns
+    // $43 for a hotel whose real nightly is $122), so we NEVER expose it as a
+    // price. True dated rates come from getLiveRates (method=rates) on the
+    // stay/compare pages. We only keep rateTotal for ranking, below.
+    nightly: undefined,
+    currency: undefined,
     rank: h.rank ? Number(h.rank) : undefined,
   };
 }
@@ -296,10 +301,12 @@ export async function getCityHotels(params: {
     );
     const wah = json.wahData;
     if (!wah || wah.status?.code !== "200" || !Array.isArray(wah.hotels)) return [];
+    // Rank by the reliable all-in rateTotal (rateDaily is broken — see toLiveHotel).
     const data = wah.hotels
-      .map((h) => toLiveHotel(h, true))
-      .filter((h): h is LiveHotel => Boolean(h))
-      .sort((a, b) => (a.nightly ?? Infinity) - (b.nightly ?? Infinity));
+      .slice()
+      .sort((a, b) => (num(a.rateTotal) || Infinity) - (num(b.rateTotal) || Infinity))
+      .map((h) => toLiveHotel(h))
+      .filter((h): h is LiveHotel => Boolean(h));
     cityHotelsCache.set(key, { ts: Date.now(), data });
     return data;
   } catch {
@@ -326,7 +333,7 @@ export async function searchHotelsByName(query: string): Promise<LiveHotel[]> {
     const wah = json.wahData;
     if (!wah || wah.status?.code !== "200" || !Array.isArray(wah.hotels)) return [];
     const data = wah.hotels
-      .map((h) => toLiveHotel(h, false))
+      .map((h) => toLiveHotel(h))
       .filter((h): h is LiveHotel => Boolean(h));
     searchCache.set(key, { ts: Date.now(), data });
     return data;

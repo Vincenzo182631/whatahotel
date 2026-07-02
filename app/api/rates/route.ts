@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hotelDetailsService, pricingService } from "@/lib/services";
+import { hotelDetailsService } from "@/lib/services";
 import { getLiveRates } from "@/lib/services/live-rates";
 
 export const runtime = "nodejs";
@@ -60,8 +60,8 @@ export async function GET(req: Request) {
     }
   }
 
-  // Fallback: deterministic estimate from the stored starting rate.
-  const quote = pricingService.quote(hotel, nights);
+  // No live rate available for these dates — never show an estimated/synthetic
+  // price. Return no price; the UI shows "Rate on request".
   return NextResponse.json({
     id: hotel.id,
     name: hotel.name,
@@ -69,9 +69,9 @@ export async function GET(req: Request) {
     checkIn,
     checkOut,
     nights,
-    currency: quote.currency,
-    entryNightly: quote.nightlyRate,
-    total: quote.total,
+    currency: "USD",
+    entryNightly: 0,
+    total: 0,
     rooms: [],
     perks: hotel.perks,
   });
