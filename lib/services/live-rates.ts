@@ -161,3 +161,122 @@ export async function getLiveRates(params: {
     return null;
   }
 }
+
+function currencyFrom(s: unknown, fallback = "USD"): string {
+  const m = String(s ?? "").match(/[A-Z]{3}/);
+  return m ? m[0] : fallback;
+}
+
+/* ---------------------------------------------------------------- cityrates */
+
+export interface CityRate {
+  hotelId: string; // source numeric id
+  nightly: number;
+  total: number;
+  currency: string;
+}
+
+interface WahCityHotel {
+  hotelID?: string;
+  rateDaily?: string;
+  rateTotal?: string;
+}
+const cityCache = new Map<string, { ts: number; data: CityRate[] }>();
+
+/** Dated starting rates for the hotels the API ranks in a city. */
+export async function getCityRates(params: {
+  city: string;
+  checkIn: string;
+  checkOut: string;
+  guests?: number;
+}): Promise<CityRate[]> {
+  const { city, checkIn, checkOut, guests = 2 } = params;
+  if (!API_KEY || !city || nightsBetween(checkIn, checkOut) <= 0) return [];
+
+  const key = `${city}|${checkIn}|${checkOut}|${guests}`;
+  const hit = cityCache.get(key);
+  if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
+
+  const url =
+    `${API_BASE}?method=cityrates&city=${encodeURIComponent(city)}` +
+    `&guests=${guests}&checkIn=${checkIn}&checkOut=${checkOut}` +
+    `&apiKey=${encodeURIComponent(API_KEY)}`;
+  try {
+    const json = parseWahJson<{ wahData?: { status?: { code?: string }; hotels?: WahCityHotel[] } }>(
+      await fetchJson(url),
+    );
+    const wah = json.wahData;
+    if (!wah || wah.status?.code !== "200" || !Array.isArray(wah.hotels)) return [];
+    const data: CityRate[] = wah.hotels
+      .filter((h) => h.hotelID && num(h.rateDaily))
+      .map((h) => ({
+        hotelId: String(h.hotelID),
+        nightly: num(h.rateDaily),
+        total: num(h.rateTotal),
+        currency: currencyFrom(h.rateDaily),
+      }));
+    cityCache.set(key, { ts: Date.now(), data });
+    return data;
+  } catch {
+    return [];
+  }
+}
+
+/* --------------------------------------------------------------------- info */
+
+export interface HotelInfo {
+  description?: string;
+  amenities: string[];
+  restaurants: string[];
+  tax?: string;
+}
+
+interface WahInfoSection { HOTELTITLE?: string; HOTELDESC?: string }
+const infoCache = new Map<string, { ts: number; data: HotelInfo | null }>();
+
+const AMENITY_SECTIONS = /amenit|facilit|service|recreational/i;
+
+/** Real descriptive info: amenities, dining, description, tax policy. */
+export async function getHotelInfo(hotelName: string, city: string): Promise<HotelInfo | null> {
+  if (!API_KEY || !hotelName) return null;
+  const key = `${hotelName}|${city}`;
+  const hit = infoCache.get(key);
+  if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
+
+  const url =
+    `${API_BASE}?method=info&hotelName=${encodeURIComponent(hotelName)}` +
+    `&hotelCity=${encodeURIComponent(city)}&apiKey=${encodeURIComponent(API_KEY)}`;
+  try {
+    const json = parseWahJson<{
+      wahData?: {
+        status?: { code?: string };
+        hotel?: { HOTELINFO?: WahInfoSection[]; RESTAURANTS?: { RESTAURANTNAME?: string }[] };
+      };
+    }>(await fetchJson(url));
+    const hotel = json.wahData?.hotel;
+    if (json.wahData?.status?.code !== "200" || !hotel) {
+      infoCache.set(key, { ts: Date.now(), data: null });
+      return null;
+    }
+    const sections = hotel.HOTELINFO ?? [];
+    const description = sections.find((s) => /location/i.test(s.HOTELTITLE || ""))?.HOTELDESC?.trim();
+    const tax = sections.find((s) => /tax/i.test(s.HOTELTITLE || ""))?.HOTELDESC?.trim();
+    const amenities = [
+      ...new Set(
+        sections
+          .filter((s) => AMENITY_SECTIONS.test(s.HOTELTITLE || ""))
+          .flatMap((s) => (s.HOTELDESC || "").split(/\r?\n/))
+          .map((line) => line.replace(/^[-•\s]+/, "").trim())
+          .filter((l) => l.length > 1 && l.length < 60),
+      ),
+    ];
+    const restaurants = (hotel.RESTAURANTS ?? [])
+      .map((r) => r.RESTAURANTNAME?.trim() || "")
+      .filter(Boolean);
+    const data: HotelInfo = { description, amenities, restaurants, tax };
+    infoCache.set(key, { ts: Date.now(), data });
+    return data;
+  } catch {
+    return null;
+  }
+}

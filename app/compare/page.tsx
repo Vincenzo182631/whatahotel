@@ -2,9 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { ArrowLeft, Star, MapPin, Check, BedDouble, Sparkles, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Check, BedDouble, Sparkles, ArrowUpRight, UtensilsCrossed } from "lucide-react";
 import { hotelDetailsService } from "@/lib/services";
-import { getLiveRates } from "@/lib/services/live-rates";
+import { getLiveRates, getHotelInfo, type HotelInfo } from "@/lib/services/live-rates";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { formatCurrency, cn } from "@/lib/utils";
@@ -27,6 +27,7 @@ interface Col {
   total: number;
   rooms: { name: string; nightly: number; currency: string }[];
   perks: AdvisorPerk[];
+  info: HotelInfo | null;
 }
 
 function nightsBetween(a: string, b: string) {
@@ -44,18 +45,23 @@ async function buildCol(hotel: Hotel, checkIn: string, checkOut: string, nights:
     total: hotel.startingRate * Math.max(1, nights),
     rooms: [],
     perks: hotel.perks,
+    info: null,
   };
-  if (hotel.sourceHotelId && nights > 0) {
-    const r = await getLiveRates({ sourceHotelId: hotel.sourceHotelId, checkIn, checkOut });
-    if (r) {
-      col.live = true;
-      col.currency = r.currency;
-      col.entryNightly = r.entryNightly;
-      col.total = r.rooms[0]?.total ?? r.entryNightly * nights;
-      col.rooms = r.rooms;
-      if (r.perks.length) col.perks = r.perks;
-    }
+  const [r, info] = await Promise.all([
+    hotel.sourceHotelId && nights > 0
+      ? getLiveRates({ sourceHotelId: hotel.sourceHotelId, checkIn, checkOut })
+      : Promise.resolve(null),
+    getHotelInfo(hotel.name, hotel.city),
+  ]);
+  if (r) {
+    col.live = true;
+    col.currency = r.currency;
+    col.entryNightly = r.entryNightly;
+    col.total = r.rooms[0]?.total ?? r.entryNightly * nights;
+    col.rooms = r.rooms;
+    if (r.perks.length) col.perks = r.perks;
   }
+  col.info = info;
   return col;
 }
 
@@ -182,23 +188,60 @@ export default async function ComparePage({ searchParams }: Params) {
         <span className="text-sm text-[#222]">
           {c.hotel.neighborhood}
           <span className="block text-xs text-[#717171]">{c.hotel.city}, {c.hotel.country}</span>
+          {c.info?.description && (
+            <span className="mt-1.5 block text-xs leading-snug text-[#717171]">
+              {c.info.description.length > 180 ? c.info.description.slice(0, 180) + "…" : c.info.description}
+            </span>
+          )}
         </span>
       ),
     },
     {
       key: "amenities",
       label: "Amenities",
-      visible: cols.some((c) => c.hotel.amenities.length),
-      cell: (c) => (
-        <div className="flex flex-wrap gap-1.5">
-          {c.hotel.amenities.map((k) => AMENITY_META[k]).filter(Boolean).slice(0, 8).map((m) => (
-            <span key={m.label} className="inline-flex items-center gap-1 rounded-full bg-black/[0.04] px-2 py-0.5 text-[11px] text-[#555]">
-              <m.icon className="size-3 text-[#FF385C]/80" strokeWidth={1.5} /> {m.label}
-            </span>
-          ))}
-          {!c.hotel.amenities.length && <span className="text-sm text-[#9a9a9a]">—</span>}
-        </div>
-      ),
+      visible: cols.some((c) => c.hotel.amenities.length || c.info?.amenities.length),
+      cell: (c) => {
+        const real = c.info?.amenities ?? [];
+        if (real.length) {
+          return (
+            <div className="flex flex-wrap gap-1.5">
+              {real.slice(0, 12).map((a) => (
+                <span key={a} className="inline-flex items-center gap-1 rounded-full bg-black/[0.04] px-2 py-0.5 text-[11px] text-[#555]">
+                  <Check className="size-3 text-[#FF385C]/80" strokeWidth={2} /> {a}
+                </span>
+              ))}
+              {real.length > 12 && <span className="text-[11px] text-[#9a9a9a]">+{real.length - 12} more</span>}
+            </div>
+          );
+        }
+        return (
+          <div className="flex flex-wrap gap-1.5">
+            {c.hotel.amenities.map((k) => AMENITY_META[k]).filter(Boolean).slice(0, 8).map((m) => (
+              <span key={m.label} className="inline-flex items-center gap-1 rounded-full bg-black/[0.04] px-2 py-0.5 text-[11px] text-[#555]">
+                <m.icon className="size-3 text-[#FF385C]/80" strokeWidth={1.5} /> {m.label}
+              </span>
+            ))}
+            {!c.hotel.amenities.length && <span className="text-sm text-[#9a9a9a]">—</span>}
+          </div>
+        );
+      },
+    },
+    {
+      key: "dining",
+      label: "Dining",
+      visible: cols.some((c) => c.info?.restaurants.length),
+      cell: (c) =>
+        c.info?.restaurants.length ? (
+          <ul className="space-y-1">
+            {c.info.restaurants.slice(0, 5).map((r) => (
+              <li key={r} className="flex gap-1.5 text-xs leading-snug text-[#555]">
+                <UtensilsCrossed className="mt-0.5 size-3 shrink-0 text-[#FF385C]/80" strokeWidth={1.5} /> {r}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <span className="text-sm text-[#9a9a9a]">—</span>
+        ),
     },
     {
       key: "perks",
@@ -238,6 +281,9 @@ export default async function ComparePage({ searchParams }: Params) {
         <ul className="space-y-1 text-xs text-[#555]">
           <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-[#FF385C]" /> Advisor-exclusive rate & perks</li>
           <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-[#FF385C]" /> Best available rate for your dates</li>
+          {c.info?.tax && (
+            <li className="text-[#9a9a9a]">{c.info.tax.length > 140 ? c.info.tax.slice(0, 140) + "…" : c.info.tax}</li>
+          )}
           <li className="text-[#9a9a9a]">Cancellation & exact check-in/out times confirmed at booking.</li>
         </ul>
       ),

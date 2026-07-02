@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Check, Scale, CalendarDays, ArrowRight, Star } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import type { CityGroup } from "@/hooks/use-hotels";
 import { cn, formatCurrency } from "@/lib/utils";
+
+type DatedRate = { nightly: number; currency: string };
 
 /**
  * Compare wizard. Step 1: pick a city + travel dates. Step 2: choose two hotels
@@ -27,6 +29,8 @@ export function CompareWizard({
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
+  const [datedRates, setDatedRates] = useState<Record<string, DatedRate>>({});
+  const [ratesLoading, setRatesLoading] = useState(false);
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const city = cities.find((c) => c.key === cityKey);
@@ -35,6 +39,20 @@ export function CompareWizard({
     const d = Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86_400_000);
     return d > 0 ? d : 0;
   }, [checkIn, checkOut]);
+
+  // On step 2, pull dated "from" rates for the chosen city + dates.
+  useEffect(() => {
+    if (step !== 2 || !city || nights <= 0) return;
+    let cancelled = false;
+    setRatesLoading(true);
+    setDatedRates({});
+    fetch(`/api/city-rates?city=${encodeURIComponent(city.label)}&checkIn=${checkIn}&checkOut=${checkOut}`)
+      .then((r) => (r.ok ? r.json() : { rates: {} }))
+      .then((d) => { if (!cancelled) setDatedRates(d.rates ?? {}); })
+      .catch(() => { if (!cancelled) setDatedRates({}); })
+      .finally(() => { if (!cancelled) setRatesLoading(false); });
+    return () => { cancelled = true; };
+  }, [step, city, checkIn, checkOut, nights]);
 
   if (!open) return null;
 
@@ -120,10 +138,12 @@ export function CompareWizard({
             </div>
             <p className="mb-4 text-sm font-medium">
               Select <span className="text-[#FF385C]">two</span> hotels to compare ({selected.length}/2)
+              {ratesLoading && <span className="ml-2 font-normal text-[#717171]">· loading live rates…</span>}
             </p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {city?.hotels.map((h) => {
                 const isSel = selected.includes(h.id);
+                const dated = datedRates[h.id];
                 return (
                   <button
                     key={h.id}
@@ -140,7 +160,16 @@ export function CompareWizard({
                       <p className="truncate text-sm font-semibold">{h.name}</p>
                       {h.brand && <p className="truncate text-xs text-[#717171]">{h.brand}</p>}
                       <p className="mt-0.5 text-xs text-[#222]">
-                        <span className="font-semibold">{formatCurrency(h.startingRate)}</span> from / night
+                        {dated ? (
+                          <>
+                            <span className="font-semibold">{formatCurrency(dated.nightly, dated.currency)}</span> / night
+                            <span className="ml-1 text-[10px] font-semibold uppercase text-[#FF385C]">live</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-semibold">{formatCurrency(h.startingRate)}</span> from / night
+                          </>
+                        )}
                       </p>
                     </div>
                     <span className={cn(
