@@ -13,8 +13,10 @@ import type {
   BookingDraft,
   ChatRequestBody,
 } from "@/lib/chat/types";
-import type { ReplyContext } from "./context";
+import type { AdvisorUser, ReplyContext } from "./context";
 import { extractCriteriaPatch } from "./provider";
+import { getCurrentUser } from "@/lib/auth/session";
+import { store } from "@/lib/data/store";
 
 const ORDINALS: Record<string, number> = {
   first: 0, "1st": 0, one: 0,
@@ -81,10 +83,20 @@ function resolveHotels(
   return picked;
 }
 
-function detectIntent(text: string): "compare" | "book" | "recommend" | null {
+function detectIntent(
+  text: string,
+): "compare" | "book" | "explain" | "recommend" | null {
   const t = text.toLowerCase();
   if (/\bcompare\b|side by side|versus|\bvs\b|difference between/.test(t)) return "compare";
   if (/\bbook\b|reserve|booking|i'?ll take|let'?s book/.test(t)) return "book";
+  // "why did you pick", "tell me more about the first", "which is better" — talk
+  // about the hotels already shown. Checked before recommend so "why…rank" wins.
+  if (
+    /\bwhy\b|tell me (more|about)|more about|what about the|\bexplain\b|which (one|is|hotel)|worth it|pros and cons/.test(
+      t,
+    )
+  )
+    return "explain";
   if (
     /recommend|show me|find me|options|suggestions?|what do you|go ahead|best hotel|top hotel|best place|rank|search/.test(
       t,
@@ -92,6 +104,28 @@ function detectIntent(text: string): "compare" | "book" | "recommend" | null {
   )
     return "recommend";
   return null;
+}
+
+/** Build the personalisation context for a signed-in traveller (if any). */
+async function buildAdvisorUser(isFirstTurn: boolean): Promise<AdvisorUser | undefined> {
+  const account = await getCurrentUser();
+  if (!account) return undefined;
+  const trips = await store.listTrips(account.id);
+  const now = Date.now();
+  const past = trips
+    .filter((t) => new Date(t.checkOut).getTime() < now)
+    .sort((a, b) => b.checkIn.localeCompare(a.checkIn));
+  const upcoming = trips
+    .filter((t) => new Date(t.checkOut).getTime() >= now)
+    .sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+  return {
+    firstName: account.name.split(" ")[0] || account.name,
+    travelerType: account.profile.travelerType,
+    membership: account.membership,
+    lastTripCity: past[0]?.city,
+    upcomingTripCity: upcoming[0]?.city,
+    greet: isFirstTurn,
+  };
 }
 
 function valueForBookingField(field: BookingField, text: string): string {
@@ -142,6 +176,7 @@ export async function runTurn(
   }
 
   // ---- 2. Update conversation memory --------------------------------------
+  const user = await buildAdvisorUser(!messages.some((m) => m.role === "assistant"));
   const patch = await extractCriteriaPatch(messages, session.criteria);
   const criteria = mergeCriteria(session.criteria, patch);
   const learned = [
@@ -177,6 +212,7 @@ export async function runTurn(
         booking,
         learned,
         lastUserMessage,
+        user,
       };
       return { ctx, payload: { action: "book", criteria, booking } };
     }
@@ -197,9 +233,29 @@ export async function runTurn(
         comparison,
         learned,
         lastUserMessage,
+        user,
       };
       return { ctx, payload: { action: "compare", criteria, comparison } };
     }
+  }
+
+  // ---- 4b. Explain / "why this one" — talk about hotels already shown -----
+  if (explicitIntent === "explain" && session.lastRecommendations.length) {
+    let focus = resolveHotels(lastUserMessage, session.lastRecommendations) as Recommendation[];
+    if (!focus.length) focus = session.lastRecommendations.slice(0, 2);
+    const ctx: ReplyContext = {
+      action: "explain",
+      criteria,
+      missing: [],
+      recommendations: session.lastRecommendations,
+      totalFound: session.lastRecommendations.length,
+      focus,
+      learned,
+      lastUserMessage,
+      user,
+    };
+    // No recommendations in the payload — the cards are already on screen.
+    return { ctx, payload: { action: "explain", criteria } };
   }
 
   // ---- 5. Recommend (explicit ask OR enough signal) -----------------------
@@ -221,6 +277,7 @@ export async function runTurn(
       totalFound,
       learned,
       lastUserMessage,
+      user,
     };
     return {
       ctx,
@@ -251,6 +308,7 @@ export async function runTurn(
     destinationSuggestions,
     learned,
     lastUserMessage,
+    user,
   };
   return {
     ctx,

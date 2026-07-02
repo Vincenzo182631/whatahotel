@@ -27,6 +27,11 @@ export function ChatInterface() {
   // conversation on the left, results canvas on the right (desktop only).
   const hasResults = messages.some(messageHasResults);
 
+  // Latest shortlist, for contextual follow-up chips.
+  const lastRecs = [...messages]
+    .reverse()
+    .find((m) => m.payload?.recommendations?.length)?.payload?.recommendations;
+
   return (
     <div
       className={cn(
@@ -66,8 +71,47 @@ export function ChatInterface() {
             <div ref={bottomRef} />
           </div>
 
+          {/* Contextual follow-ups once a shortlist exists */}
+          {lastRecs && lastRecs.length > 0 && (
+            <div className="no-scrollbar mb-2 flex gap-2 overflow-x-auto pb-1">
+              {lastRecs.length >= 2 && (
+                <button
+                  disabled={isStreaming}
+                  onClick={() =>
+                    send("Compare the top two side by side.", {
+                      type: "compare",
+                      hotelIds: [lastRecs[0].id, lastRecs[1].id],
+                    })
+                  }
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full glass px-3 py-1.5 text-xs text-foreground/75 transition-colors hover:text-primary disabled:opacity-50"
+                >
+                  ⚖️ Compare top two
+                </button>
+              )}
+              <button
+                disabled={isStreaming}
+                onClick={() => send("Why did you rank the first one first?")}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full glass px-3 py-1.5 text-xs text-foreground/75 transition-colors hover:text-primary disabled:opacity-50"
+              >
+                💡 Why the top pick?
+              </button>
+              <button
+                disabled={isStreaming}
+                onClick={() =>
+                  send("I'd like to book the top pick.", {
+                    type: "book",
+                    hotelIds: [lastRecs[0].id],
+                  })
+                }
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full glass px-3 py-1.5 text-xs text-foreground/75 transition-colors hover:text-primary disabled:opacity-50"
+              >
+                ✅ Book the top pick
+              </button>
+            </div>
+          )}
+
           {/* Quick suggestions before the user has typed much */}
-          {messages.length <= 2 && (
+          {!lastRecs && messages.length <= 2 && (
             <div className="no-scrollbar mb-2 flex gap-2 overflow-x-auto pb-1">
               {SUGGESTION_CHIPS.slice(0, 5).map((chip) => (
                 <button

@@ -1,6 +1,29 @@
 import type { CriteriaField } from "@/lib/services/conversation-memory";
-import type { SearchCriteria } from "@/lib/services/types";
-import type { ReplyContext } from "./context";
+import type { Recommendation, SearchCriteria } from "@/lib/services/types";
+import type { AdvisorUser, ReplyContext } from "./context";
+
+const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
+
+/** A warm, personalised opener for a signed-in traveller's first turn. */
+function greeting(user?: AdvisorUser): string {
+  if (!user?.greet) return "";
+  if (user.upcomingTripCity) {
+    return `Welcome back, ${user.firstName} — looking forward to your ${user.upcomingTripCity} trip. `;
+  }
+  if (user.lastTripCity) {
+    return `Welcome back, ${user.firstName} — lovely to see you again after ${user.lastTripCity}. `;
+  }
+  return `Welcome back, ${user.firstName}. `;
+}
+
+/** One grounded clause about a specific hotel, from real data only. */
+function hotelClause(r: Recommendation): string {
+  const brand = r.brand ? `${r.brand} — ` : "";
+  const perk = r.perks?.[0]?.label;
+  const rating = r.rating > 0 ? `, guest-rated ${r.rating}/10` : "";
+  const tail = perk ? `, with ${perk.replace(/\.$/, "").toLowerCase()}` : "";
+  return `${r.name} (${brand}from ${money(r.startingRate)}/night${rating})${tail}`;
+}
 
 /**
  * The deterministic advisor "voice" — composes a warm, human reply for any turn
@@ -104,12 +127,33 @@ function composeRecommend(ctx: ReplyContext): string {
   if (n === 0) {
     return `I looked across ${dest}, but nothing quite fits those exact details. If we nudge the budget or relax one preference, I can show you some exceptional options — what would you like to adjust?`;
   }
-  const intro = `I searched the best hotels in ${dest} and ranked them for ${summaryClause(c)}. Here ${n === 1 ? "is your top match" : `are your top ${n}, scored out of 10`}.`;
+  const intro = `${greeting(ctx.user)}I searched the best hotels in ${dest} and ranked them for ${summaryClause(c)}. Here ${n === 1 ? "is your top match" : `are your top ${n}, scored out of 10`}.`;
+  const top = ctx.recommendations[0];
+  const lead = top ? ` Leading is ${hotelClause(top)}.` : "";
   const outro =
     n > 1
       ? ` They're ranked best-fit first — tell me to compare any two, ask why I ranked one where I did, or say "book" when you're ready.`
       : ` Ask me anything about it, or say "book" when you're ready.`;
-  return intro + outro;
+  return intro + lead + outro;
+}
+
+function composeExplain(ctx: ReplyContext): string {
+  const picks = ctx.focus?.length ? ctx.focus : ctx.recommendations.slice(0, 1);
+  if (!picks.length) {
+    return "Tell me which of the hotels you'd like me to say more about.";
+  }
+  if (picks.length === 1) {
+    const r = picks[0];
+    const amen = r.amenities?.slice(0, 3).join(", ");
+    const why = r.reason ? ` ${r.reason}` : "";
+    const amenLine = amen ? ` Highlights include ${amen}.` : "";
+    return `${hotelClause(r)}.${why}${amenLine} Say "book" and I'll secure it with our advisor rate and perks.`;
+  }
+  const lines = picks
+    .slice(0, 3)
+    .map((r) => `• ${hotelClause(r)}${r.reason ? ` — ${r.reason}` : ""}`)
+    .join("\n");
+  return `Here's the honest read on each:\n\n${lines}\n\nWant me to compare any two side by side, or shall I book one?`;
 }
 
 function composeCompare(ctx: ReplyContext): string {
@@ -141,7 +185,8 @@ function composeBook(ctx: ReplyContext): string {
 }
 
 function composeChat(ctx: ReplyContext): string {
-  return `${acknowledge(ctx)} Tell me a little about the trip you have in mind — a destination, the occasion, or just the feeling you're after — and I'll take it from there.`;
+  const hi = greeting(ctx.user) || `${acknowledge(ctx)} `;
+  return `${hi}Tell me a little about the trip you have in mind — a destination, the occasion, or just the feeling you're after — and I'll take it from there.`;
 }
 
 export function composeReply(ctx: ReplyContext): string {
@@ -150,6 +195,8 @@ export function composeReply(ctx: ReplyContext): string {
       return composeRecommend(ctx);
     case "compare":
       return composeCompare(ctx);
+    case "explain":
+      return composeExplain(ctx);
     case "book":
       return composeBook(ctx);
     case "chat":

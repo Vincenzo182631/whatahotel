@@ -117,13 +117,19 @@ async function* streamFromClaude(
   const { streamText } = await import("ai");
 
   const situation = buildSituation(ctx);
+  const u = ctx.user;
+  const persona = u
+    ? `TRAVELLER: ${u.firstName}${u.membership === "premium" ? " (Premium member)" : ""}${u.travelerType ? `, travelling as a ${u.travelerType}` : ""}.` +
+      `${u.upcomingTripCity ? ` Has an upcoming trip to ${u.upcomingTripCity}.` : u.lastTripCity ? ` Last travelled to ${u.lastTripCity}.` : ""}` +
+      `${u.greet ? " This is the first message this session — greet them warmly by first name once." : ""}\n\n`
+    : "";
   const result = streamText({
     model: anthropic(MODEL),
     system: ADVISOR_SYSTEM_PROMPT,
     messages: [
       {
         role: "user",
-        content: `Known preferences: ${summarizeCriteria(ctx.criteria)}\n\nThe traveller just said: "${ctx.lastUserMessage}"\n\n${situation}\n\nReply now, in your advisor voice.`,
+        content: `${persona}Known preferences: ${summarizeCriteria(ctx.criteria)}\n\nThe traveller just said: "${ctx.lastUserMessage}"\n\n${situation}\n\nReply now, in your advisor voice.`,
       },
     ],
   });
@@ -135,9 +141,21 @@ async function* streamFromClaude(
 function buildSituation(ctx: ReplyContext): string {
   switch (ctx.action) {
     case "recommend":
-      return `SITUATION: You searched the best hotels in this city and RANKED them best-fit first for the traveller's needs. The app is showing ${ctx.recommendations.length} ranked hotel cards (out of ${ctx.totalFound} found), each with a personalised fit score out of 10: ${ctx.recommendations
-        .map((r) => `#${r.rank} ${r.name} (${r.fitScore.toFixed(1)}/10)`)
-        .join(", ")}. Briefly introduce the ranked shortlist and why #1 leads. Do NOT list full details — the cards do that.`;
+      return `SITUATION: You searched the best hotels in this city and RANKED them best-fit first for the traveller's needs. The app is showing ${ctx.recommendations.length} ranked hotel cards (out of ${ctx.totalFound} found). Real facts for each (use ONLY these — never invent prices, ratings, or perks):\n${ctx.recommendations
+        .map(
+          (r) =>
+            `#${r.rank} ${r.name}${r.brand ? ` (${r.brand})` : ""} — fit ${r.fitScore.toFixed(1)}/10, from $${Math.round(r.startingRate).toLocaleString()}/night${r.rating > 0 ? `, guest ${r.rating}/10` : ""}${r.perks?.[0] ? ` · perk: ${r.perks[0].label}` : ""}`,
+        )
+        .join("\n")}\nBriefly introduce the ranked shortlist and name why #1 leads, citing one concrete detail. Do NOT list full details for all — the cards do that.`;
+    case "explain": {
+      const focus = ctx.focus?.length ? ctx.focus : ctx.recommendations.slice(0, 2);
+      return `SITUATION: The traveller wants to understand specific hotels already on screen. Speak specifically and honestly about them using ONLY these facts: ${focus
+        .map(
+          (r) =>
+            `${r.name}${r.brand ? ` (${r.brand})` : ""} — from $${Math.round(r.startingRate).toLocaleString()}/night${r.rating > 0 ? `, guest ${r.rating}/10` : ""}; amenities: ${(r.amenities ?? []).slice(0, 4).join(", ") || "not listed"}; perk: ${r.perks?.[0]?.label ?? "advisor perks"}; why ranked: ${r.reason ?? "strong overall fit"}`,
+        )
+        .join(" | ")}. Give the real trade-offs and who each suits. Invent nothing.`;
+    }
     case "compare":
       return `SITUATION: The app is rendering a comparison table for: ${ctx.comparison?.hotels
         .map((h) => h.name)

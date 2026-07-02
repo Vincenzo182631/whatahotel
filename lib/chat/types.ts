@@ -3,7 +3,7 @@ import type { HotelComparison } from "@/lib/services/recommendation-engine";
 import type { Recommendation, SearchCriteria } from "@/lib/services/types";
 
 /** What the advisor decided to do this turn. */
-export type AdvisorAction = "ask" | "recommend" | "compare" | "book" | "chat";
+export type AdvisorAction = "ask" | "recommend" | "compare" | "book" | "chat" | "explain";
 
 export interface BookingDraft {
   hotelId?: string;

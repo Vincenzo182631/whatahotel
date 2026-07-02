@@ -4,6 +4,17 @@ import type { DestinationInfo } from "@/lib/services/destination-knowledge";
 import type { HotelComparison } from "@/lib/services/recommendation-engine";
 import type { Recommendation, SearchCriteria } from "@/lib/services/types";
 
+/** The signed-in traveller, when there is one — used to personalise replies. */
+export interface AdvisorUser {
+  firstName: string;
+  travelerType?: "solo" | "couple" | "family" | "business";
+  membership: "free" | "premium";
+  lastTripCity?: string;
+  upcomingTripCity?: string;
+  /** True only on the very first assistant turn of a session (for a warm hello). */
+  greet?: boolean;
+}
+
 /** Everything the reply generator needs to speak for this turn. */
 export interface ReplyContext {
   action: AdvisorAction;
@@ -14,7 +25,10 @@ export interface ReplyContext {
   comparison?: HotelComparison;
   booking?: BookingDraft;
   destinationSuggestions?: DestinationInfo[];
+  /** The specific hotels the user asked about, for the "explain" action. */
+  focus?: Recommendation[];
   /** Field names just learned this turn, for natural acknowledgements. */
   learned: string[];
   lastUserMessage: string;
+  user?: AdvisorUser;
 }
