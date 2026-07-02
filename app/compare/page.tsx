@@ -11,6 +11,7 @@ import { formatCurrency, cn } from "@/lib/utils";
 import type { AdvisorPerk, Hotel } from "@/lib/services/types";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 type Search = { a?: string; b?: string; checkIn?: string; checkOut?: string };
 type Params = { searchParams: Promise<Search> };
@@ -88,10 +89,10 @@ export default async function ComparePage({ searchParams }: Params) {
   if (!ha || !hb) notFound();
 
   const nights = nightsBetween(checkIn, checkOut);
-  const [ca, cb] = await Promise.all([
-    buildCol(ha, checkIn, checkOut, nights),
-    buildCol(hb, checkIn, checkOut, nights),
-  ]);
+  // Sequential (not Promise.all) to keep peak concurrency to the source API low
+  // — firing all 4 calls at once gets the info requests throttled from Vercel.
+  const ca = await buildCol(ha, checkIn, checkOut, nights);
+  const cb = await buildCol(hb, checkIn, checkOut, nights);
   const cols = [ca, cb];
   const anyLive = ca.live || cb.live;
   const dist = kmApart(ha, hb);
