@@ -1,21 +1,29 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowUpRight, MapPin, Sparkles } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import type { LiveHotel } from "@/lib/services/live-rates";
 import { formatCurrency } from "@/lib/utils";
 
-/** Live API results rendered in the chat — each opens the WhataHotel booking page. */
-export function LiveHotelCards({ hotels }: { hotels: LiveHotel[] }) {
+/** Live API results rendered in the chat — each opens the in-app stay page. */
+export function LiveHotelCards({
+  hotels,
+  checkIn,
+  checkOut,
+}: {
+  hotels: LiveHotel[];
+  checkIn?: string;
+  checkOut?: string;
+}) {
   if (!hotels.length) return null;
+  const dates = checkIn && checkOut ? `?checkIn=${checkIn}&checkOut=${checkOut}` : "";
   return (
     <div className="space-y-3">
       {hotels.map((h) => (
-        <a
+        <Link
           key={h.sourceHotelId}
-          href={h.bookingUrl || "#"}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={`/stay/${h.sourceHotelId}${dates}`}
           className="group flex gap-3 rounded-2xl glass p-3 transition-shadow hover:shadow-card"
         >
           <div className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-black/[0.04]">
@@ -40,7 +48,7 @@ export function LiveHotelCards({ hotels }: { hotels: LiveHotel[] }) {
             )}
           </div>
           <ArrowUpRight className="size-4 shrink-0 text-foreground/40 transition-colors group-hover:text-primary" />
-        </a>
+        </Link>
       ))}
     </div>
   );

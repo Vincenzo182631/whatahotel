@@ -335,6 +335,75 @@ export async function searchHotelsByName(query: string): Promise<LiveHotel[]> {
   }
 }
 
+/* ----------------------------------------------------- hotel lookup by id */
+
+export interface LiveHotelFull {
+  sourceHotelId: string;
+  name: string;
+  city: string;
+  country: string;
+  address?: string;
+  image: string;
+  gallery: string[];
+  perks: string[];
+  bookingUrl: string;
+  coordinates?: { lat: number; lng: number };
+}
+
+interface WahHotelLookup extends WahListHotel {
+  address?: string;
+  "loc-lat"?: string;
+  "loc-long"?: string;
+}
+const hotelCache = new Map<string, { ts: number; data: LiveHotelFull | null }>();
+
+/** Full identity for a single hotel by its WhataHotel id (method=hotel). */
+export async function getLiveHotel(sourceHotelId: string): Promise<LiveHotelFull | null> {
+  if (!API_KEY || !sourceHotelId) return null;
+  const hit = hotelCache.get(sourceHotelId);
+  if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
+
+  const url = `${API_BASE}?method=hotel&hotel=${encodeURIComponent(sourceHotelId)}&apiKey=${encodeURIComponent(API_KEY)}`;
+  try {
+    const json = parseWahJson<{
+      wahData?: {
+        status?: { code?: string; connection?: number };
+        hotels?: WahHotelLookup[];
+        images?: { imgThumb?: string; imgFile?: string }[];
+      };
+    }>(await fetchJson(url));
+    const wah = json.wahData;
+    // This method reports success as code "100" (others use "200").
+    const ok = wah && (wah.status?.connection === 1 || ["100", "200"].includes(String(wah.status?.code)));
+    const h = wah?.hotels?.[0];
+    if (!ok || !h || !h.hotelID || !h.name) {
+      hotelCache.set(sourceHotelId, { ts: Date.now(), data: null });
+      return null;
+    }
+    const lat = Number(h["loc-lat"]);
+    const lng = Number(h["loc-long"]);
+    const gallery = (wah.images ?? [])
+      .map((i) => (i.imgThumb || i.imgFile || "").trim())
+      .filter(Boolean);
+    const data: LiveHotelFull = {
+      sourceHotelId: String(h.hotelID),
+      name: h.name.trim(),
+      city: (h.city ?? "").trim(),
+      country: (h.country ?? "").trim(),
+      address: h.address?.trim() || undefined,
+      image: (h.images ?? gallery[0] ?? "").trim(),
+      gallery,
+      perks: (h.perks ?? []).map((p) => (p.perk ?? "").trim()).filter(Boolean),
+      bookingUrl: (h.url || h["checkout-url"] || "").trim(),
+      coordinates: lat && lng ? { lat, lng } : undefined,
+    };
+    hotelCache.set(sourceHotelId, { ts: Date.now(), data });
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 /* --------------------------------------------------------------------- info */
 
 export interface HotelInfo {

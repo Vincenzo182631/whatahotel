@@ -80,7 +80,11 @@ export function MessageBubble({
           )}
 
           {payload?.liveHotels && payload.liveHotels.length > 0 && (
-            <LiveHotelCards hotels={payload.liveHotels} />
+            <LiveHotelCards
+              hotels={payload.liveHotels}
+              checkIn={payload.criteria?.checkIn}
+              checkOut={payload.criteria?.checkOut}
+            />
           )}
 
           {payload?.booking && <BookingSummary booking={payload.booking} />}

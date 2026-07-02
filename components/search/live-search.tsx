@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Search, Sparkles, ArrowUpRight, MapPin, CalendarDays, Loader2 } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import type { LiveHotel } from "@/lib/services/live-rates";
@@ -127,11 +128,9 @@ export function LiveSearch() {
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {hotels.map((h) => (
-              <a
+              <Link
                 key={h.sourceHotelId}
-                href={h.bookingUrl || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={`/stay/${h.sourceHotelId}${mode === "city" && checkIn && checkOut ? `?checkIn=${checkIn}&checkOut=${checkOut}` : ""}`}
                 className="group overflow-hidden rounded-2xl border border-[#EBEBEB] bg-white transition-shadow hover:shadow-[0_6px_20px_-10px_rgba(0,0,0,0.18)]"
               >
                 <div className="relative aspect-[4/3] bg-[#eee]">
@@ -162,10 +161,10 @@ export function LiveSearch() {
                     </ul>
                   )}
                   <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#FF385C]">
-                    View rates & book <ArrowUpRight className="size-3.5" />
+                    View hotel <ArrowUpRight className="size-3.5" />
                   </span>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
