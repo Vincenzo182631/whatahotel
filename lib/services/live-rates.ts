@@ -133,7 +133,10 @@ export async function getLiveRates(params: {
       if (!name || !nightly) continue;
       const room: LiveRoom = {
         name,
-        description: r.roomDesc?.trim() || undefined,
+        // Strip the source's "-WhataHotel! … Rate -" boilerplate prefix.
+        description:
+          r.roomDesc?.trim().replace(/^[-\s]*whatahotel!.*?\brate\b\s*-?\s*/i, "").trim() ||
+          undefined,
         bedType: r.bedType?.trim() || undefined,
         nightly,
         total: num(r.rateTotal) || nightly * nights,
