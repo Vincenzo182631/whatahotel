@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { ChatComposer } from "@/components/chat/chat-composer";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
+import { ChatMarkdown } from "@/components/chat/chat-markdown";
 import { answerHotelQuestion, DOCKED_SUGGESTIONS } from "@/lib/chat/hotel-qa";
 import type { Hotel } from "@/lib/services/types";
 
@@ -20,7 +21,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
     {
       id: "intro",
       role: "assistant",
-      content: `I'm here while you explore ${hotel.name}. Ask me anything — connecting rooms, the best view, nearby dining, how far the airport is — or say “book” when you're ready.`,
+      content: `I'm your personal advisor for **${hotel.name}** — I know the rooms, dining, perks and the whole destination. Ask me which room suits you, the best nearby restaurants or beaches, how far the airport is, or say the occasion (honeymoon, family, anniversary) and I'll tailor everything. Want a 3-day plan? Just ask.`,
     },
   ]);
   const [busy, setBusy] = useState(false);
@@ -105,12 +106,12 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
               {m.streaming && !m.content ? (
                 <TypingIndicator />
               ) : (
-                <span className="whitespace-pre-wrap">
-                  {m.content}
+                <div className="text-[#2a2a2a]">
+                  <ChatMarkdown content={m.content} />
                   {m.streaming && (
-                    <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-pulse-soft bg-primary" />
+                    <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-pulse-soft bg-primary align-middle" />
                   )}
-                </span>
+                </div>
               )}
             </motion.div>
           ),

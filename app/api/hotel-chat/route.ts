@@ -2,7 +2,7 @@ import { hotelDetailsService } from "@/lib/services";
 import { getLiveHotel, getHotelInfo } from "@/lib/services/live-rates";
 import { streamGrounded } from "@/lib/ai/provider";
 import { answerHotelQuestion } from "@/lib/chat/hotel-qa";
-import { CITY_POIS } from "@/lib/ai/itinerary-data";
+import { buildHotelDossier } from "@/lib/ai/hotel-knowledge";
 import type { Hotel } from "@/lib/services/types";
 
 export const runtime = "nodejs";
@@ -10,22 +10,29 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
 /**
- * Conversational advisor for a single hotel page. Answers questions about the
- * hotel (grounded in its real amenities, perks, distances) and its surrounding
- * area (nearby attractions, dining, cafés, the airport) using the curated POIs,
- * streamed from the LLM. Falls back to the deterministic Q&A when no LLM.
+ * World-class Luxury Travel Advisor for a single hotel page.
+ *
+ * On every turn it loads the hotel's COMPLETE knowledge base (curated record +
+ * live amenities/dining/tax + the real room catalogue + curated destination
+ * POIs — see lib/ai/hotel-knowledge.ts) and injects it into the system prompt so
+ * the AI answers as a seasoned concierge who knows THIS property inside out,
+ * grounded in facts, never inventing them. Streams token-by-token. Remembers the
+ * conversation within the session (occasion, party, preferences). Falls back to
+ * the deterministic Q&A when no LLM is configured.
  */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const hotelId = String(body.hotelId ?? "");
   const question = String(body.question ?? "").trim();
-  const history: { role: string; content: string }[] = Array.isArray(body.history) ? body.history.slice(-6) : [];
-  if (!question) return new Response("Ask me something about this hotel.", { status: 400 });
+  const history: { role: string; content: string }[] = Array.isArray(body.history)
+    ? body.history.slice(-10)
+    : [];
+  if (!question) return new Response("Ask me anything about this hotel.", { status: 400 });
 
-  // Resolve the hotel (curated slug first, then a live id).
+  // Resolve the hotel — curated slug first, then a live WhataHotel id.
   let hotel: Hotel | null = await hotelDetailsService.getHotelById(hotelId);
-  let liveAmenities: string[] = [];
-  let liveDining: string[] = [];
+  let liveAmenities: string[] | undefined;
+  let liveDining: string[] | undefined;
   if (!hotel) {
     const live = await getLiveHotel(hotelId);
     if (live) {
@@ -46,42 +53,55 @@ export async function POST(req: Request) {
   if (!hotel) return new Response("I couldn't find that hotel.", { status: 404 });
 
   const h = hotel;
-  const key = (h.destinationKey || h.city).toLowerCase().replace(/[^a-z]/g, "");
-  const pois = CITY_POIS[key] ?? null;
 
-  // No LLM → deterministic answer, sent as a single chunk.
-  const fallback = () => new Response(answerHotelQuestion(h, question), {
-    headers: { "Content-Type": "text/plain; charset=utf-8" },
-  });
+  // Deterministic fallback (no LLM), sent as a single chunk.
+  const fallback = () =>
+    new Response(answerHotelQuestion(h, question), {
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
 
-  const amenities = h.amenities.length ? h.amenities.join(", ") : liveAmenities.slice(0, 12).join(", ");
-  const facts = [
-    `Hotel: ${h.name}${h.brand ? ` (${h.brand})` : ""}`,
-    `Location: ${[h.neighborhood, h.city, h.country].filter(Boolean).join(", ")}`,
-    h.description ? `About: ${h.description}` : "",
-    amenities ? `Amenities: ${amenities}` : "",
-    h.perks.length ? `Advisor-exclusive perks: ${h.perks.map((p) => p.label).join("; ")}` : "",
-    h.distances.length ? `Distances: ${h.distances.map((d) => `${d.label} ${d.value}`).join(", ")}` : "",
-    liveDining.length ? `On-site dining: ${liveDining.slice(0, 5).join(", ")}` : "",
-  ].filter(Boolean).join("\n");
+  // Load the complete knowledge base for THIS hotel.
+  const dossier = await buildHotelDossier(h, { liveAmenities, liveDining });
 
-  const area = pois
-    ? `Nearby (${h.city}) — attractions: ${pois.attractions.map((x) => x.name).join(", ")}; dining: ${pois.dining.map((x) => x.name).join(", ")}; cafés: ${pois.cafes.map((x) => x.name).join(", ")}; museums: ${pois.museums.map((x) => x.name).join(", ")}; getting around: ${pois.transport}`
-    : `Use general knowledge of ${h.city} for nearby attractions, dining and the nearest airport.`;
+  const system = `You are the WhataHotel Advisor — a senior luxury travel advisor and concierge who has personally stayed at ${h.name} and knows both the property and its destination intimately. You are speaking with a guest who is viewing ${h.name} right now, helping them feel confident enough to book.
 
-  const system = `You are the WhataHotel Advisor helping a guest who is viewing ${h.name}. Be warm, precise and BRIEF — 1–3 sentences, answer-first, no filler or preamble.
-Ground every answer in the FACTS. NEVER invent hotel amenities, perks, ratings or prices. If a rate/price comes up, tell them to pick their dates in the "Rooms & availability" section on this page for live rates — never quote a number.
-For questions about the AREA (nearby attractions, restaurants, cafés, the nearest airport, getting around) you MAY use the NEARBY list and general local knowledge, framed as things to confirm.
-If they say "book" or want to reserve, tell them to choose their dates and a room in the Rooms section below.
+PERSONALITY
+Warm, gracious, genuinely knowledgeable, and refined — like a trusted advisor at a top-tier travel house. Never robotic, never generic, never a wall of text. Proactive and honest. You speak with quiet authority and real enthusiasm for this hotel.
 
-FACTS:
-${facts}
+WHAT YOU KNOW
+Everything in the KNOWLEDGE BASE below about THIS hotel — its story, rooms, dining, facilities, advisor perks — plus its surrounding destination (attractions, restaurants, cafés, shopping, activities, the nearest airport, getting around). This is your single source of truth.
 
-${area}`;
+KNOWLEDGE PRIORITY (highest first): the hotel's own data (identity, overview, rooms, amenities, dining, perks, policies) → curated destination knowledge → reliable general knowledge of the destination, always framed as "worth confirming".
+
+HONESTY — THIS IS ABSOLUTE
+- NEVER invent hotel facts: no made-up room sizes, bathroom features, awards, opening years, policies, restaurant names, or amenities that aren't in the KNOWLEDGE BASE.
+- If something isn't covered, say so plainly ("I don't have that confirmed for ${h.name} — I'd be glad to check it with the hotel") and offer a related answer you CAN give.
+- PRICING: never quote a nightly rate or total. Rates are only ever live for the guest's exact dates. Direct them to the "Rooms & availability" section on this page to set dates and see live pricing, room-by-room. You may discuss room categories, value and whether an upgrade is worthwhile in qualitative terms.
+- For destination facts (a café, a beach, the airport) you may use general knowledge, but frame timings/prices as "worth confirming".
+
+RESPONSE STYLE
+- Concise and easy to scan. Lead with the answer. No preamble ("Great question!"), no filler.
+- Simple questions → 1–3 warm sentences. Richer questions (itineraries, room comparisons, "what should we do") → short intro + a tight bullet list.
+- Use markdown: **bold** for names/labels, "- " bullet lists, numbered lists for itineraries/steps, and a compact markdown table ONLY when directly comparing 2–3 rooms or options.
+- Explain room differences in plain language. When recommending, say WHY in a few words (privacy, view, space, value).
+- Add a brief, tasteful travel tip when it genuinely helps. Avoid large paragraphs.
+
+PROACTIVE ADVISING
+Read the guest's intent and tailor. If they mention an occasion or party, lead future answers with it:
+- Honeymoon / anniversary → most private/romantic room, sunset spot, a couples' spa or private-dining idea.
+- Family / children → family-friendly rooms, kids facilities, easy beaches, relaxed nearby dining.
+- Business → efficient room, connectivity, quiet, transfer timing.
+Offer a next helpful step (e.g. "Want a 3-day plan?" or "Shall I suggest the best room for two?") — one line, not pushy.
+
+MEMORY
+Remember everything the guest has said this session (occasion, dates, party, preferences) and never re-ask it. Build on it.
+
+${dossier.brief}`;
 
   const convo = history.length
     ? history.map((m) => `${m.role === "user" ? "Guest" : "You"}: ${m.content}`).join("\n") + "\n"
     : "";
+  const prompt = `${convo}Guest: "${question}"\n\nRespond now as their luxury travel advisor for ${h.name}.`;
 
   try {
     const stream = new ReadableStream<Uint8Array>({
@@ -89,7 +109,7 @@ ${area}`;
         const enc = new TextEncoder();
         try {
           let any = false;
-          for await (const delta of streamGrounded(system, `${convo}Guest: "${question}"\n\nAnswer now.`)) {
+          for await (const delta of streamGrounded(system, prompt)) {
             any = true;
             controller.enqueue(enc.encode(delta));
           }

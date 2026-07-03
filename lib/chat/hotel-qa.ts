@@ -97,9 +97,11 @@ export function answerHotelQuestion(hotel: Hotel, question: string): string {
 }
 
 export const DOCKED_SUGGESTIONS = [
-  "Is breakfast included?",
-  "Does it have connecting rooms?",
+  "Which room is best for a honeymoon?",
+  "Best restaurants nearby?",
+  "Plan me a 3-day itinerary",
   "How far is the airport?",
-  "Which room has the best view?",
   "What are the advisor perks?",
+  "Where should I watch the sunset?",
+  "Is it good for families?",
 ];
