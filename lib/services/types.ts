@@ -49,6 +49,9 @@ export interface SearchCriteria {
   amenities?: string[]; // canonical amenity keys
   vibes?: Vibe[];
   nearby?: string; // landmark / point of interest
+  /** Freeform preferences/needs the traveller has stated (pets, high floor,
+   *  dietary, accessibility, celebration specifics…) — accumulated, never re-asked. */
+  notes?: string[];
 }
 
 export interface RoomOption {

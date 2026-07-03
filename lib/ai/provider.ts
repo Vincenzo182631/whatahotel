@@ -48,7 +48,10 @@ async function chatModel(fast = false) {
   const id = fast ? FAST_MODEL : MODEL;
   if (PROVIDER === "openai") {
     const { openai } = await import("@ai-sdk/openai");
-    return openai(id);
+    // Disable OpenAI strict structured outputs — it requires EVERY schema field
+    // to be `required`, which rejects our optional-field extraction/routing
+    // schemas. Tool-mode (this setting) supports optional fields.
+    return openai(id, { structuredOutputs: false });
   }
   const { anthropic } = await import("@ai-sdk/anthropic");
   return anthropic(id);
@@ -73,6 +76,12 @@ const criteriaPatchSchema = z.object({
   amenities: z.array(z.string()).optional(),
   brands: z.array(z.string()).optional(),
   nearby: z.string().optional(),
+  notes: z
+    .array(z.string())
+    .optional()
+    .describe(
+      "Any preference, need or constraint the traveller states that isn't a field above — e.g. 'travelling with a dog', 'high floor', 'gluten-free', 'wheelchair access', 'celebrating 10th anniversary', 'quiet room'. Short phrases; only NEW ones from the latest message.",
+    ),
 });
 
 /**
@@ -94,7 +103,7 @@ export async function extractCriteriaPatch(
       model: await chatModel(true),
       schema: criteriaPatchSchema,
       system:
-        "Extract ONLY the hotel-search details the user newly states or changes in their latest message. Omit anything not mentioned. Return canonical destination keys.",
+        "Extract ONLY the hotel-search details the user newly states or changes in their latest message, plus any new preference/need/constraint as `notes`. Omit anything not mentioned. Return canonical destination keys.",
       prompt: `Known so far: ${summarizeCriteria(current)}\n\nConversation:\n${messages
         .slice(-6)
         .map((m) => `${m.role}: ${m.content}`)

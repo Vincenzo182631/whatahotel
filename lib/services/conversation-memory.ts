@@ -235,6 +235,13 @@ export function mergeCriteria(
       next[k] = v;
     }
   }
+  // Notes accumulate (deduped) so a stated preference is never forgotten.
+  if (patch.notes?.length) {
+    const merged = [...(current.notes ?? []), ...patch.notes]
+      .map((s) => s.trim())
+      .filter(Boolean);
+    next.notes = [...new Set(merged)].slice(-12);
+  }
   // If the destination changed, a previously-set landmark may no longer apply.
   if (patch.destination && patch.destination !== current.destination && !patch.nearby) {
     next.nearby = undefined;

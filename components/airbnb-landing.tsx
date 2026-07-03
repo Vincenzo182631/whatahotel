@@ -17,7 +17,7 @@ import { useHotelsByCity, type FeaturedHotel } from "@/hooks/use-hotels";
 import { useAuth } from "@/hooks/use-auth";
 import { CompareWizard } from "@/components/compare/compare-wizard";
 import { useTravelDates } from "@/store/travel-dates-store";
-import { useCityRates } from "@/hooks/use-city-rates";
+import { useHotelLiveRate, useInView } from "@/hooks/use-hotel-live-rate";
 import { TravelDatesBar } from "@/components/search/travel-dates-bar";
 import { cn, formatCurrency } from "@/lib/utils";
 
@@ -29,16 +29,15 @@ export function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
   const isSaved = usePreferences((s) => s.isSaved);
   const toggleSave = usePreferences((s) => s.toggleSave);
   const saved = isSaved(hotel.id);
-  // Once the traveller has dates, show the live rate for those dates (one
-  // cityrates call per city, shared across all its cards).
+  // Once the traveller has dates, show this hotel's live rate for those dates —
+  // the same method=rates the stay page uses, fetched when the card scrolls in.
   const { checkIn, checkOut } = useTravelDates();
   const nights =
     checkIn && checkOut
       ? Math.max(0, Math.round((+new Date(checkOut) - +new Date(checkIn)) / 86_400_000))
       : 0;
-  const { data: cityRates } = useCityRates(hotel.city, checkIn, checkOut);
-  const rate =
-    cityRates?.[hotel.id] ?? (hotel.sourceHotelId ? cityRates?.[hotel.sourceHotelId] : undefined);
+  const { ref, inView } = useInView<HTMLDivElement>();
+  const { data: rate } = useHotelLiveRate(hotel.id, checkIn, checkOut, inView);
   // Clicking a hotel goes to the live search, pre-filled with this hotel's name,
   // so the guest lands on live rates for their dates (not a stored-price page).
   // The id guarantees the exact hotel resolves even if its name isn't indexed.
@@ -46,7 +45,7 @@ export function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
     ? `/find?q=${encodeURIComponent(hotel.name)}&id=${encodeURIComponent(hotel.sourceHotelId)}`
     : `/find?q=${encodeURIComponent(hotel.name)}`;
   return (
-    <div className="group">
+    <div ref={ref} className="group">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-[#eee]">
         <Link href={findHref} className="absolute inset-0 z-0 block">
           <ImageWithFallback
