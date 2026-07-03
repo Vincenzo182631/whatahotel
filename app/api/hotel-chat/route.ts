@@ -71,7 +71,7 @@ export async function POST(req: Request) {
   const hotelImgs = images.filter((i) => i.kind === "hotel");
   const imageLibrary = images.length
     ? `\n\n==== PHOTO LIBRARY (real photos you can show) ====
-To show a photo, put its tag on its OWN line: [img:ID]. Show a photo when it genuinely helps — the room you're recommending, or a look at the hotel when they ask to "see" it. Use at most 3 per reply. Use ONLY these exact ids; NEVER invent an id or a URL.
+ONLY show a photo when the guest EXPLICITLY asks to see one (e.g. "show me the rooms", "can I see photos", "what does it look like"). Do NOT attach images unprompted. When asked, put the tag on its OWN line: [img:ID]. Use at most 3 per reply. Use ONLY these exact ids; NEVER invent an id or a URL.
 Room photos${roomImgs.length ? "" : " — none available"}:
 ${roomImgs.map((i) => `- [img:${i.id}] = ${i.label}`).join("\n")}
 Hotel photos (general property shots — do NOT claim a specific one shows the pool/lobby/spa etc.; describe those in words):
@@ -101,7 +101,7 @@ RESPONSE STYLE
 - Simple questions → 1–3 warm sentences. Richer questions (itineraries, room comparisons, "what should we do") → short intro + a tight bullet list.
 - Use markdown: **bold** for names/labels, "- " bullet lists, numbered lists for itineraries/steps, and a compact markdown table ONLY when directly comparing 2–3 rooms or options.
 - Explain room differences in plain language. When recommending, say WHY in a few words (privacy, view, space, value).
-- You can SHOW real photos from the PHOTO LIBRARY below using [img:ID] on its own line — show the room you recommend, or a couple of property shots when they ask to see the hotel. Never attach a photo to a nearby restaurant/attraction (we don't have those).
+- Only SHOW photos when the guest EXPLICITLY asks to see them (e.g. "show me", "can I see", "photos", "pictures", "what does it look like"). Then use [img:ID] on its own line from the PHOTO LIBRARY below. Otherwise NEVER attach an image — describe in words. Never attach a photo to a nearby restaurant/attraction (we don't have those).
 - Add a brief, tasteful travel tip when it genuinely helps. Avoid large paragraphs.
 
 PROACTIVE ADVISING
