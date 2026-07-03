@@ -17,6 +17,7 @@ import { extractCriteriaPatch, classifyTurn } from "./provider";
 import { getCurrentUser } from "@/lib/auth/session";
 import { store } from "@/lib/data/store";
 import { getCityHotels, buildLiveComparison } from "@/lib/services/live-rates";
+import { CITY_POIS } from "./itinerary-data";
 
 /** Pull concrete ISO dates the user typed (checkIn = earliest, checkOut = next). */
 function parseIsoDates(text: string): { checkIn?: string; checkOut?: string } {
@@ -148,10 +149,17 @@ function resolveByNames(names: string[], last: Recommendation[]): Recommendation
 
 function detectIntent(
   text: string,
-): "compare" | "book" | "explain" | "recommend" | "qa" | null {
+): "compare" | "book" | "explain" | "recommend" | "qa" | "local" | null {
   const t = text.toLowerCase();
   if (/\bcompare\b|side by side|versus|\bvs\b|difference between/.test(t)) return "compare";
   if (/\bbook\b|reserve|booking|i'?ll take|let'?s book/.test(t)) return "book";
+  // Local AREA questions — nearby spots, attractions, dining out, transport.
+  if (
+    /near ?by|near the hotel|around (here|the hotel|it)|close by|walking distance|things to do|what to (see|do)|tourist|sightsee|attractions?|landmarks?|\bmuseums?\b|\bcaf[eé]s?\b|coffee shop|nightlife|where to eat|restaurants? (near|nearby|around|close)|getting around|\bairport\b|day trip|neighbou?rhood|explore/.test(
+      t,
+    )
+  )
+    return "local";
   // "why did you pick", "tell me more about the first", "which is better" — talk
   // about the hotels already shown. Checked before recommend so "why…rank" wins.
   if (
@@ -285,12 +293,17 @@ export async function runTurn(
     routed === "book" ||
     routed === "explain" ||
     routed === "recommend" ||
-    routed === "qa"
+    routed === "qa" ||
+    routed === "local"
       ? routed
       : undefined;
   const explicitIntent =
     intent?.type ??
-    (refersToShown && (regexIntent === "explain" || regexIntent === "qa" || regexIntent === "compare")
+    (refersToShown &&
+    (regexIntent === "explain" ||
+      regexIntent === "qa" ||
+      regexIntent === "compare" ||
+      regexIntent === "local")
       ? regexIntent
       : undefined) ??
     routedIntent ??
@@ -392,6 +405,31 @@ export async function runTurn(
       user,
     };
     return { ctx, payload: { action: "qa", criteria } };
+  }
+
+  // ---- 4b-3. Local area — nearby attractions, dining, cafés, airport ------
+  if (explicitIntent === "local") {
+    const focusHotel =
+      (route?.targetHotels?.length
+        ? resolveByNames(route.targetHotels, session.lastRecommendations)
+        : (resolveHotels(lastUserMessage, session.lastRecommendations) as Recommendation[]))[0] ??
+      session.lastRecommendations[0];
+    const city = focusHotel?.city || criteria.destinationLabel?.split(",")[0] || "";
+    const key = (focusHotel?.destinationKey || city).toLowerCase().replace(/[^a-z]/g, "");
+    const pois = CITY_POIS[key] ?? null;
+    const ctx: ReplyContext = {
+      action: "local",
+      criteria,
+      missing: [],
+      recommendations: session.lastRecommendations,
+      totalFound: session.lastRecommendations.length,
+      localArea: { city, hotelName: focusHotel?.name, pois },
+      qaQuestion: route?.question || lastUserMessage,
+      learned,
+      lastUserMessage,
+      user,
+    };
+    return { ctx, payload: { action: "local", criteria } };
   }
 
   // ---- 4c. Live search — any city beyond the local set, via the API -------

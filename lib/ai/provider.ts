@@ -131,7 +131,7 @@ export async function extractCriteriaPatch(
 
 /** What the router decided the traveller wants this turn. */
 export interface TurnRoute {
-  action: "recommend" | "compare" | "book" | "explain" | "qa" | "live" | "smalltalk" | "ask";
+  action: "recommend" | "compare" | "book" | "explain" | "qa" | "local" | "live" | "smalltalk" | "ask";
   /** Names/ordinals of already-shown hotels the message refers to (explain/qa). */
   targetHotels?: string[];
   /** For qa: the exact factual question to answer. */
@@ -139,7 +139,7 @@ export interface TurnRoute {
 }
 
 const routeSchema = z.object({
-  action: z.enum(["recommend", "compare", "book", "explain", "qa", "live", "smalltalk", "ask"]),
+  action: z.enum(["recommend", "compare", "book", "explain", "qa", "local", "live", "smalltalk", "ask"]),
   targetHotels: z.array(z.string()).optional(),
   question: z.string().optional(),
 });
@@ -169,7 +169,8 @@ export async function classifyTurn(
 - compare: wants two or more hotels compared side by side
 - book: wants to book / reserve
 - explain: wants to understand or contrast hotels already shown ("why this one", "which is better", "pros and cons")
-- qa: asks a specific factual question about a hotel already shown (breakfast, spa, pool, gym, pets, kids, airport/distance, transfers, view, dining, connecting rooms, cancellation, perks, etc.)
+- qa: asks a specific factual question about the hotel itself already shown (breakfast, spa, pool, gym, pets, kids, on-site dining, connecting rooms, cancellation, perks, etc.)
+- local: asks about the AREA around a hotel/city — nearby tourist spots, attractions, things to do, museums, restaurants/cafés/bars nearby, the nearest airport, or getting around
 - live: wants hotels in a specific city/place
 - smalltalk: greeting, thanks, or a general question about how the service works
 - ask: anything else, or not enough information yet
@@ -263,6 +264,18 @@ function buildSituation(ctx: ReplyContext): string {
         return `SITUATION: The traveller asked a specific question but no hotel is in focus yet. Answer generally if you can, otherwise ask which hotel (or their destination and dates) so you can be precise.`;
       const dist = (h.distances ?? []).map((d) => `${d.label} ${d.value}`).join(", ");
       return `SITUATION: The traveller asked a specific question about ${h.name}: "${ctx.qaQuestion ?? ctx.lastUserMessage}". Answer it directly and honestly using ONLY these facts about ${h.name} — brand: ${h.brand ?? "independent"}; amenities: ${(h.amenities ?? []).join(", ") || "not listed"}; perks: ${(h.perks ?? []).map((p) => p.label).join(", ") || "advisor perks"}${dist ? `; distances: ${dist}` : ""}; highlights: ${(h.highlights ?? []).slice(0, 3).join("; ") || "n/a"}. If the facts don't cover the question, say you'll confirm it directly with the hotel — never invent. Never quote a nightly price (say "live rates for your dates"). Keep it to 1–3 sentences.`;
+    }
+    case "local": {
+      const a = ctx.localArea;
+      const q = ctx.qaQuestion ?? ctx.lastUserMessage;
+      if (!a || !a.city)
+        return `SITUATION: They asked about the local area but no destination is set. Ask which city (or which hotel) so you can be specific.`;
+      const p = a.pois;
+      const near = a.hotelName ? `${a.hotelName} (in ${a.city})` : a.city;
+      const grounded = p
+        ? `Recommend from these real spots near there (pick the ones that answer the question):\nAttractions: ${p.attractions.map((x) => x.name).join(", ")}\nDining: ${p.dining.map((x) => x.name).join(", ")}\nCafés: ${p.cafes.map((x) => x.name).join(", ")}\nMuseums: ${p.museums.map((x) => x.name).join(", ")}\nParks: ${p.parks.map((x) => x.name).join(", ")}\nBars: ${p.bars.map((x) => x.name).join(", ")}\nGetting around: ${p.transport}\n`
+        : `Use your own knowledge of ${a.city} — name well-known nearby options.\n`;
+      return `SITUATION: The traveller asked about the area around ${near}: "${q}".\n${grounded}Answer concisely — 2–4 short sentences or a tight bullet list — naming a few of the best options that fit exactly what they asked (nearby attractions, restaurants, cafés, or the nearest airport / how to get around). These are area recommendations near the hotel, NOT hotel facilities. If they asked about the airport, name the nearest one and rough travel time from general knowledge. Suggest confirming current hours/timings. No preamble.`;
     }
     case "compare": {
       const cmp = ctx.comparison;

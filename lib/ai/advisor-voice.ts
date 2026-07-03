@@ -208,6 +208,27 @@ function composeQa(ctx: ReplyContext): string {
   return answerHotelQuestion(h, ctx.qaQuestion ?? ctx.lastUserMessage);
 }
 
+function composeLocal(ctx: ReplyContext): string {
+  const a = ctx.localArea;
+  if (!a?.city) return "Which city (or which hotel) shall I suggest nearby spots for?";
+  const p = a.pois;
+  const where = a.hotelName ?? a.city;
+  if (!p)
+    return `Around ${where} there's plenty to explore. Tell me whether you'd like attractions, dining, cafés or transport, and I'll be specific.`;
+  const q = (ctx.qaQuestion ?? ctx.lastUserMessage).toLowerCase();
+  const list = (arr: { name: string }[], n = 3) => arr.slice(0, n).map((x) => x.name).join(", ");
+  if (/airport|getting around|transport|metro|how (do|to) (i|you) get/.test(q))
+    return `Getting around ${a.city}: ${p.transport}`;
+  if (/restaurant|where to eat|dining|food|dinner|lunch/.test(q))
+    return `Excellent tables near ${where}: ${list(p.dining)}. Want me to book one?`;
+  if (/caf[eé]|coffee/.test(q)) return `For coffee near ${where}: ${list(p.cafes)}.`;
+  if (/bar|nightlife|drink/.test(q)) return `For an evening drink nearby: ${list(p.bars)}.`;
+  if (/museum/.test(q)) return `Museums close by: ${list(p.museums)}.`;
+  if (/park|garden|green/.test(q)) return `Green spaces nearby: ${list(p.parks)}.`;
+  if (/shop|boutique|mall/.test(q)) return `For shopping: ${list(p.shopping)}.`;
+  return `Near ${where}: ${list(p.attractions, 4)}. ${p.transport}`;
+}
+
 export function composeReply(ctx: ReplyContext): string {
   switch (ctx.action) {
     case "recommend":
@@ -218,6 +239,8 @@ export function composeReply(ctx: ReplyContext): string {
       return composeExplain(ctx);
     case "qa":
       return composeQa(ctx);
+    case "local":
+      return composeLocal(ctx);
     case "live":
       return composeLive(ctx);
     case "book":

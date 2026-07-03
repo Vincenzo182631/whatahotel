@@ -3,6 +3,7 @@ import type { CriteriaField } from "@/lib/services/conversation-memory";
 import type { DestinationInfo } from "@/lib/services/destination-knowledge";
 import type { HotelComparison } from "@/lib/services/recommendation-engine";
 import type { Recommendation, SearchCriteria } from "@/lib/services/types";
+import type { CityPois } from "./itinerary-data";
 
 /** The signed-in traveller, when there is one — used to personalise replies. */
 export interface AdvisorUser {
@@ -31,6 +32,8 @@ export interface ReplyContext {
   qaQuestion?: string;
   /** What the traveller cares most about, to weight the "compare" recommendation. */
   comparePriority?: string;
+  /** For the "local" action: nearby attractions, dining, cafés & transport. */
+  localArea?: { city: string; hotelName?: string; pois: CityPois | null };
   /** Live results + the city they're for, when searching beyond the local set. */
   liveCity?: string;
   liveHotels?: import("@/lib/services/live-rates").LiveHotel[];
