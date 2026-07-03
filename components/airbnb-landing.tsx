@@ -7,16 +7,8 @@ import {
   Heart,
   Menu,
   Scale,
-  Award,
-  Trophy,
-  Gift,
-  Palmtree,
-  Building2,
-  Users,
-  Flower2,
   Sparkles,
   ChevronRight,
-  type LucideIcon,
 } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useConversation } from "@/store/conversation-store";
@@ -124,17 +116,6 @@ function CitySection({ city }: { city: { key: string; label: string; country: st
   );
 }
 
-const CATS: { icon: LucideIcon; label: string; prompt: string }[] = [
-  { icon: Scale, label: "Compare", prompt: "I'd like to compare the best luxury hotels side by side. Which city?" },
-  { icon: Award, label: "Best in city", prompt: "Show me the best luxury hotels in a city — I'll tell you which." },
-  { icon: Trophy, label: "Top 10", prompt: "Give me a ranked top 10 of the best hotels in a city." },
-  { icon: Gift, label: "Best perks", prompt: "Find me hotels with the best advisor perks and inclusions." },
-  { icon: Palmtree, label: "Beachfront", prompt: "Find me a beachfront luxury resort." },
-  { icon: Building2, label: "City stays", prompt: "Find me a luxury city hotel with great dining." },
-  { icon: Users, label: "Family", prompt: "A family-friendly luxury hotel that's still refined." },
-  { icon: Flower2, label: "Spa", prompt: "A luxury hotel with an exceptional spa." },
-];
-
 function PillSearch() {
   const send = useConversation((s) => s.send);
   const isStreaming = useConversation((s) => s.isStreaming);
@@ -168,7 +149,6 @@ function PillSearch() {
 }
 
 export function AirbnbLanding() {
-  const send = useConversation((s) => s.send);
   const savedCount = usePreferences((s) => s.saved.length);
   const { user, isAuthenticated } = useAuth();
   const { data, isLoading } = useHotelsByCity();
@@ -262,22 +242,17 @@ export function AirbnbLanding() {
 
         {/* CATEGORY BAR */}
         <div className="mx-auto max-w-[1360px] px-6">
-          <div className="no-scrollbar flex gap-8 overflow-x-auto py-3">
-            {CATS.map((c, i) => (
-              <button
-                key={c.label}
-                onClick={() => (c.label === "Compare" ? setCompareOpen(true) : send(c.prompt))}
-                className={cn(
-                  "group flex shrink-0 flex-col items-center gap-2 border-b-2 pb-2 text-xs font-semibold transition-colors",
-                  i === 0
-                    ? "border-[#222] text-[#222]"
-                    : "border-transparent text-[#717171] hover:border-[#DDDDDD] hover:text-[#222]",
-                )}
-              >
-                <c.icon className="size-6" strokeWidth={1.5} />
-                {c.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-3 py-3">
+            <button
+              onClick={() => setCompareOpen(true)}
+              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ background: CORAL }}
+            >
+              <Scale className="size-4" strokeWidth={2} /> Compare hotels
+            </button>
+            <span className="text-sm text-[#717171]">
+              Pick a city and dates, then compare 2–3 hotels side by side.
+            </span>
           </div>
         </div>
       </header>
