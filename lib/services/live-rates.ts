@@ -1,4 +1,5 @@
-import type { AdvisorPerk } from "./types";
+import type { AdvisorPerk, Hotel } from "./types";
+import type { HotelComparison, ComparisonRow } from "./recommendation-engine";
 
 /**
  * Live rates service.
@@ -474,4 +475,140 @@ export async function getHotelInfo(hotelName: string, city: string): Promise<Hot
   } catch {
     return null;
   }
+}
+
+/* --------------------------------------------------- live comparison builder */
+
+function money(n: number, currency = "USD"): string {
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: (currency || "USD").toUpperCase(),
+      maximumFractionDigits: 0,
+    }).format(n);
+  } catch {
+    return `$${Math.round(n).toLocaleString()}`;
+  }
+}
+
+/**
+ * Build a side-by-side comparison enriched with LIVE data from the WhataHotel
+ * API — dated rates, room categories, advisor-exclusive perks, amenities and
+ * dining — so the chat compares on real facts, not stored placeholders.
+ *
+ * Fetches are sequential (the source API throttles concurrent requests) and
+ * cached, so a repeat comparison is instant. Live rates need dates; perks,
+ * amenities and dining are shown either way.
+ */
+export async function buildLiveComparison(
+  hotels: Hotel[],
+  checkIn?: string,
+  checkOut?: string,
+): Promise<HotelComparison> {
+  const nights = checkIn && checkOut ? nightsBetween(checkIn, checkOut) : 0;
+
+  const cols: {
+    h: Hotel;
+    rates: LiveRates | null;
+    info: HotelInfo | null;
+  }[] = [];
+  for (const h of hotels) {
+    const rates =
+      h.sourceHotelId && nights > 0
+        ? await getLiveRates({ sourceHotelId: h.sourceHotelId, checkIn: checkIn!, checkOut: checkOut! })
+        : null;
+    const info = await getHotelInfo(h.name, h.city);
+    cols.push({ h, rates, info });
+  }
+
+  const perksOf = (h: Hotel) => (h.perks ?? []).map((p) => p.label).filter(Boolean);
+  // The source room name often trails the full description ("Deluxe Suite, 1 King, 65sqm…").
+  const roomLabel = (name: string) => name.split(",")[0].trim();
+  // method=info amenities are raw — drop ALL-CAPS section headers, prices and boilerplate.
+  const cleanAmenities = (a?: string[]) =>
+    (a ?? [])
+      .map((s) => s.trim())
+      .filter((s) => s.length >= 3 && s.length <= 36)
+      .filter((s) => !/^this hotel/i.test(s))
+      .filter((s) => !/\d+\.\d{2}/.test(s))
+      .filter((s) => /[a-z]/.test(s)); // keep only entries with lowercase (real names, not headers)
+  const readable = (k: string) =>
+    k.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (c) => c.toUpperCase());
+  // Prefer the curated canonical amenities; fall back to cleaned API amenities.
+  const amenitiesOf = (c: { h: Hotel; info: HotelInfo | null }) =>
+    c.h.amenities?.length
+      ? c.h.amenities.slice(0, 6).map(readable)
+      : cleanAmenities(c.info?.amenities).slice(0, 5);
+
+  const rows: ComparisonRow[] = [
+    {
+      label: nights > 0 ? `Live rate · ${nights} night${nights > 1 ? "s" : ""}` : "Live rate",
+      values: cols.map((c) =>
+        c.rates
+          ? `${money(c.rates.entryNightly, c.rates.currency)}/night`
+          : nights > 0
+            ? "Rate on request"
+            : "Add dates for live rates",
+      ),
+    },
+    {
+      label: "Room categories",
+      values: cols.map((c) =>
+        c.rates?.rooms.length
+          ? [...new Set(c.rates.rooms.map((r) => roomLabel(r.name)))].slice(0, 3).join(", ")
+          : "Shown at booking",
+      ),
+    },
+    {
+      label: "Exclusive perks",
+      values: cols.map((c) => {
+        const p = perksOf(c.h);
+        return p.length ? p.slice(0, 4).join(" · ") : "—";
+      }),
+    },
+    {
+      label: "Amenities",
+      values: cols.map((c) => {
+        const a = amenitiesOf(c);
+        return a.length ? a.join(", ") : "—";
+      }),
+    },
+    {
+      label: "Dining",
+      values: cols.map((c) => (c.info?.restaurants?.length ? c.info.restaurants.slice(0, 3).join(", ") : "—")),
+    },
+    {
+      label: "Class",
+      values: cols.map((c) => (c.h.starRating ? "★".repeat(c.h.starRating) : "—")),
+    },
+    {
+      label: "Guest rating",
+      values: cols.map((c) => (c.h.rating > 0 ? `${c.h.rating}/10` : "—")),
+    },
+    {
+      label: "Location",
+      values: cols.map((c) =>
+        [c.h.neighborhood && c.h.neighborhood !== c.h.city ? c.h.neighborhood : "", `${c.h.city}, ${c.h.country}`]
+          .filter(Boolean)
+          .join(" · "),
+      ),
+    },
+  ];
+
+  // Best value: cheapest live rate; if none priced, the most-inclusive on perks.
+  const priced = cols.map((c) => (c.rates ? c.rates.entryNightly : Infinity));
+  const anyPriced = priced.some((p) => p !== Infinity);
+  const bestIdx = anyPriced
+    ? priced.indexOf(Math.min(...priced))
+    : cols.map((c) => perksOf(c.h).length).reduce((b, n, i, a) => (n > a[b] ? i : b), 0);
+
+  const recommendation = anyPriced
+    ? `On live rates for your dates, ${cols[bestIdx].h.name} is the best value here — and every stay includes the advisor-exclusive perks. Tell me what matters most (location, dining, spa) and I'll make the final call.`
+    : `${cols[bestIdx].h.name} leads on inclusions. Share your check-in and check-out and I'll pull live rates so you can compare on price too.`;
+
+  return {
+    hotels: hotels.map((h) => ({ id: h.id, name: h.name, image: h.image, city: h.city })),
+    rows,
+    recommendation,
+  };
 }

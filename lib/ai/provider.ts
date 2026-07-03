@@ -264,10 +264,15 @@ function buildSituation(ctx: ReplyContext): string {
       const dist = (h.distances ?? []).map((d) => `${d.label} ${d.value}`).join(", ");
       return `SITUATION: The traveller asked a specific question about ${h.name}: "${ctx.qaQuestion ?? ctx.lastUserMessage}". Answer it directly and honestly using ONLY these facts about ${h.name} — brand: ${h.brand ?? "independent"}; amenities: ${(h.amenities ?? []).join(", ") || "not listed"}; perks: ${(h.perks ?? []).map((p) => p.label).join(", ") || "advisor perks"}${dist ? `; distances: ${dist}` : ""}; highlights: ${(h.highlights ?? []).slice(0, 3).join("; ") || "n/a"}. If the facts don't cover the question, say you'll confirm it directly with the hotel — never invent. Never quote a nightly price (say "live rates for your dates"). Keep it to 1–3 sentences.`;
     }
-    case "compare":
-      return `SITUATION: The app is rendering a comparison table for: ${ctx.comparison?.hotels
-        .map((h) => h.name)
-        .join(" vs ")}. Give a short, opinionated summary and a recommendation.`;
+    case "compare": {
+      const cmp = ctx.comparison;
+      if (!cmp)
+        return `SITUATION: You're comparing hotels side by side. Give a short, opinionated summary and a recommendation.`;
+      const facts = cmp.rows
+        .map((r) => `${r.label} — ${cmp.hotels.map((h, i) => `${h.name}: ${r.values[i]}`).join(" | ")}`)
+        .join("\n");
+      return `SITUATION: You compared these hotels side by side using LIVE data from the WhataHotel API (dated rates, room categories, advisor-exclusive perks, amenities, dining). The table is on screen. The real facts:\n${facts}\n\nGive a short, opinionated comparison in 2–4 sentences: call out the concrete differences that matter (rate for their dates, exclusive perks, location, dining), then recommend one with an honest trade-off. Use ONLY the facts above — never invent a price; if a rate shows "Add dates for live rates", note you'll pull exact rates once they share their dates.`;
+    }
     case "book":
       return ctx.booking?.complete
         ? `SITUATION: All booking details are collected for ${ctx.booking.hotelName}. Confirm warmly and say you'll secure the advisor rate + perks.`

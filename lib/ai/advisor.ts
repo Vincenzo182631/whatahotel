@@ -1,5 +1,4 @@
 import {
-  buildComparison,
   destinationKnowledgeService,
   mergeCriteria,
   missingFields,
@@ -17,7 +16,7 @@ import type { AdvisorUser, ReplyContext } from "./context";
 import { extractCriteriaPatch, classifyTurn } from "./provider";
 import { getCurrentUser } from "@/lib/auth/session";
 import { store } from "@/lib/data/store";
-import { getCityHotels } from "@/lib/services/live-rates";
+import { getCityHotels, buildLiveComparison } from "@/lib/services/live-rates";
 
 /** Pull concrete ISO dates the user typed (checkIn = earliest, checkOut = next). */
 function parseIsoDates(text: string): { checkIn?: string; checkOut?: string } {
@@ -311,7 +310,13 @@ export async function runTurn(
     let hotels = resolveHotels(lastUserMessage, session.lastRecommendations, intent?.hotelIds);
     if (hotels.length < 2) hotels = session.lastRecommendations.slice(0, 2);
     if (hotels.length >= 2) {
-      const comparison = buildComparison(hotels.slice(0, 3));
+      // Enrich with LIVE data (dated rates, room categories, perks, amenities,
+      // dining) so the comparison is grounded in the real API, not placeholders.
+      const comparison = await buildLiveComparison(
+        hotels.slice(0, 3),
+        criteria.checkIn,
+        criteria.checkOut,
+      );
       const ctx: ReplyContext = {
         action: "compare",
         criteria,

@@ -5,6 +5,8 @@ import type { ChatRequestBody } from "@/lib/chat/types";
 // In-memory session storage requires the Node runtime (not edge).
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// A live comparison fans out to several sequential WhataHotel API calls.
+export const maxDuration = 30;
 
 export async function POST(req: Request) {
   let body: ChatRequestBody;
