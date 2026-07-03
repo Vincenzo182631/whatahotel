@@ -16,7 +16,10 @@ import { usePreferences } from "@/store/preferences-store";
 import { useHotelsByCity, type FeaturedHotel } from "@/hooks/use-hotels";
 import { useAuth } from "@/hooks/use-auth";
 import { CompareWizard } from "@/components/compare/compare-wizard";
-import { cn } from "@/lib/utils";
+import { useTravelDates } from "@/store/travel-dates-store";
+import { useCityRates } from "@/hooks/use-city-rates";
+import { TravelDatesBar } from "@/components/search/travel-dates-bar";
+import { cn, formatCurrency } from "@/lib/utils";
 
 const CORAL = "#FF385C";
 // How many hotels to show per city (single row) before "See all" links out.
@@ -26,6 +29,16 @@ export function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
   const isSaved = usePreferences((s) => s.isSaved);
   const toggleSave = usePreferences((s) => s.toggleSave);
   const saved = isSaved(hotel.id);
+  // Once the traveller has dates, show the live rate for those dates (one
+  // cityrates call per city, shared across all its cards).
+  const { checkIn, checkOut } = useTravelDates();
+  const nights =
+    checkIn && checkOut
+      ? Math.max(0, Math.round((+new Date(checkOut) - +new Date(checkIn)) / 86_400_000))
+      : 0;
+  const { data: cityRates } = useCityRates(hotel.city, checkIn, checkOut);
+  const rate =
+    cityRates?.[hotel.id] ?? (hotel.sourceHotelId ? cityRates?.[hotel.sourceHotelId] : undefined);
   // Clicking a hotel goes to the live search, pre-filled with this hotel's name,
   // so the guest lands on live rates for their dates (not a stored-price page).
   // The id guarantees the exact hotel resolves even if its name isn't indexed.
@@ -67,10 +80,20 @@ export function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
         <p className="mt-0.5 text-sm text-[#717171]">
           {hotel.city}, {hotel.country}
         </p>
-        <p className="mt-1.5 text-sm text-[#222]">
-          <span className="font-semibold">Live rates for your dates</span>
-          <span className="text-[#717171]"> · perks included</span>
-        </p>
+        {rate && nights > 0 ? (
+          <p className="mt-1.5 text-sm text-[#222]">
+            <span className="font-semibold">{formatCurrency(rate.nightly, rate.currency)}</span>
+            <span className="text-[#717171]">
+              {" "}
+              /night · {formatCurrency(rate.total, rate.currency)} for {nights} night{nights > 1 ? "s" : ""} · perks incl.
+            </span>
+          </p>
+        ) : (
+          <p className="mt-1.5 text-sm text-[#222]">
+            <span className="font-semibold">Live rates for your dates</span>
+            <span className="text-[#717171]"> · perks included</span>
+          </p>
+        )}
       </Link>
     </div>
   );
@@ -260,6 +283,8 @@ export function AirbnbLanding() {
           <Sparkles className="size-4" style={{ color: CORAL }} strokeWidth={2} />
           Chat with your AI to compare hotels side by side — perks, rooms, location and live rates.
         </p>
+
+        <TravelDatesBar className="mt-4 max-w-xl" />
 
         {/* Quick jump to a city */}
         {cities.length > 0 && (

@@ -13,6 +13,8 @@ interface TravelDatesState {
   checkIn: string;
   checkOut: string;
   setDates: (checkIn: string, checkOut: string) => void;
+  setCheckIn: (checkIn: string) => void;
+  setCheckOut: (checkOut: string) => void;
 }
 
 export const useTravelDates = create<TravelDatesState>()(
@@ -21,6 +23,10 @@ export const useTravelDates = create<TravelDatesState>()(
       checkIn: "",
       checkOut: "",
       setDates: (checkIn, checkOut) => set({ checkIn, checkOut }),
+      // Independent setters — each only touches its own field, so updating one
+      // never clobbers the other (avoids stale-closure races in date pickers).
+      setCheckIn: (checkIn) => set({ checkIn }),
+      setCheckOut: (checkOut) => set({ checkOut }),
     }),
     { name: "whatahotel-dates" },
   ),

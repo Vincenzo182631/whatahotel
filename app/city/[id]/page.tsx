@@ -5,6 +5,7 @@ import { ArrowLeft, MapPin } from "lucide-react";
 import { hotelDetailsService } from "@/lib/services";
 import { DESTINATIONS } from "@/lib/services/mock-data";
 import { HotelGridCard } from "@/components/airbnb-landing";
+import { TravelDatesBar } from "@/components/search/travel-dates-bar";
 import { CityMap, type MapHotel } from "@/components/hotel/city-map";
 
 type Params = { params: Promise<{ id: string }> };
@@ -99,6 +100,8 @@ export default async function CityPage({ params }: Params) {
               {mapHotels.length > 0 &&
                 ` ${mapHotels.length} shown on the map.`}
             </p>
+
+            <TravelDatesBar className="mt-4" />
 
             <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3">
               {hotels.map((hotel) => (

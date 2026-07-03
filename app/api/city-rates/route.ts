@@ -22,10 +22,13 @@ export async function GET(req: Request) {
   const all = await hotelDetailsService.getAllHotels();
   const bySource = new Map(all.filter((h) => h.sourceHotelId).map((h) => [h.sourceHotelId!, h.id]));
 
-  const rates: Record<string, { nightly: number; currency: string }> = {};
+  // Keyed by BOTH our slug and the source id, so any card can look itself up.
+  const rates: Record<string, { nightly: number; total: number; currency: string }> = {};
   for (const r of cityRates) {
+    const entry = { nightly: r.nightly, total: r.total, currency: r.currency };
+    rates[r.hotelId] = entry;
     const slug = bySource.get(r.hotelId);
-    if (slug) rates[slug] = { nightly: r.nightly, currency: r.currency };
+    if (slug) rates[slug] = entry;
   }
   return NextResponse.json({ rates });
 }

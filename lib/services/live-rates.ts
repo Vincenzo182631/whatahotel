@@ -97,6 +97,21 @@ async function fetchJson(url: string): Promise<string> {
 }
 
 /**
+ * Serialize upstream cityrates calls. The source throttles concurrent requests,
+ * so firing one per city (as the homepage does) drops most of them. Chaining
+ * them one-at-a-time keeps every city's rates coming back (results are cached).
+ */
+let cityChain: Promise<unknown> = Promise.resolve();
+function cityQueue<T>(fn: () => Promise<T>): Promise<T> {
+  const run = cityChain.then(fn, fn);
+  cityChain = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
+
+/**
  * Fetch live rates for a source hotel id and date range via the WhataHotel API.
  * Returns null (→ caller falls back to an estimate) when unconfigured or the API
  * has no availability.
@@ -200,6 +215,7 @@ export async function getCityRates(params: {
   const { city, checkIn, checkOut, guests = 2 } = params;
   if (!API_KEY || !city || nightsBetween(checkIn, checkOut) <= 0) return [];
 
+  const nights = Math.max(1, nightsBetween(checkIn, checkOut));
   const key = `${city}|${checkIn}|${checkOut}|${guests}`;
   const hit = cityCache.get(key);
   if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
@@ -208,20 +224,34 @@ export async function getCityRates(params: {
     `${API_BASE}?method=cityrates&city=${encodeURIComponent(city)}` +
     `&guests=${guests}&checkIn=${checkIn}&checkOut=${checkOut}` +
     `&apiKey=${encodeURIComponent(API_KEY)}`;
-  try {
+  const fetchHotels = async (): Promise<WahCityHotel[] | null> => {
     const json = parseWahJson<{ wahData?: { status?: { code?: string }; hotels?: WahCityHotel[] } }>(
-      await fetchJson(url),
+      await cityQueue(() => fetchJson(url)),
     );
     const wah = json.wahData;
-    if (!wah || wah.status?.code !== "200" || !Array.isArray(wah.hotels)) return [];
-    const data: CityRate[] = wah.hotels
-      .filter((h) => h.hotelID && num(h.rateDaily))
-      .map((h) => ({
-        hotelId: String(h.hotelID),
-        nightly: num(h.rateDaily),
-        total: num(h.rateTotal),
-        currency: currencyFrom(h.rateDaily),
-      }));
+    return wah && wah.status?.code === "200" && Array.isArray(wah.hotels) ? wah.hotels : null;
+  };
+  try {
+    // One retry if the first attempt is throttled/empty.
+    let hotels = await fetchHotels().catch(() => null);
+    if (!hotels) {
+      await new Promise((r) => setTimeout(r, 500));
+      hotels = await fetchHotels().catch(() => null);
+    }
+    if (!hotels) return [];
+    // rateDaily from cityrates is unreliable; rateTotal is trustworthy, so the
+    // per-night figure is the all-in total ÷ nights.
+    const data: CityRate[] = hotels
+      .filter((h) => h.hotelID && num(h.rateTotal))
+      .map((h) => {
+        const total = num(h.rateTotal);
+        return {
+          hotelId: String(h.hotelID),
+          nightly: Math.round(total / nights),
+          total,
+          currency: currencyFrom(h.rateTotal),
+        };
+      });
     cityCache.set(key, { ts: Date.now(), data });
     return data;
   } catch {
