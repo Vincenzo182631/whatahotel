@@ -15,7 +15,7 @@ interface Props {
 export function ChatComposer({
   onSend,
   disabled,
-  placeholder = "Where would you like to stay?",
+  placeholder = "Which hotels would you like to compare?",
   size = "bar",
   autoFocus,
 }: Props) {

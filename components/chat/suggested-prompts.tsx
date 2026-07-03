@@ -4,22 +4,22 @@ import { motion } from "framer-motion";
 
 export const SUGGESTION_CHIPS: { emoji: string; label: string; prompt: string }[] =
   [
-    { emoji: "✨", label: "Romantic weekend", prompt: "Plan a romantic weekend for two — somewhere intimate and beautiful." },
-    { emoji: "🏖", label: "Beach escape", prompt: "I want a beachfront escape with an incredible pool and ocean views." },
-    { emoji: "🏙", label: "Luxury city stay", prompt: "A luxury city stay with great dining and a spa." },
-    { emoji: "👨‍👩‍👧", label: "Family vacation", prompt: "A family vacation that's fun for the kids but still feels luxurious." },
-    { emoji: "💼", label: "Business travel", prompt: "I need a refined hotel for business travel with a gym and fast wifi." },
-    { emoji: "🚢", label: "Pre-cruise hotel", prompt: "A pre-cruise hotel near the port for one night before we sail." },
-    { emoji: "🏔", label: "Mountain retreat", prompt: "A cozy mountain retreat with a spa and a fireplace." },
-    { emoji: "🎰", label: "Vegas getaway", prompt: "A Las Vegas getaway with a great pool scene and shows." },
+    { emoji: "⚖️", label: "Compare Paris", prompt: "Compare the best luxury hotels in Paris side by side." },
+    { emoji: "🌴", label: "Compare Bali", prompt: "Compare the top hotels in Bali on perks, rooms and location." },
+    { emoji: "🎰", label: "Vegas showdown", prompt: "Compare the best hotels on the Las Vegas Strip." },
+    { emoji: "🏙", label: "Tokyo pick", prompt: "Compare the finest hotels in Tokyo and tell me which to pick." },
+    { emoji: "🎁", label: "Best perks", prompt: "Compare hotels by their advisor perks and inclusions." },
+    { emoji: "🏝", label: "Maldives duel", prompt: "Compare the top overwater resorts in the Maldives." },
+    { emoji: "🌆", label: "New York", prompt: "Compare the best luxury hotels in New York City." },
+    { emoji: "💷", label: "London", prompt: "Compare the best hotels in London on location and dining." },
   ];
 
 export const EXAMPLE_PROMPTS = [
-  "I want a beachfront resort in Bali under $700 per night.",
-  "My wife and I are celebrating our anniversary in Paris.",
-  "Find the best luxury hotel in Tokyo with an amazing spa.",
-  "I'm visiting Paris in October with two children.",
-  "I need a hotel near the Eiffel Tower with breakfast included.",
+  "Compare the best luxury hotels in Paris for my dates.",
+  "Bellagio vs Aria vs Wynn in Las Vegas — which should I pick?",
+  "Compare the top hotels in Bali on perks and location.",
+  "Compare the finest spa hotels in Tokyo side by side.",
+  "Compare three Maldives resorts and tell me the trade-offs.",
 ];
 
 export function SuggestionChips({

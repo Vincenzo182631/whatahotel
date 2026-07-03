@@ -3,12 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Search,
   Heart,
   Menu,
   Scale,
   Sparkles,
   ChevronRight,
+  ArrowUp,
 } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useConversation } from "@/store/conversation-store";
@@ -127,22 +127,22 @@ function PillSearch() {
   };
   return (
     <div className="flex w-full max-w-xl items-center rounded-full border border-[#EBEBEB] bg-white pl-5 pr-1.5 shadow-[0_3px_12px_rgba(0,0,0,0.1)] transition-shadow focus-within:shadow-[0_6px_20px_rgba(0,0,0,0.14)]">
-      <Search className="size-4 shrink-0 text-[#222]" strokeWidth={2.5} />
+      <Sparkles className="size-4 shrink-0" style={{ color: CORAL }} strokeWidth={2.5} />
       <input
         value={v}
         onChange={(e) => setV(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && submit()}
-        placeholder="Search a city — or describe your ideal stay"
+        placeholder="Chat to compare hotels — e.g. “Compare the best hotels in Bali”"
         className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm text-[#222] placeholder:text-[#717171] focus:outline-none"
       />
       <button
         onClick={submit}
         disabled={isStreaming || !v.trim()}
-        aria-label="Search"
+        aria-label="Send"
         className="grid size-9 shrink-0 place-items-center rounded-full text-white transition-transform hover:scale-105 disabled:opacity-50"
         style={{ background: CORAL }}
       >
-        <Search className="size-4" strokeWidth={3} />
+        <ArrowUp className="size-4" strokeWidth={3} />
       </button>
     </div>
   );
@@ -170,12 +170,6 @@ export function AirbnbLanding() {
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
-            <Link
-              href="/find"
-              className="hidden rounded-full px-3.5 py-2.5 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7] md:block"
-            >
-              Find a hotel
-            </Link>
             <Link
               href="/journal"
               className="hidden rounded-full px-3.5 py-2.5 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7] lg:block"
@@ -260,11 +254,11 @@ export function AirbnbLanding() {
       {/* HERO LINE */}
       <div className="mx-auto max-w-[1360px] px-6 pt-8">
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          The best hotels, ranked for you
+          Compare the world&rsquo;s best hotels
         </h1>
         <p className="mt-1.5 flex items-center gap-1.5 text-sm text-[#717171]">
           <Sparkles className="size-4" style={{ color: CORAL }} strokeWidth={2} />
-          Describe a city and what matters — your AI advisor searches, scores /10, and compares.
+          Chat with your AI to compare hotels side by side — perks, rooms, location and live rates.
         </p>
 
         {/* Quick jump to a city */}

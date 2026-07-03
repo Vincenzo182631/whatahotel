@@ -135,8 +135,8 @@ export function ChatInterface() {
               autoFocus
               placeholder={
                 isStreaming
-                  ? "Your advisor is replying…"
-                  : "Reply to your advisor…"
+                  ? "Comparing…"
+                  : "Ask to compare any hotels, or reply…"
               }
             />
           </div>
