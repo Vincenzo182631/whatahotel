@@ -1,32 +1,38 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { Scale, X, AlertCircle } from "lucide-react";
-import { useConversation } from "@/store/conversation-store";
 import { useCompareSelection, MAX_COMPARE } from "@/store/compare-selection-store";
+import { useTravelDates } from "@/store/travel-dates-store";
 
 /**
- * Floating bar that appears once the traveller selects hotels to compare. Lets
- * them compare 2–3 side by side (reusing the advisor's live comparison) and
- * shows the friendly limit notice.
+ * Floating bar that appears once the traveller selects hotels to compare. Opens
+ * the full side-by-side comparison page for 2–3 hotels (curated OR live) with
+ * their dates, and shows the friendly limit notice.
  */
 export function CompareBar() {
   const selected = useCompareSelection((s) => s.selected);
   const notice = useCompareSelection((s) => s.notice);
   const remove = useCompareSelection((s) => s.remove);
   const clear = useCompareSelection((s) => s.clear);
-  const send = useConversation((s) => s.send);
-  const isStreaming = useConversation((s) => s.isStreaming);
+  const checkIn = useTravelDates((s) => s.checkIn);
+  const checkOut = useTravelDates((s) => s.checkOut);
+  const router = useRouter();
 
   if (selected.length === 0 && !notice) return null;
 
-  const canCompare = selected.length >= 2 && !isStreaming;
+  const canCompare = selected.length >= 2;
   const compare = () => {
     if (!canCompare) return;
-    send("Compare these hotels side by side.", {
-      type: "compare",
-      hotelIds: selected.map((s) => s.id),
-    });
+    const [a, b, c] = selected.map((s) => s.id);
+    const params = new URLSearchParams({ a, b });
+    if (c) params.set("c", c);
+    if (checkIn && checkOut) {
+      params.set("checkIn", checkIn);
+      params.set("checkOut", checkOut);
+    }
+    router.push(`/compare?${params.toString()}`);
     clear();
   };
 
