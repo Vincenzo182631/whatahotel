@@ -12,28 +12,39 @@ import {
   MapPin,
   ChevronRight,
   Gift,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { AMENITY_META } from "./amenity-meta";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useConversation } from "@/store/conversation-store";
 import { usePreferences } from "@/store/preferences-store";
+import { useCompareSelection } from "@/store/compare-selection-store";
+import { useHotelLiveRate } from "@/hooks/use-hotel-live-rate";
 import type { Recommendation } from "@/lib/services/types";
 
 export function HotelCard({
   hotel,
   index = 0,
+  checkIn = "",
+  checkOut = "",
 }: {
   hotel: Recommendation;
   index?: number;
+  checkIn?: string;
+  checkOut?: string;
 }) {
   const [showWhy, setShowWhy] = useState(false);
   const send = useConversation((s) => s.send);
   const isStreaming = useConversation((s) => s.isStreaming);
   const isSaved = usePreferences((s) => s.isSaved(hotel.id));
   const toggleSave = usePreferences((s) => s.toggleSave);
+  const compareSelected = useCompareSelection((s) => s.isSelected(hotel.id));
+  const toggleCompare = useCompareSelection((s) => s.toggle);
+  // Live rate for the traveller's dates — the same method=rates the stay page uses.
+  const { data: rate } = useHotelLiveRate(hotel.id, checkIn, checkOut, Boolean(checkIn && checkOut));
 
   const amenities = hotel.amenities
     .map((a) => AMENITY_META[a])
@@ -45,7 +56,10 @@ export function HotelCard({
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-      className="group overflow-hidden rounded-3xl glass-strong shadow-card"
+      className={cn(
+        "group overflow-hidden rounded-3xl glass-strong shadow-card transition-shadow",
+        compareSelected && "ring-2 ring-primary",
+      )}
     >
       <div className="grid md:grid-cols-[300px_1fr]">
         {/* Image */}
@@ -175,12 +189,24 @@ export function HotelCard({
               <p className="text-[11px] uppercase tracking-wider text-foreground/65">
                 Rate
               </p>
-              <p className="font-display text-lg text-gradient-gold">
-                Live rates for your dates
-              </p>
-              <p className="text-xs text-foreground/65">
-                Advisor perks included
-              </p>
+              {rate ? (
+                <>
+                  <p className="font-display text-2xl text-gradient-gold">
+                    {formatCurrency(rate.nightly, rate.currency)}
+                    <span className="ml-1 text-sm font-normal text-foreground/65">/ night</span>
+                  </p>
+                  <p className="text-xs text-foreground/65">
+                    {formatCurrency(rate.total, rate.currency)} total · advisor perks incl.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-display text-lg text-gradient-gold">
+                    Live rates for your dates
+                  </p>
+                  <p className="text-xs text-foreground/65">Advisor perks included</p>
+                </>
+              )}
             </div>
           </div>
 
@@ -201,11 +227,19 @@ export function HotelCard({
             </Button>
             <Button
               size="sm"
-              variant="ghost"
-              disabled={isStreaming}
-              onClick={() => send(`Compare ${hotel.name} with your other picks`)}
+              variant={compareSelected ? "default" : "outline"}
+              onClick={() => toggleCompare({ id: hotel.id, name: hotel.name })}
+              aria-pressed={compareSelected}
             >
-              <Scale className="size-4" /> Compare
+              {compareSelected ? (
+                <>
+                  <Check className="size-4" /> Selected
+                </>
+              ) : (
+                <>
+                  <Scale className="size-4" /> Compare
+                </>
+              )}
             </Button>
             <Button
               size="sm"

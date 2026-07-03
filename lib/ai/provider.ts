@@ -255,7 +255,7 @@ function buildSituation(ctx: ReplyContext): string {
           (r) =>
             `#${r.rank} ${r.name}${r.brand ? ` (${r.brand})` : ""} — fit ${r.fitScore.toFixed(1)}/10${r.rating > 0 ? `, guest ${r.rating}/10` : ""}${r.perks?.[0] ? ` · perk: ${r.perks[0].label}` : ""}`,
         )
-        .join("\n")}\nIn 1–2 sentences, introduce the ranked shortlist and say why #1 leads with one concrete detail (never a price). The cards show the rest — don't list them. No preamble.`;
+        .join("\n")}\nIn 1–2 sentences, introduce the ranked shortlist and say why #1 leads with one concrete detail (never a price). The cards show the rest — don't list them. Then add one short line telling them they can select up to 3 hotels from the results and compare them side by side to choose. No preamble.`;
     case "explain": {
       const focus = ctx.focus?.length ? ctx.focus : ctx.recommendations.slice(0, 2);
       return `SITUATION: The traveller wants to understand specific hotels already on screen. Speak specifically and honestly about them using ONLY these facts (NEVER state a nightly price — rates are only confirmed live for specific dates, so say "live rates for your dates"): ${focus

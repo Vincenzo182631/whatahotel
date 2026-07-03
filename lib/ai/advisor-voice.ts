@@ -144,7 +144,7 @@ function composeRecommend(ctx: ReplyContext): string {
   const lead = top ? ` Leading is ${hotelClause(top)}.` : "";
   const outro =
     n > 1
-      ? ` They're ranked best-fit first — tell me to compare any two, ask why I ranked one where I did, or say "book" when you're ready.`
+      ? ` They're ranked best-fit first. Tip: select up to 3 hotels from the results to compare them side by side — or say "book" when you're ready.`
       : ` Ask me anything about it, or say "book" when you're ready.`;
   return intro + lead + outro;
 }

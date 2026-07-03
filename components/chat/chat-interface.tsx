@@ -9,6 +9,7 @@ import { ChatComposer } from "./chat-composer";
 import { CriteriaBar } from "./criteria-bar";
 import { SUGGESTION_CHIPS } from "./suggested-prompts";
 import { ResultsCanvas, messageHasResults } from "./results-canvas";
+import { CompareBar } from "./compare-bar";
 
 export function ChatInterface() {
   const messages = useConversation((s) => s.messages);
@@ -149,6 +150,9 @@ export function ChatInterface() {
           </div>
         )}
       </div>
+
+      {/* Floating compare tray (appears once hotels are selected) */}
+      <CompareBar />
     </div>
   );
 }

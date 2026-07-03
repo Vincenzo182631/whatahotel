@@ -70,7 +70,13 @@ export function MessageBubble({
           {payload?.recommendations && payload.recommendations.length > 0 && (
             <div className="space-y-4">
               {payload.recommendations.map((hotel, i) => (
-                <HotelCard key={hotel.id} hotel={hotel} index={i} />
+                <HotelCard
+                  key={hotel.id}
+                  hotel={hotel}
+                  index={i}
+                  checkIn={payload.criteria?.checkIn}
+                  checkOut={payload.criteria?.checkOut}
+                />
               ))}
             </div>
           )}

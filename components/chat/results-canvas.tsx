@@ -46,7 +46,13 @@ export function ResultsCanvas({ messages }: { messages: ChatMessage[] }) {
             {p.recommendations && p.recommendations.length > 0 && (
               <div className="space-y-4">
                 {p.recommendations.map((hotel, i) => (
-                  <HotelCard key={hotel.id} hotel={hotel} index={i} />
+                  <HotelCard
+                    key={hotel.id}
+                    hotel={hotel}
+                    index={i}
+                    checkIn={p.criteria?.checkIn}
+                    checkOut={p.criteria?.checkOut}
+                  />
                 ))}
               </div>
             )}
