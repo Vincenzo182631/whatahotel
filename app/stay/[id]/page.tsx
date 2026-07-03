@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, MapPin, Sparkles, BedDouble, UtensilsCrossed, Check, CalendarDays } from "lucide-react";
+import { ArrowLeft, MapPin, Sparkles, UtensilsCrossed, Check } from "lucide-react";
 import { getLiveHotel, getLiveRates, getHotelInfo } from "@/lib/services/live-rates";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { CityMap } from "@/components/hotel/city-map";
@@ -145,39 +145,6 @@ export default async function StayPage({ params, searchParams }: Params) {
             <div className="rounded-2xl border border-[#EBEBEB] bg-white p-5">
               <StayDatePicker checkIn={checkIn} checkOut={checkOut} />
 
-              <div className="mt-5">
-                {rates && rates.rooms.length > 0 ? (
-                  <>
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#717171]">
-                      Rooms — {nights} night{nights > 1 ? "s" : ""}
-                    </p>
-                    <ul className="space-y-2">
-                      {rates.rooms.slice(0, 6).map((r) => (
-                        <li key={r.name} className="flex items-center gap-3 rounded-xl bg-[#f7f7f7] p-2 text-sm">
-                          {r.image ? (
-                            <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-[#eee]">
-                              <ImageWithFallback src={r.image} seed={r.name} alt={r.name} fill sizes="56px" className="object-cover" />
-                            </div>
-                          ) : (
-                            <span className="grid size-14 shrink-0 place-items-center rounded-lg bg-[#eee] text-[#FF385C]/70">
-                              <BedDouble className="size-5" strokeWidth={1.5} />
-                            </span>
-                          )}
-                          <span className="min-w-0 flex-1 truncate">{r.name}</span>
-                          <span className="shrink-0 font-semibold">{formatCurrency(r.nightly, r.currency)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                ) : nights > 0 ? (
-                  <p className="text-sm text-[#717171]">No availability for those dates — try different dates.</p>
-                ) : (
-                  <p className="flex items-center gap-1.5 text-sm text-[#717171]">
-                    <CalendarDays className="size-4 text-[#FF385C]" /> Pick dates to see live room rates.
-                  </p>
-                )}
-              </div>
-
               <StayBooking
                 sourceHotelId={hotel.sourceHotelId}
                 name={hotel.name}
@@ -186,10 +153,12 @@ export default async function StayPage({ params, searchParams }: Params) {
                 image={hotel.image}
                 checkIn={checkIn}
                 checkOut={checkOut}
+                nights={nights}
                 rooms={(rates?.rooms ?? []).map((r) => ({
                   name: r.name,
                   nightly: r.nightly,
                   currency: r.currency,
+                  image: r.image,
                 }))}
               />
               {info?.tax && (

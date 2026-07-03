@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, Loader2 } from "lucide-react";
+import { BedDouble, CalendarDays, Check, Loader2 } from "lucide-react";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useAuth } from "@/hooks/use-auth";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 interface Room {
   name: string;
   nightly: number;
   currency: string;
+  image?: string;
 }
 
 export function StayBooking({
@@ -21,6 +23,7 @@ export function StayBooking({
   checkIn,
   checkOut,
   rooms,
+  nights,
 }: {
   sourceHotelId: string;
   name: string;
@@ -30,10 +33,12 @@ export function StayBooking({
   checkIn: string;
   checkOut: string;
   rooms: Room[];
+  nights: number;
 }) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
-  const [roomName, setRoomName] = useState(rooms[0]?.name ?? "");
+  // Nothing is pre-selected — the guest must choose a room first.
+  const [roomName, setRoomName] = useState("");
   const [guestName, setGuestName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -51,14 +56,11 @@ export function StayBooking({
   }, [user]);
 
   const hasDates = Boolean(checkIn && checkOut);
-  const room = rooms.find((r) => r.name === roomName) ?? rooms[0];
-  const nights =
-    hasDates
-      ? Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86_400_000)
-      : 0;
+  const room = rooms.find((r) => r.name === roomName); // undefined until chosen
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!room) return;
     setLoading(true);
     setError(null);
     try {
@@ -73,9 +75,9 @@ export function StayBooking({
           image,
           checkIn,
           checkOut,
-          roomName: room?.name,
-          nightly: room?.nightly,
-          currency: room?.currency,
+          roomName: room.name,
+          nightly: room.nightly,
+          currency: room.currency,
           guestName,
           email,
           phone,
@@ -124,55 +126,104 @@ export function StayBooking({
 
   if (!hasDates) {
     return (
-      <p className="mt-5 text-sm text-[#717171]">Pick your dates above, then reserve.</p>
+      <p className="mt-5 flex items-center gap-1.5 text-sm text-[#717171]">
+        <CalendarDays className="size-4 text-[#FF385C]" /> Pick dates to see live room rates.
+      </p>
     );
   }
 
-  if (!open) {
+  if (rooms.length === 0) {
     return (
-      <button
-        onClick={() => setOpen(true)}
-        className="mt-5 block w-full rounded-xl bg-[#FF385C] px-4 py-2.5 text-center text-sm font-semibold text-white hover:opacity-90"
-      >
-        Reserve{room ? ` — ${formatCurrency(room.nightly, room.currency)}/night` : ""}
-      </button>
+      <p className="mt-5 text-sm text-[#717171]">
+        No availability for those dates — try different dates.
+      </p>
     );
   }
 
   return (
-    <form onSubmit={submit} className="mt-5 space-y-3">
-      {rooms.length > 0 && (
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium text-[#717171]">Room</span>
-          <select value={roomName} onChange={(e) => setRoomName(e.target.value)} className={field}>
-            {rooms.map((r) => (
-              <option key={r.name} value={r.name}>
-                {r.name} — {formatCurrency(r.nightly, r.currency)}/night
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
-      <input className={field} placeholder="Full name" value={guestName} onChange={(e) => setGuestName(e.target.value)} required />
-      <input className={field} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-      <input className={field} placeholder="Phone (optional)" value={phone} onChange={(e) => setPhone(e.target.value)} />
-      <input className={field} placeholder="Special requests (optional)" value={requests} onChange={(e) => setRequests(e.target.value)} />
+    <div className="mt-5">
+      <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#717171]">
+        Choose a room — {nights} night{nights > 1 ? "s" : ""}
+      </p>
+      <ul className="space-y-2">
+        {rooms.slice(0, 6).map((r) => {
+          const sel = r.name === roomName;
+          return (
+            <li key={r.name}>
+              <button
+                type="button"
+                onClick={() => setRoomName(r.name)}
+                aria-pressed={sel}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-xl border p-2 text-left text-sm transition-colors",
+                  sel
+                    ? "border-[#FF385C] bg-[#FF385C]/[0.05]"
+                    : "border-transparent bg-[#f7f7f7] hover:border-[#DDDDDD]",
+                )}
+              >
+                {r.image ? (
+                  <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-[#eee]">
+                    <ImageWithFallback src={r.image} seed={r.name} alt={r.name} fill sizes="56px" className="object-cover" />
+                  </div>
+                ) : (
+                  <span className="grid size-14 shrink-0 place-items-center rounded-lg bg-[#eee] text-[#FF385C]/70">
+                    <BedDouble className="size-5" strokeWidth={1.5} />
+                  </span>
+                )}
+                <span className="min-w-0 flex-1 truncate">{r.name}</span>
+                <span className="shrink-0 font-semibold">{formatCurrency(r.nightly, r.currency)}</span>
+                <span
+                  className={cn(
+                    "grid size-5 shrink-0 place-items-center rounded-full border",
+                    sel ? "border-[#FF385C] bg-[#FF385C] text-white" : "border-[#DDDDDD]",
+                  )}
+                >
+                  {sel && <Check className="size-3.5" strokeWidth={3} />}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
 
-      {room && nights > 0 && (
-        <p className="text-xs text-[#717171]">
-          Estimated total{" "}
-          <span className="font-semibold text-[#222]">{formatCurrency(room.nightly * nights, room.currency)}</span>{" "}
-          for {nights} night{nights > 1 ? "s" : ""} · advisor perks included.
-        </p>
+      {!open ? (
+        <button
+          onClick={() => room && setOpen(true)}
+          disabled={!room}
+          className="mt-4 block w-full rounded-xl bg-[#FF385C] px-4 py-2.5 text-center text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {room ? `Reserve — ${formatCurrency(room.nightly, room.currency)}/night` : "Select a room to reserve"}
+        </button>
+      ) : (
+        <form onSubmit={submit} className="mt-4 space-y-3">
+          {room && (
+            <div className="flex items-center justify-between rounded-xl bg-[#f7f7f7] px-3 py-2 text-sm">
+              <span className="truncate font-semibold">{room.name}</span>
+              <span className="shrink-0 text-[#717171]">{formatCurrency(room.nightly, room.currency)}/night</span>
+            </div>
+          )}
+          <input className={field} placeholder="Full name" value={guestName} onChange={(e) => setGuestName(e.target.value)} required />
+          <input className={field} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input className={field} placeholder="Phone (optional)" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <input className={field} placeholder="Special requests (optional)" value={requests} onChange={(e) => setRequests(e.target.value)} />
+
+          {room && nights > 0 && (
+            <p className="text-xs text-[#717171]">
+              Estimated total{" "}
+              <span className="font-semibold text-[#222]">{formatCurrency(room.nightly * nights, room.currency)}</span>{" "}
+              for {nights} night{nights > 1 ? "s" : ""} · advisor perks included.
+            </p>
+          )}
+          {error && <p className="text-sm text-[#E61E4D]">{error}</p>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF385C] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
+          >
+            {loading && <Loader2 className="size-4 animate-spin" />} Confirm reservation
+          </button>
+        </form>
       )}
-      {error && <p className="text-sm text-[#E61E4D]">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF385C] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
-      >
-        {loading && <Loader2 className="size-4 animate-spin" />} Confirm reservation
-      </button>
-    </form>
+    </div>
   );
 }
