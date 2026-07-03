@@ -27,9 +27,9 @@ export function ResultsCanvas({ messages }: { messages: ChatMessage[] }) {
   if (withResults.length === 0) return null;
 
   return (
-    <div className="space-y-8 pb-10">
-      <div className="sticky top-0 z-10 -mx-1 bg-background/85 px-1 py-2 backdrop-blur-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+    <div className="space-y-10 pb-28">
+      <div className="sticky top-0 z-10 -mx-1 bg-background/85 px-1 pb-3 pt-2 backdrop-blur-sm">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#9a9a9a]">
           Your shortlist
         </p>
       </div>
@@ -44,7 +44,7 @@ export function ResultsCanvas({ messages }: { messages: ChatMessage[] }) {
             className="space-y-4"
           >
             {p.recommendations && p.recommendations.length > 0 && (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {p.recommendations.map((hotel, i) => (
                   <HotelCard
                     key={hotel.id}

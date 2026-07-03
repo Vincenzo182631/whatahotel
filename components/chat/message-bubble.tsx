@@ -37,7 +37,7 @@ export function MessageBubble({
         animate={{ opacity: 1, y: 0 }}
         className="flex justify-end"
       >
-        <div className="max-w-[85%] rounded-3xl rounded-br-lg bg-gold-sheen px-5 py-3 text-[15px] font-medium text-white shadow-[0_10px_30px_-12px_rgba(183,79,84,0.6)]">
+        <div className="max-w-[82%] rounded-2xl rounded-br-md bg-[#1c1c1e] px-4 py-2.5 text-[15px] font-medium leading-relaxed text-white">
           {message.content}
         </div>
       </motion.div>
@@ -52,11 +52,11 @@ export function MessageBubble({
     >
       <AdvisorMark />
       <div className="min-w-0 flex-1 space-y-4">
-        <div className="max-w-[88%] rounded-3xl rounded-tl-lg glass px-5 py-3.5">
+        <div className="max-w-[92%] rounded-2xl rounded-tl-md border border-black/[0.06] bg-white px-4 py-3">
           {showTyping ? (
             <TypingIndicator label={message.loadingLabel} />
           ) : (
-            <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">
+            <p className="whitespace-pre-wrap text-[15px] leading-[1.65] text-[#2a2a2a]">
               {message.content}
               {message.streaming && (
                 <span className="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 animate-pulse-soft bg-primary" />

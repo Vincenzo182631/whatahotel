@@ -31,15 +31,15 @@ export function CriteriaBar({ criteria }: { criteria: SearchCriteria }) {
 
   return (
     <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
-      <span className="shrink-0 text-[11px] uppercase tracking-wider text-foreground/55">
-        Trip so far
+      <span className="shrink-0 text-[11px] uppercase tracking-[0.14em] text-[#9a9a9a]">
+        Trip
       </span>
       {chips.map((chip) => (
         <span
           key={chip.label}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs capitalize text-foreground/80"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-black/[0.08] bg-white px-3 py-1 text-xs capitalize text-[#555]"
         >
-          <chip.icon className="size-3 text-primary" />
+          <chip.icon className="size-3 text-[#9a9a9a]" />
           {chip.label}
         </span>
       ))}
