@@ -195,7 +195,11 @@ export default async function HotelPage({ params }: Params) {
             <section>
               <h2 className="font-display text-2xl font-medium text-[#1a1a1a]">Rooms &amp; availability</h2>
               <div className="mt-5">
-                <RoomsSection hotelId={hotel.id} sourceHotelId={hotel.sourceHotelId} />
+                <RoomsSection
+                  hotelId={hotel.id}
+                  sourceHotelId={hotel.sourceHotelId}
+                  perks={perks.map((p) => ({ label: p.label }))}
+                />
               </div>
             </section>
           </div>
