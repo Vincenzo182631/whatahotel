@@ -54,7 +54,7 @@ export function MessageBubble({
       <div className="min-w-0 flex-1 space-y-4">
         <div className="max-w-[88%] rounded-3xl rounded-tl-lg glass px-5 py-3.5">
           {showTyping ? (
-            <TypingIndicator />
+            <TypingIndicator label={message.loadingLabel} />
           ) : (
             <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">
               {message.content}

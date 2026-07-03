@@ -48,6 +48,8 @@ export interface ChatMessage {
   content: string;
   payload?: AdvisorPayload;
   streaming?: boolean;
+  /** Contextual loading text shown while the reply is being prepared. */
+  loadingLabel?: string;
 }
 
 export interface ChatRequestBody {

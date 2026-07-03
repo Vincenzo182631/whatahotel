@@ -71,6 +71,7 @@ export const useConversation = create<ConversationState>()((set, get) => ({
       role: "assistant",
       content: "",
       streaming: true,
+      loadingLabel: loadingLabelFor(text, intent),
     };
 
     // For intent-only sends (e.g. a card button), still show the user's action.
@@ -158,6 +159,17 @@ export const useConversation = create<ConversationState>()((set, get) => ({
     }
   },
 }));
+
+/** A contextual loading message so the traveller knows what's being prepared. */
+function loadingLabelFor(text: string, intent?: ChatRequestBody["intent"]): string {
+  const t = text.toLowerCase();
+  if (intent?.type === "compare" || /\bcompare\b|side by side|versus|\bvs\b|difference between/.test(t))
+    return "Comparing live rates, perks & details…";
+  if (intent?.type === "book" || /\bbook\b|reserve\b/.test(t)) return "Preparing your booking…";
+  if (/\bshow me\b|find me\b|best hotel|top hotel|recommend|options|suggest/.test(t))
+    return "Finding the best matches…";
+  return "Thinking…";
+}
 
 function intentLabel(intent: NonNullable<ChatRequestBody["intent"]>): string {
   switch (intent.type) {
