@@ -7,19 +7,52 @@ import { composeReply } from "./advisor-voice";
 import type { ReplyContext } from "./context";
 
 /**
- * AI provider. Uses Claude through the Vercel AI SDK when ANTHROPIC_API_KEY is
- * present (better natural-language understanding + genuinely streamed replies),
- * and transparently falls back to the deterministic advisor engine otherwise.
- * Provider-agnostic by design — swap @ai-sdk/anthropic for OpenAI/Gemini.
+ * AI provider. Uses an LLM through the Vercel AI SDK when an API key is present
+ * (better natural-language understanding + genuinely streamed replies), and
+ * transparently falls back to the deterministic advisor engine otherwise.
+ *
+ * Provider-agnostic: set OPENAI_API_KEY to use OpenAI, or ANTHROPIC_API_KEY to
+ * use Claude (OpenAI wins if both are set). Override the models with AI_MODEL /
+ * AI_FAST_MODEL.
  */
 
-export const hasLLM = Boolean(process.env.ANTHROPIC_API_KEY);
-// Current-generation default; override via AI_MODEL. Sonnet 5 balances quality,
-// speed and cost for a streaming chat advisor (use claude-opus-4-8 for max quality).
-const MODEL = process.env.AI_MODEL || "claude-sonnet-5";
-// A fast, cheap model for structured extraction + routing (runs before the reply
-// streams, so latency here is felt directly). Override via AI_FAST_MODEL.
-const FAST_MODEL = process.env.AI_FAST_MODEL || "claude-haiku-4-5-20251001";
+const PROVIDER: "openai" | "anthropic" = process.env.OPENAI_API_KEY
+  ? "openai"
+  : "anthropic";
+export const hasLLM = Boolean(
+  process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY,
+);
+// Ignore a model override that belongs to the OTHER provider (e.g. a leftover
+// AI_MODEL=claude-... when switching to OpenAI) so switching keys "just works".
+function pickModel(envVal: string | undefined, fallback: string): string {
+  if (!envVal) return fallback;
+  const isClaude = envVal.startsWith("claude");
+  const isOpenAI = /^(gpt|o[1-9]|chatgpt)/.test(envVal);
+  const mismatched =
+    (PROVIDER === "openai" && isClaude) || (PROVIDER === "anthropic" && isOpenAI);
+  return mismatched ? fallback : envVal;
+}
+// Main reply model; and a fast, cheap model for structured extraction + routing
+// (runs before the reply streams, so its latency is felt directly).
+const MODEL = pickModel(
+  process.env.AI_MODEL,
+  PROVIDER === "openai" ? "gpt-4o" : "claude-sonnet-5",
+);
+const FAST_MODEL = pickModel(
+  process.env.AI_FAST_MODEL,
+  PROVIDER === "openai" ? "gpt-4o-mini" : "claude-haiku-4-5-20251001",
+);
+
+/** Resolve the configured provider's model handle for the AI SDK. */
+async function chatModel(fast = false) {
+  const id = fast ? FAST_MODEL : MODEL;
+  if (PROVIDER === "openai") {
+    const { openai } = await import("@ai-sdk/openai");
+    return openai(id);
+  }
+  const { anthropic } = await import("@ai-sdk/anthropic");
+  return anthropic(id);
+}
 
 const criteriaPatchSchema = z.object({
   destination: z.string().optional().describe("the city the traveller names, e.g. 'paris', 'miami', 'scottsdale', 'rome' — any city, lowercased"),
@@ -56,10 +89,9 @@ export async function extractCriteriaPatch(
   if (!hasLLM || !lastUser) return base;
 
   try {
-    const { anthropic } = await import("@ai-sdk/anthropic");
     const { generateObject } = await import("ai");
     const { object } = await generateObject({
-      model: anthropic(FAST_MODEL),
+      model: await chatModel(true),
       schema: criteriaPatchSchema,
       system:
         "Extract ONLY the hotel-search details the user newly states or changes in their latest message. Omit anything not mentioned. Return canonical destination keys.",
@@ -128,10 +160,9 @@ export async function classifyTurn(
     ? shownHotels.map((h, i) => `${i + 1}. ${h.name}`).join("; ")
     : "none yet";
   try {
-    const { anthropic } = await import("@ai-sdk/anthropic");
     const { generateObject } = await import("ai");
     const { object } = await generateObject({
-      model: anthropic(FAST_MODEL),
+      model: await chatModel(true),
       schema: routeSchema,
       system: `Classify what the traveller wants in their latest message to a luxury hotel concierge. Actions:
 - recommend: wants hotel suggestions or to search a destination
@@ -182,7 +213,6 @@ export async function* streamReply(
 async function* streamFromClaude(
   ctx: ReplyContext,
 ): AsyncGenerator<string, void, unknown> {
-  const { anthropic } = await import("@ai-sdk/anthropic");
   const { streamText } = await import("ai");
 
   const situation = buildSituation(ctx);
@@ -193,7 +223,7 @@ async function* streamFromClaude(
       `${u.greet ? " This is the first message this session — greet them warmly by first name once." : ""}\n\n`
     : "";
   const result = streamText({
-    model: anthropic(MODEL),
+    model: await chatModel(false),
     system: ADVISOR_SYSTEM_PROMPT,
     messages: [
       {
