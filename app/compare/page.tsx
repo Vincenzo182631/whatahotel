@@ -7,6 +7,7 @@ import { hotelDetailsService } from "@/lib/services";
 import { getLiveRates, getHotelInfo, getLiveHotel, type HotelInfo } from "@/lib/services/live-rates";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { CompareAdvisor } from "@/components/compare/compare-advisor";
 import { formatCurrency, cn } from "@/lib/utils";
 import type { AdvisorPerk, Hotel } from "@/lib/services/types";
 
@@ -381,6 +382,13 @@ export default async function ComparePage({ searchParams }: Params) {
           {dist != null && <span>· {dist} km apart</span>}
           {!anyLive && nights > 0 && <span className="text-[#E61E4D]">· live rates unavailable for these dates — shown as rate on request</span>}
         </p>
+
+        {/* AI travel advisor — verdict + Q&A across the compared hotels */}
+        <CompareAdvisor
+          hotels={cols.map((c) => ({ id: c.hotel.id, name: c.hotel.name }))}
+          checkIn={checkIn}
+          checkOut={checkOut}
+        />
 
         <div className="no-scrollbar mt-6 overflow-x-auto">
           <div
