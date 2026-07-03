@@ -57,7 +57,19 @@ function cells(line: string): string[] {
     .map((c) => c.trim());
 }
 
-export function ChatMarkdown({ content }: { content: string }) {
+export interface ChatImage {
+  url: string;
+  label: string;
+}
+
+export function ChatMarkdown({
+  content,
+  images,
+}: {
+  content: string;
+  /** Resolves `[img:ID]` tags the advisor emits into real photos. */
+  images?: Record<string, ChatImage>;
+}) {
   const lines = content.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
   let i = 0;
@@ -81,6 +93,33 @@ export function ChatMarkdown({ content }: { content: string }) {
     // Blank line → paragraph break
     if (!trimmed) {
       flushPara();
+      i++;
+      continue;
+    }
+
+    // Image tag: [img:ID] on its own line → render the real photo (skip if unknown)
+    const imgTag = trimmed.match(/^\[img:([A-Za-z0-9_-]+)\]$/);
+    if (imgTag) {
+      flushPara();
+      const img = images?.[imgTag[1]];
+      if (img) {
+        blocks.push(
+          <figure key={`img${blocks.length}`} className="my-1 overflow-hidden rounded-xl border border-black/[0.06] bg-black/[0.03]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={img.url}
+              alt={img.label}
+              loading="lazy"
+              onError={(e) => {
+                const fig = e.currentTarget.closest("figure");
+                if (fig) (fig as HTMLElement).style.display = "none";
+              }}
+              className="block max-h-52 w-full object-cover"
+            />
+            <figcaption className="px-3 py-1.5 text-[11px] text-[#717171]">{img.label}</figcaption>
+          </figure>,
+        );
+      }
       i++;
       continue;
     }

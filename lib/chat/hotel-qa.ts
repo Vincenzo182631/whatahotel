@@ -97,6 +97,7 @@ export function answerHotelQuestion(hotel: Hotel, question: string): string {
 }
 
 export const DOCKED_SUGGESTIONS = [
+  "Show me the rooms",
   "Which room is best for a honeymoon?",
   "Best restaurants nearby?",
   "Plan me a 3-day itinerary",

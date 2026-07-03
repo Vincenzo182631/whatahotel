@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { ChatComposer } from "@/components/chat/chat-composer";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
-import { ChatMarkdown } from "@/components/chat/chat-markdown";
+import { ChatMarkdown, type ChatImage } from "@/components/chat/chat-markdown";
 import { answerHotelQuestion, DOCKED_SUGGESTIONS } from "@/lib/chat/hotel-qa";
 import type { Hotel } from "@/lib/services/types";
 
@@ -25,11 +25,29 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
     },
   ]);
   const [busy, setBusy] = useState(false);
+  const [images, setImages] = useState<Record<string, ChatImage>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  // Load the real photo manifest so we can resolve the advisor's [img:ID] tags.
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/hotel-images?hotelId=${encodeURIComponent(hotel.id)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { images?: { id: string; url: string; label: string }[] } | null) => {
+        if (!active || !d?.images) return;
+        const map: Record<string, ChatImage> = {};
+        for (const im of d.images) map[im.id] = { url: im.url, label: im.label };
+        setImages(map);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [hotel.id]);
 
   const ask = async (question: string) => {
     if (busy || !question.trim()) return;
@@ -107,7 +125,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
                 <TypingIndicator />
               ) : (
                 <div className="text-[#2a2a2a]">
-                  <ChatMarkdown content={m.content} />
+                  <ChatMarkdown content={m.content} images={images} />
                   {m.streaming && (
                     <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-pulse-soft bg-primary align-middle" />
                   )}

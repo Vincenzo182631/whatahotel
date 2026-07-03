@@ -3,6 +3,7 @@ import { getLiveHotel, getHotelInfo } from "@/lib/services/live-rates";
 import { streamGrounded } from "@/lib/ai/provider";
 import { answerHotelQuestion } from "@/lib/chat/hotel-qa";
 import { buildHotelDossier } from "@/lib/ai/hotel-knowledge";
+import { buildHotelImageManifest } from "@/lib/services/hotel-images";
 import type { Hotel } from "@/lib/services/types";
 
 export const runtime = "nodejs";
@@ -60,8 +61,24 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
 
-  // Load the complete knowledge base for THIS hotel.
-  const dossier = await buildHotelDossier(h, { liveAmenities, liveDining });
+  // Load the complete knowledge base + the real photo manifest for THIS hotel.
+  const [dossier, images] = await Promise.all([
+    buildHotelDossier(h, { liveAmenities, liveDining }),
+    buildHotelImageManifest(h).catch(() => []),
+  ]);
+
+  const roomImgs = images.filter((i) => i.kind === "room");
+  const hotelImgs = images.filter((i) => i.kind === "hotel");
+  const imageLibrary = images.length
+    ? `\n\n==== PHOTO LIBRARY (real photos you can show) ====
+To show a photo, put its tag on its OWN line: [img:ID]. Show a photo when it genuinely helps — the room you're recommending, or a look at the hotel when they ask to "see" it. Use at most 3 per reply. Use ONLY these exact ids; NEVER invent an id or a URL.
+Room photos${roomImgs.length ? "" : " — none available"}:
+${roomImgs.map((i) => `- [img:${i.id}] = ${i.label}`).join("\n")}
+Hotel photos (general property shots — do NOT claim a specific one shows the pool/lobby/spa etc.; describe those in words):
+${hotelImgs.map((i) => `- [img:${i.id}] = ${i.label}`).join("\n")}
+We have NO photos of nearby restaurants or attractions — describe those in words, never attach an image to them.
+==== END PHOTO LIBRARY ====`
+    : "";
 
   const system = `You are the WhataHotel Advisor — a senior luxury travel advisor and concierge who has personally stayed at ${h.name} and knows both the property and its destination intimately. You are speaking with a guest who is viewing ${h.name} right now, helping them feel confident enough to book.
 
@@ -84,6 +101,7 @@ RESPONSE STYLE
 - Simple questions → 1–3 warm sentences. Richer questions (itineraries, room comparisons, "what should we do") → short intro + a tight bullet list.
 - Use markdown: **bold** for names/labels, "- " bullet lists, numbered lists for itineraries/steps, and a compact markdown table ONLY when directly comparing 2–3 rooms or options.
 - Explain room differences in plain language. When recommending, say WHY in a few words (privacy, view, space, value).
+- You can SHOW real photos from the PHOTO LIBRARY below using [img:ID] on its own line — show the room you recommend, or a couple of property shots when they ask to see the hotel. Never attach a photo to a nearby restaurant/attraction (we don't have those).
 - Add a brief, tasteful travel tip when it genuinely helps. Avoid large paragraphs.
 
 PROACTIVE ADVISING
@@ -96,7 +114,7 @@ Offer a next helpful step (e.g. "Want a 3-day plan?" or "Shall I suggest the bes
 MEMORY
 Remember everything the guest has said this session (occasion, dates, party, preferences) and never re-ask it. Build on it.
 
-${dossier.brief}`;
+${dossier.brief}${imageLibrary}`;
 
   const convo = history.length
     ? history.map((m) => `${m.role === "user" ? "Guest" : "You"}: ${m.content}`).join("\n") + "\n"
