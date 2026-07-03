@@ -284,22 +284,6 @@ export function AirbnbLanding() {
         </p>
 
         <TravelDatesBar className="mt-4 max-w-xl" />
-
-        {/* Quick jump to a city */}
-        {cities.length > 0 && (
-          <div className="no-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1">
-            {cities.map((c) => (
-              <a
-                key={c.key}
-                href={`#city-${c.key}`}
-                className="shrink-0 rounded-full border border-[#EBEBEB] px-3.5 py-1.5 text-sm font-medium text-[#222] transition-colors hover:border-[#222]"
-              >
-                {c.label}
-                <span className="ml-1.5 text-[#717171]">{c.count}</span>
-              </a>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* CITY SECTIONS */}
