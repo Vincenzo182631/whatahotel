@@ -13,7 +13,6 @@ import { DockedAdvisor } from "@/components/hotel/docked-advisor";
 import { RoomsSection } from "@/components/hotel/rooms-section";
 import { TrackView } from "@/components/hotel/track-view";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
-import { Badge } from "@/components/ui/badge";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -90,17 +89,17 @@ export default async function HotelPage({ params }: Params) {
         </div>
 
         {/* Title */}
-        <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
+        <div className="mt-10 flex flex-wrap items-end justify-between gap-6">
           <div>
             {hotel.brand && (
-              <p className="text-xs uppercase tracking-[0.2em] text-primary/80">
+              <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#9a9a9a]">
                 {hotel.brand}
               </p>
             )}
-            <h1 className="mt-1 font-display text-4xl font-light md:text-5xl">
+            <h1 className="mt-2 font-display text-4xl font-light tracking-tight text-[#1a1a1a] md:text-5xl">
               {hotel.name}
             </h1>
-            <p className="mt-2 flex items-center gap-1.5 text-foreground/72">
+            <p className="mt-2.5 flex items-center gap-1.5 text-[#717171]">
               <MapPin className="size-4 text-primary" />
               {hotel.neighborhood && hotel.neighborhood !== hotel.city
                 ? `${hotel.neighborhood} · ${hotel.city}, ${hotel.country}`
@@ -108,48 +107,49 @@ export default async function HotelPage({ params }: Params) {
             </p>
           </div>
           <div className="text-right">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-black/[0.04] px-3 py-1.5">
+            <span className="inline-flex items-center gap-0.5">
               {Array.from({ length: hotel.starRating }).map((_, i) => (
-                <Star key={i} className="size-3.5 fill-primary text-primary" strokeWidth={1.5} />
+                <Star key={i} className="size-4 fill-[#1a1a1a] text-[#1a1a1a]" strokeWidth={0} />
               ))}
             </span>
-            <p className="mt-2 font-display text-lg text-gradient-gold">
-              Live rates for your dates
-            </p>
-            <p className="text-xs text-foreground/65">Pick dates below for live pricing</p>
+            <p className="mt-2 text-base font-medium text-[#1a1a1a]">Live rates for your dates</p>
+            <p className="text-xs text-[#9a9a9a]">Pick dates below for live pricing</p>
           </div>
         </div>
 
         {/* Body */}
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]">
-          <div className="space-y-10">
+        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_380px] lg:gap-14">
+          <div className="space-y-14">
             <section>
-              <h2 className="font-display text-2xl font-medium">The story</h2>
-              <p className="mt-3 leading-relaxed text-foreground/75">
+              <h2 className="font-display text-2xl font-medium text-[#1a1a1a]">The story</h2>
+              <p className="mt-4 max-w-2xl text-[15px] leading-[1.75] text-[#555]">
                 {hotel.description}
               </p>
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-6 flex flex-wrap gap-2">
                 {hotel.highlights.map((h) => (
-                  <Badge key={h} variant="muted">
-                    <Check className="size-3 text-primary" /> {h}
-                  </Badge>
+                  <span
+                    key={h}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.08] bg-white px-3 py-1.5 text-[13px] text-[#555]"
+                  >
+                    <Check className="size-3 text-[#1a1a1a]/60" /> {h}
+                  </span>
                 ))}
               </div>
             </section>
 
             {hotel.amenities.length > 0 && (
               <section>
-                <h2 className="font-display text-2xl font-medium">Amenities</h2>
-                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <h2 className="font-display text-2xl font-medium text-[#1a1a1a]">Amenities</h2>
+                <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {hotel.amenities.map((a) => {
                     const meta = AMENITY_META[a];
                     if (!meta) return null;
                     return (
                       <div
                         key={a}
-                        className="flex items-center gap-2.5 rounded-2xl glass px-4 py-3 text-sm"
+                        className="flex items-center gap-2.5 rounded-xl border border-black/[0.07] bg-white px-4 py-3 text-sm text-[#333]"
                       >
-                        <meta.icon className="size-4 text-primary" />
+                        <meta.icon className="size-4 text-[#717171]" strokeWidth={1.75} />
                         {meta.label}
                       </div>
                     );
@@ -159,19 +159,19 @@ export default async function HotelPage({ params }: Params) {
             )}
 
             <section>
-              <h2 className="flex items-center gap-2 font-display text-2xl font-medium">
+              <h2 className="flex items-center gap-2 font-display text-2xl font-medium text-[#1a1a1a]">
                 <Gift className="size-5 text-primary" /> Advisor-exclusive perks
               </h2>
-              <ul className="mt-4 space-y-2.5">
+              <p className="mt-1.5 text-sm text-[#9a9a9a]">Complimentary with every WhataHotel booking.</p>
+              <ul className="mt-5 divide-y divide-black/[0.06] overflow-hidden rounded-2xl border border-black/[0.07] bg-white">
                 {perks.map((perk) => (
-                  <li
-                    key={perk.id}
-                    className="flex items-start gap-3 rounded-2xl border border-primary/15 bg-primary/[0.04] p-4"
-                  >
-                    <Check className="mt-0.5 size-4 shrink-0 text-primary" />
-                    <span>
-                      <span className="font-medium">{perk.label}</span>
-                      <span className="text-foreground/72"> — {perk.detail}</span>
+                  <li key={perk.id} className="flex items-start gap-3 p-4">
+                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-primary/10">
+                      <Check className="size-3 text-primary" strokeWidth={2.5} />
+                    </span>
+                    <span className="text-[15px] leading-relaxed">
+                      <span className="font-medium text-[#1a1a1a]">{perk.label}</span>
+                      {perk.detail && <span className="text-[#717171]"> — {perk.detail}</span>}
                     </span>
                   </li>
                 ))}
@@ -180,14 +180,12 @@ export default async function HotelPage({ params }: Params) {
 
             {hotel.distances.length > 0 && (
               <section>
-                <h2 className="font-display text-2xl font-medium">
-                  Getting around
-                </h2>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <h2 className="font-display text-2xl font-medium text-[#1a1a1a]">Getting around</h2>
+                <div className="mt-5 grid gap-3 sm:grid-cols-3">
                   {hotel.distances.map((d) => (
-                    <div key={d.label} className="rounded-2xl glass p-4">
-                      <p className="text-sm text-foreground/72">{d.label}</p>
-                      <p className="mt-1 font-display text-lg">{d.value}</p>
+                    <div key={d.label} className="rounded-xl border border-black/[0.07] bg-white p-4">
+                      <p className="text-[13px] text-[#9a9a9a]">{d.label}</p>
+                      <p className="mt-1 font-display text-lg text-[#1a1a1a]">{d.value}</p>
                     </div>
                   ))}
                 </div>
@@ -195,10 +193,8 @@ export default async function HotelPage({ params }: Params) {
             )}
 
             <section>
-              <h2 className="font-display text-2xl font-medium">
-                Rooms & availability
-              </h2>
-              <div className="mt-4">
+              <h2 className="font-display text-2xl font-medium text-[#1a1a1a]">Rooms &amp; availability</h2>
+              <div className="mt-5">
                 <RoomsSection hotelId={hotel.id} sourceHotelId={hotel.sourceHotelId} />
               </div>
             </section>

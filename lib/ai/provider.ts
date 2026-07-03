@@ -138,6 +138,24 @@ export async function extractCriteriaPatch(
   }
 }
 
+/**
+ * Stream a grounded assistant reply for a one-off prompt (e.g. the hotel-page
+ * advisor). Throws if no LLM is configured so the caller can fall back.
+ */
+export async function* streamGrounded(
+  system: string,
+  prompt: string,
+): AsyncGenerator<string, void, unknown> {
+  if (!hasLLM) throw new Error("no-llm");
+  const { streamText } = await import("ai");
+  const result = streamText({
+    model: await chatModel(false),
+    system,
+    messages: [{ role: "user", content: prompt }],
+  });
+  for await (const delta of result.textStream) yield delta;
+}
+
 /** What the router decided the traveller wants this turn. */
 export interface TurnRoute {
   action: "recommend" | "compare" | "book" | "explain" | "qa" | "local" | "live" | "smalltalk" | "ask";
