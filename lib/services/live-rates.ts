@@ -504,6 +504,7 @@ export async function buildLiveComparison(
   hotels: Hotel[],
   checkIn?: string,
   checkOut?: string,
+  priority?: string,
 ): Promise<HotelComparison> {
   const nights = checkIn && checkOut ? nightsBetween(checkIn, checkOut) : 0;
 
@@ -540,6 +541,34 @@ export async function buildLiveComparison(
       ? c.h.amenities.slice(0, 6).map(readable)
       : cleanAmenities(c.info?.amenities).slice(0, 5);
 
+  // Estimate the cash value of a hotel's advisor perks (explicit "$X" credits are
+  // real; common perks get a conservative nominal value) to rank best value.
+  const perkCashValue = (perks: string[]): number => {
+    let total = 0;
+    for (const p of perks) {
+      const m = p.match(/\$\s?(\d{2,5})/);
+      if (m) { total += Number(m[1]); continue; }
+      if (/breakfast/i.test(p)) total += 55 * Math.max(1, nights);
+      else if (/upgrade/i.test(p)) total += 120;
+      else if (/transfer|airport|train station/i.test(p)) total += 90;
+      else if (/late (check|check-?out)/i.test(p)) total += 40;
+      else if (/wi-?fi|internet/i.test(p)) total += 0;
+      else total += 25;
+    }
+    return total;
+  };
+  const nightsV = Math.max(1, nights);
+  const priced = cols.map((c) => (c.rates ? c.rates.entryNightly : Infinity));
+  const anyPriced = priced.some((p) => p !== Infinity);
+  // Value = live nightly minus the per-night value of the included perks; lowest
+  // effective rate wins. No live rates yet? fall back to the most perks.
+  const effective = cols.map((c) =>
+    c.rates ? c.rates.entryNightly - perkCashValue(perksOf(c.h)) / nightsV : Infinity,
+  );
+  const bestValueIdx = anyPriced
+    ? effective.indexOf(Math.min(...effective))
+    : cols.map((c) => perksOf(c.h).length).reduce((b, n, i, a) => (n > a[b] ? i : b), 0);
+
   const rows: ComparisonRow[] = [
     {
       label: nights > 0 ? `Live rate · ${nights} night${nights > 1 ? "s" : ""}` : "Live rate",
@@ -549,6 +578,12 @@ export async function buildLiveComparison(
           : nights > 0
             ? "Rate on request"
             : "Add dates for live rates",
+      ),
+    },
+    {
+      label: "Value",
+      values: cols.map((c, i) =>
+        i === bestValueIdx ? "★ Best value" : c.rates || perksOf(c.h).length ? "—" : "Add dates",
       ),
     },
     {
@@ -595,16 +630,11 @@ export async function buildLiveComparison(
     },
   ];
 
-  // Best value: cheapest live rate; if none priced, the most-inclusive on perks.
-  const priced = cols.map((c) => (c.rates ? c.rates.entryNightly : Infinity));
-  const anyPriced = priced.some((p) => p !== Infinity);
-  const bestIdx = anyPriced
-    ? priced.indexOf(Math.min(...priced))
-    : cols.map((c) => perksOf(c.h).length).reduce((b, n, i, a) => (n > a[b] ? i : b), 0);
-
+  const best = cols[bestValueIdx].h.name;
+  const forPriority = priority ? ` for ${priority}` : "";
   const recommendation = anyPriced
-    ? `On live rates for your dates, ${cols[bestIdx].h.name} is the best value here — and every stay includes the advisor-exclusive perks. Tell me what matters most (location, dining, spa) and I'll make the final call.`
-    : `${cols[bestIdx].h.name} leads on inclusions. Share your check-in and check-out and I'll pull live rates so you can compare on price too.`;
+    ? `Best value${forPriority}: ${best} — perks factored against the live rate.${priority ? "" : " Tell me what matters most (location, dining, spa) and I'll re-weigh it."}`
+    : `${best} leads on inclusions${forPriority}. Share your dates and I'll pull live rates to compare on price too.`;
 
   return {
     hotels: hotels.map((h) => ({ id: h.id, name: h.name, image: h.image, city: h.city })),

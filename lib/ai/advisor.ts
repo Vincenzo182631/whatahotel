@@ -109,6 +109,25 @@ function resolveHotels(
   return picked;
 }
 
+/** What the traveller most wants to weigh the comparison on, if they signalled it. */
+function detectPriority(
+  text: string,
+  criteria: { occasion?: string; amenities?: string[] },
+): string | undefined {
+  const t = text.toLowerCase();
+  if (/\bspa\b|wellness|massage/.test(t)) return "spa & wellness";
+  if (/dining|restaurant|food|michelin|eat\b|cuisine/.test(t)) return "dining";
+  if (/location|near|close|central|walk|distance|steps from/.test(t)) return "location";
+  if (/budget|cheap|value|price|afford|deal|money/.test(t)) return "value";
+  if (/\bfamily\b|kids?|child|children/.test(t)) return "families";
+  if (/honeymoon|romantic|anniversary|couple/.test(t)) return "romance";
+  if (/pool|beach|ocean/.test(t)) return "pool & beach";
+  if (/business|work|meeting|gym|wifi/.test(t)) return "business travel";
+  if (criteria.occasion) return criteria.occasion;
+  if (criteria.amenities?.length) return criteria.amenities[0];
+  return undefined;
+}
+
 /** Resolve router-provided hotel references (names or ordinals) to shown hotels. */
 function resolveByNames(names: string[], last: Recommendation[]): Recommendation[] {
   const out: Recommendation[] = [];
@@ -310,12 +329,14 @@ export async function runTurn(
     let hotels = resolveHotels(lastUserMessage, session.lastRecommendations, intent?.hotelIds);
     if (hotels.length < 2) hotels = session.lastRecommendations.slice(0, 2);
     if (hotels.length >= 2) {
+      const priority = detectPriority(lastUserMessage, criteria);
       // Enrich with LIVE data (dated rates, room categories, perks, amenities,
       // dining) so the comparison is grounded in the real API, not placeholders.
       const comparison = await buildLiveComparison(
         hotels.slice(0, 3),
         criteria.checkIn,
         criteria.checkOut,
+        priority,
       );
       const ctx: ReplyContext = {
         action: "compare",
@@ -324,6 +345,7 @@ export async function runTurn(
         recommendations: session.lastRecommendations,
         totalFound: session.lastRecommendations.length,
         comparison,
+        comparePriority: priority,
         learned,
         lastUserMessage,
         user,

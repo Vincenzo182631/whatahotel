@@ -245,7 +245,7 @@ function buildSituation(ctx: ReplyContext): string {
           (r) =>
             `#${r.rank} ${r.name}${r.brand ? ` (${r.brand})` : ""} — fit ${r.fitScore.toFixed(1)}/10${r.rating > 0 ? `, guest ${r.rating}/10` : ""}${r.perks?.[0] ? ` · perk: ${r.perks[0].label}` : ""}`,
         )
-        .join("\n")}\nBriefly introduce the ranked shortlist and name why #1 leads, citing one concrete detail (never a price). Do NOT list full details for all — the cards do that.`;
+        .join("\n")}\nIn 1–2 sentences, introduce the ranked shortlist and say why #1 leads with one concrete detail (never a price). The cards show the rest — don't list them. No preamble.`;
     case "explain": {
       const focus = ctx.focus?.length ? ctx.focus : ctx.recommendations.slice(0, 2);
       return `SITUATION: The traveller wants to understand specific hotels already on screen. Speak specifically and honestly about them using ONLY these facts (NEVER state a nightly price — rates are only confirmed live for specific dates, so say "live rates for your dates"): ${focus
@@ -253,7 +253,7 @@ function buildSituation(ctx: ReplyContext): string {
           (r) =>
             `${r.name}${r.brand ? ` (${r.brand})` : ""}${r.rating > 0 ? ` — guest ${r.rating}/10` : ""}; amenities: ${(r.amenities ?? []).slice(0, 4).join(", ") || "not listed"}; perk: ${r.perks?.[0]?.label ?? "advisor perks"}; why ranked: ${r.reason ?? "strong overall fit"}`,
         )
-        .join(" | ")}. Give the real trade-offs and who each suits. Invent nothing.`;
+        .join(" | ")}. In 2–3 tight sentences, give the real trade-off and who each suits. Invent nothing; no preamble.`;
     }
     case "live":
       return `SITUATION: ${ctx.liveCity} is outside your curated set, so you searched WhataHotel's live availability. The app is showing ${ctx.liveHotels?.length ?? 0} real hotels with live rates and advisor perks (each opens the hotel's booking page). Introduce the live results for ${ctx.liveCity} in one or two sentences — note the rates are live for their dates and perks are included. Do NOT list them; the cards do that.`;
@@ -271,7 +271,8 @@ function buildSituation(ctx: ReplyContext): string {
       const facts = cmp.rows
         .map((r) => `${r.label} — ${cmp.hotels.map((h, i) => `${h.name}: ${r.values[i]}`).join(" | ")}`)
         .join("\n");
-      return `SITUATION: You compared these hotels side by side using LIVE data from the WhataHotel API (dated rates, room categories, advisor-exclusive perks, amenities, dining). The table is on screen. The real facts:\n${facts}\n\nGive a short, opinionated comparison in 2–4 sentences: call out the concrete differences that matter (rate for their dates, exclusive perks, location, dining), then recommend one with an honest trade-off. Use ONLY the facts above — never invent a price; if a rate shows "Add dates for live rates", note you'll pull exact rates once they share their dates.`;
+      const pri = ctx.comparePriority;
+      return `SITUATION: You compared these hotels using LIVE data from the WhataHotel API (dated rates, room categories, advisor-exclusive perks, amenities, dining). The table is on screen. Real facts:\n${facts}\n${pri ? `The traveller cares most about ${pri} — weight your pick toward that.\n` : ""}\nReply in AT MOST 3 tight sentences: name the best pick FIRST and why (rate + perks${pri ? ` for ${pri}` : ""}), then the single key trade-off. Use ONLY these facts; never invent a price; if a rate says "Add dates", ask for their dates. No preamble, no restating the question.`;
     }
     case "book":
       return ctx.booking?.complete

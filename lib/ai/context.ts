@@ -29,6 +29,8 @@ export interface ReplyContext {
   focus?: Recommendation[];
   /** The exact factual question to answer for the "qa" action. */
   qaQuestion?: string;
+  /** What the traveller cares most about, to weight the "compare" recommendation. */
+  comparePriority?: string;
   /** Live results + the city they're for, when searching beyond the local set. */
   liveCity?: string;
   liveHotels?: import("@/lib/services/live-rates").LiveHotel[];
