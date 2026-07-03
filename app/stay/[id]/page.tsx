@@ -7,7 +7,9 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { CityMap } from "@/components/hotel/city-map";
 import { StayDatePicker } from "@/components/search/stay-date-picker";
 import { StayBooking } from "@/components/search/stay-booking";
+import { DockedAdvisor } from "@/components/hotel/docked-advisor";
 import { formatCurrency } from "@/lib/utils";
+import type { Hotel } from "@/lib/services/types";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -41,6 +43,36 @@ export default async function StayPage({ params, searchParams }: Params) {
 
   const perks = hotel.perks.length ? hotel.perks : info ? [] : [];
   const gallery = hotel.gallery.filter((g) => g !== hotel.image).slice(0, 6);
+
+  // Shape the live hotel into the advisor's Hotel type so the docked advisor can
+  // load its full knowledge base (the /api/hotel-chat route resolves this live
+  // source id back via getLiveHotel + getHotelInfo and builds the dossier).
+  const advisorHotel: Hotel = {
+    id: hotel.sourceHotelId,
+    sourceHotelId: hotel.sourceHotelId,
+    name: hotel.name,
+    city: hotel.city,
+    destinationKey: "",
+    country: hotel.country,
+    neighborhood: hotel.address || hotel.city,
+    shortPitch: "",
+    description: info?.description ?? "",
+    image: hotel.image,
+    gallery: hotel.gallery,
+    rating: 0,
+    reviewCount: 0,
+    starRating: 0,
+    startingRate: 0,
+    currency: "USD",
+    amenities: info?.amenities ?? [],
+    highlights: [],
+    perks: hotel.perks.map((p, i) => ({ id: `p${i}`, label: p.replace(/\*+$/g, ""), detail: "" })),
+    vibes: [],
+    goodFor: [],
+    distances: [],
+    coordinates: hotel.coordinates ?? { lat: 0, lng: 0 },
+    bookingUrl: hotel.bookingUrl,
+  };
 
   return (
     <div className="min-h-dvh bg-white text-[#222]">
@@ -80,6 +112,12 @@ export default async function StayPage({ params, searchParams }: Params) {
         <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
           {/* Main */}
           <div className="space-y-8">
+            {/* Luxury travel advisor — knows this hotel + destination inside out */}
+            <section>
+              <h2 className="mb-2 text-lg font-semibold">Ask your travel advisor</h2>
+              <DockedAdvisor hotel={advisorHotel} />
+            </section>
+
             {info?.description && (
               <section>
                 <h2 className="mb-2 text-lg font-semibold">About</h2>
