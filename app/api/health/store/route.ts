@@ -16,6 +16,5 @@ export async function GET() {
     redisSource: redisSource(),
     redisOk: ping.ok,
     redisError: ping.error ?? null,
-    authSecretSet: Boolean(process.env.AUTH_SECRET),
   });
 }

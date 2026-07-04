@@ -4,6 +4,7 @@ import { streamGrounded } from "@/lib/ai/provider";
 import { answerHotelQuestion } from "@/lib/chat/hotel-qa";
 import { buildHotelDossier } from "@/lib/ai/hotel-knowledge";
 import { buildHotelImageManifest } from "@/lib/services/hotel-images";
+import { rateLimitExceeded, tooManyText } from "@/lib/security/rate-limit";
 import type { Hotel } from "@/lib/services/types";
 
 export const runtime = "nodejs";
@@ -22,9 +23,11 @@ export const maxDuration = 30;
  * the deterministic Q&A when no LLM is configured.
  */
 export async function POST(req: Request) {
+  if (await rateLimitExceeded(req, "hotel-chat", 30, 60)) return tooManyText(60);
+
   const body = await req.json().catch(() => ({}));
   const hotelId = String(body.hotelId ?? "");
-  const question = String(body.question ?? "").trim();
+  const question = String(body.question ?? "").trim().slice(0, 2000);
   const history: { role: string; content: string }[] = Array.isArray(body.history)
     ? body.history.slice(-10)
     : [];

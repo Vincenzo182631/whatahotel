@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { store } from "@/lib/data/store";
 import { emailService } from "@/lib/integrations";
+import { rateLimitExceeded } from "@/lib/security/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,13 @@ export const runtime = "nodejs";
  * (dev) — in production the `emailService` adapter delivers it instead.
  */
 export async function POST(req: Request) {
+  if (await rateLimitExceeded(req, "reset", 5, 60)) {
+    return NextResponse.json(
+      { error: "Too many attempts. Please wait a minute and try again." },
+      { status: 429 },
+    );
+  }
+
   const body = await req.json().catch(() => ({}));
   const email = String(body.email ?? "").trim().toLowerCase();
   const user = await store.getUserByEmail(email);
@@ -27,6 +35,8 @@ export async function POST(req: Request) {
   const link = `/reset/confirm?token=${token}`;
   const delivered = await emailService.sendPasswordReset(user.email, link);
 
-  // Only surface the link when the email adapter is a no-op (dev convenience).
-  return NextResponse.json({ ok: true, devResetLink: delivered ? undefined : link });
+  // Only surface the link when the email adapter is a no-op AND we're not in
+  // production — never hand a reset token back over HTTP on the live site.
+  const showDevLink = !delivered && process.env.NODE_ENV !== "production";
+  return NextResponse.json({ ok: true, devResetLink: showDevLink ? link : undefined });
 }

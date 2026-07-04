@@ -1,5 +1,6 @@
 import { runTurn } from "@/lib/ai/advisor";
 import { streamReply } from "@/lib/ai/provider";
+import { rateLimitExceeded, tooManyText } from "@/lib/security/rate-limit";
 import type { ChatRequestBody } from "@/lib/chat/types";
 
 // In-memory session storage requires the Node runtime (not edge).
@@ -9,6 +10,10 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
+  // Rate limit: this endpoint fans out to the LLM, so cap per-IP request rate to
+  // stop a script from running up the AI bill.
+  if (await rateLimitExceeded(req, "chat", 30, 60)) return tooManyText(60);
+
   let body: ChatRequestBody;
   try {
     body = (await req.json()) as ChatRequestBody;
@@ -18,6 +23,8 @@ export async function POST(req: Request) {
   if (!body?.sessionId || !Array.isArray(body.messages)) {
     return new Response("Missing sessionId or messages", { status: 400 });
   }
+  // Cap payload size — a normal conversation is well under this.
+  if (body.messages.length > 60) body.messages = body.messages.slice(-60);
 
   const { ctx, payload } = await runTurn(body);
 

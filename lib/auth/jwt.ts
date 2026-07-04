@@ -4,10 +4,22 @@
  * tokens with the `AUTH_SECRET` env var.
  */
 
-const SECRET =
-  process.env.AUTH_SECRET ||
-  // Dev fallback so the app boots without config. Set AUTH_SECRET in production.
-  "dev-insecure-secret-change-me-in-production";
+/**
+ * Resolve the signing secret. In production we FAIL CLOSED: if AUTH_SECRET is
+ * missing we refuse to sign/verify rather than silently fall back to a public,
+ * well-known dev string (which would let anyone forge sessions). In dev we allow
+ * the fallback so the app still boots without config.
+ */
+function getSecret(): string {
+  const s = process.env.AUTH_SECRET;
+  if (s) return s;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "AUTH_SECRET is not set — refusing to sign/verify sessions with the insecure dev fallback in production. Set AUTH_SECRET (e.g. `openssl rand -hex 32`) in every deployed environment.",
+    );
+  }
+  return "dev-insecure-secret-change-me-in-production";
+}
 
 export interface SessionClaims {
   sub: string; // user id
@@ -39,7 +51,7 @@ function b64urlToBytes(s: string): Uint8Array {
 async function key(): Promise<CryptoKey> {
   return crypto.subtle.importKey(
     "raw",
-    enc.encode(SECRET) as BufferSource,
+    enc.encode(getSecret()) as BufferSource,
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign", "verify"],

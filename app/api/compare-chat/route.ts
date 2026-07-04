@@ -2,6 +2,7 @@ import { hotelDetailsService } from "@/lib/services";
 import { getLiveHotel } from "@/lib/services/live-rates";
 import { streamGrounded } from "@/lib/ai/provider";
 import { buildComparisonBrief } from "@/lib/ai/comparison-knowledge";
+import { rateLimitExceeded, tooManyText } from "@/lib/security/rate-limit";
 import type { Hotel } from "@/lib/services/types";
 
 export const runtime = "nodejs";
@@ -45,6 +46,8 @@ const PRIORITY_LABELS: Record<string, string> = {
  * Streams token-by-token. Grounded strictly in the comparison brief.
  */
 export async function POST(req: Request) {
+  if (await rateLimitExceeded(req, "compare-chat", 30, 60)) return tooManyText(60);
+
   const body = await req.json().catch(() => ({}));
   const ids: string[] = Array.isArray(body.ids) ? body.ids.filter(Boolean).slice(0, 3) : [];
   const checkIn = String(body.checkIn ?? "");

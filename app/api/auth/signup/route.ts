@@ -3,10 +3,18 @@ import { registerUser } from "@/lib/auth/accounts";
 import { signSession } from "@/lib/auth/jwt";
 import { sessionCookieOptions, SESSION_COOKIE } from "@/lib/auth/session";
 import { toPublicUser } from "@/lib/data/types";
+import { rateLimitExceeded } from "@/lib/security/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  if (await rateLimitExceeded(req, "signup", 6, 60)) {
+    return NextResponse.json(
+      { error: "Too many attempts. Please wait a minute and try again." },
+      { status: 429 },
+    );
+  }
+
   const body = await req.json().catch(() => ({}));
   const result = await registerUser({
     name: String(body.name ?? ""),
