@@ -1,8 +1,10 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { registerUser } from "@/lib/auth/accounts";
 import { signSession } from "@/lib/auth/jwt";
 import { sessionCookieOptions, SESSION_COOKIE } from "@/lib/auth/session";
 import { toPublicUser } from "@/lib/data/types";
+import { store } from "@/lib/data/store";
 import { rateLimitExceeded } from "@/lib/security/rate-limit";
 
 export const runtime = "nodejs";
@@ -24,6 +26,20 @@ export async function POST(req: Request) {
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
+
+  // Record every sign-up as a lead for the CRM (dedupes by email, so a chat-gate
+  // lead who later makes a full account keeps one row with their trip context).
+  const parts = String(body.name ?? "").trim().split(/\s+/);
+  await store
+    .addLead({
+      id: randomUUID(),
+      firstName: parts[0] ?? "",
+      lastName: parts.slice(1).join(" "),
+      email: result.user.email,
+      source: "signup",
+      createdAt: new Date().toISOString(),
+    })
+    .catch(() => {});
   const token = await signSession({
     sub: result.user.id,
     email: result.user.email,
