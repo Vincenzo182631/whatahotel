@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { ChatComposer } from "@/components/chat/chat-composer";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
-import { ChatMarkdown, type ChatImage } from "@/components/chat/chat-markdown";
+import { ChatMarkdown, type ChatImage, type ChatBooking } from "@/components/chat/chat-markdown";
 import { answerHotelQuestion, DOCKED_SUGGESTIONS } from "@/lib/chat/hotel-qa";
 import { useTravelDates } from "@/store/travel-dates-store";
 import type { Hotel } from "@/lib/services/types";
@@ -27,10 +27,21 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
   ]);
   const [busy, setBusy] = useState(false);
   const [images, setImages] = useState<Record<string, ChatImage>>({});
-  const [bookings, setBookings] = useState<Record<string, ChatImage>>({});
+  const [bookings, setBookings] = useState<Record<string, ChatBooking>>({});
   const checkIn = useTravelDates((s) => s.checkIn);
   const checkOut = useTravelDates((s) => s.checkOut);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // A preview card of THIS property the advisor can drop in with `[hotel]`.
+  const hotelCard = {
+    name: hotel.name,
+    location: [hotel.neighborhood && hotel.neighborhood !== hotel.city ? hotel.neighborhood : "", hotel.city, hotel.country]
+      .filter(Boolean)
+      .join(", "),
+    blurb: hotel.shortPitch || undefined,
+    image: hotel.image,
+    url: hotel.destinationKey ? `/hotel/${hotel.id}` : `/stay/${hotel.sourceHotelId ?? hotel.id}`,
+  };
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -65,12 +76,24 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
       `/api/hotel-booking?hotelId=${encodeURIComponent(hotel.id)}&checkIn=${checkIn}&checkOut=${checkOut}`,
     )
       .then((r) => (r.ok ? r.json() : null))
-      .then((d: { bookings?: { id: string; url: string; room: string }[] } | null) => {
-        if (!active || !d?.bookings) return;
-        const map: Record<string, ChatImage> = {};
-        for (const b of d.bookings) map[b.id] = { url: b.url, label: b.room };
-        setBookings(map);
-      })
+      .then(
+        (d: {
+          bookings?: { id: string; url: string; room: string; image?: string; description?: string; nightly?: number; currency?: string }[];
+        } | null) => {
+          if (!active || !d?.bookings) return;
+          const map: Record<string, ChatBooking> = {};
+          for (const b of d.bookings)
+            map[b.id] = {
+              url: b.url,
+              label: b.room,
+              image: b.image,
+              description: b.description,
+              nightly: b.nightly,
+              currency: b.currency,
+            };
+          setBookings(map);
+        },
+      )
       .catch(() => {});
     return () => {
       active = false;
@@ -153,7 +176,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
                 <TypingIndicator />
               ) : (
                 <div className="text-[#2a2a2a]">
-                  <ChatMarkdown content={m.content} images={images} bookings={bookings} />
+                  <ChatMarkdown content={m.content} images={images} bookings={bookings} hotelCard={hotelCard} />
                   {m.streaming && (
                     <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-pulse-soft bg-primary align-middle" />
                   )}

@@ -77,7 +77,7 @@ export async function POST(req: Request) {
 
   const bookingLibrary = bookings.length
     ? `\n\n==== BOOKING LINKS (live for the guest's dates ${checkIn} → ${checkOut}) ====
-When the guest wants to book or reserve a specific room, output its tag on its OWN line: [book:ID]. It renders as a Reserve button that opens the secure WhataHotel booking form, prefilled with that room, rate, their dates and perks. Use ONLY these ids; NEVER invent one or write a URL yourself. If they haven't named a room, recommend one and offer its button. Never ask for card details yourself.
+When the guest wants to book or reserve a specific room, output its tag on its OWN line: [book:ID]. It renders as a bookable room CARD (photo, short details and a Reserve button) that opens the secure WhataHotel booking form, prefilled with that room, rate, their dates and perks. Use ONLY these ids; NEVER invent one or write a URL yourself. If they haven't named a room, recommend one and offer its card. Never ask for card details yourself.
 ${bookings.map((b) => `- [book:${b.id}] = ${b.room}`).join("\n")}
 ==== END BOOKING LINKS ====`
     : "";
@@ -118,6 +118,7 @@ RESPONSE STYLE
 - Use markdown: **bold** for names/labels, "- " bullet lists, numbered lists for itineraries/steps, and a compact markdown table ONLY when directly comparing 2–3 rooms or options.
 - Explain room differences in plain language. When recommending, say WHY in a few words (privacy, view, space, value).
 - Only SHOW photos when the guest EXPLICITLY asks to see them (e.g. "show me", "can I see", "photos", "pictures", "what does it look like"). Then use [img:ID] on its own line from the PHOTO LIBRARY below. Otherwise NEVER attach an image — describe in words. Never attach a photo to a nearby restaurant/attraction (we don't have those).
+- To show a compact PREVIEW CARD of this property (photo, location and a link to its full page), output [hotel] on its own line. Use it when the guest wants an at-a-glance overview or a quick link to the hotel — not in every reply.
 - Add a brief, tasteful travel tip when it genuinely helps. Avoid large paragraphs.
 
 PROACTIVE ADVISING

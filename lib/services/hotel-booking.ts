@@ -16,6 +16,11 @@ export interface BookingLink {
   id: string;
   room: string;
   url: string;
+  image?: string;
+  /** A short, human blurb for the room card. */
+  description?: string;
+  nightly?: number;
+  currency?: string;
 }
 
 function slug(s: string): string {
@@ -48,7 +53,20 @@ export async function buildBookingManifest(
     let id = slug(r.name);
     while (seen.has(id)) id += "-2";
     seen.add(id);
-    out.push({ id, room: r.name, url: r.bookingURL });
+    const description = r.description
+      ? r.description.length > 150
+        ? r.description.slice(0, 150).trim() + "…"
+        : r.description
+      : undefined;
+    out.push({
+      id,
+      room: r.name,
+      url: r.bookingURL,
+      image: r.image,
+      description,
+      nightly: r.nightly || undefined,
+      currency: r.currency,
+    });
   }
   return out;
 }

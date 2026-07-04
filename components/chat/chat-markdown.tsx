@@ -62,16 +62,43 @@ export interface ChatImage {
   label: string;
 }
 
+/** A room the advisor can offer as a bookable card. */
+export interface ChatBooking {
+  url: string;
+  label: string;
+  image?: string;
+  description?: string;
+  nightly?: number;
+  currency?: string;
+}
+
+/** A hotel the advisor can preview as a card with a link to its page. */
+export interface ChatHotelCard {
+  name: string;
+  location?: string;
+  blurb?: string;
+  image?: string;
+  url: string;
+}
+
+const money = (n?: number, currency = "USD") =>
+  typeof n === "number" && n > 0
+    ? new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: 0 }).format(n)
+    : "";
+
 export function ChatMarkdown({
   content,
   images,
   bookings,
+  hotelCard,
 }: {
   content: string;
   /** Resolves `[img:ID]` tags the advisor emits into real photos. */
   images?: Record<string, ChatImage>;
-  /** Resolves `[book:ID]` tags into real Reserve buttons (prefilled booking form). */
-  bookings?: Record<string, ChatImage>;
+  /** Resolves `[book:ID]` tags into bookable room cards (prefilled booking form). */
+  bookings?: Record<string, ChatBooking>;
+  /** Resolves a `[hotel]` tag into a preview card of this property. */
+  hotelCard?: ChatHotelCard;
 }) {
   const lines = content.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
@@ -127,22 +154,98 @@ export function ChatMarkdown({
       continue;
     }
 
-    // Booking tag: [book:ID] on its own line → a Reserve button (skip if unknown)
+    // Booking tag: [book:ID] on its own line → a bookable ROOM CARD (skip if unknown)
     const bookTag = trimmed.match(/^\[book:([A-Za-z0-9_-]+)\]$/);
     if (bookTag) {
       flushPara();
       const bk = bookings?.[bookTag[1]];
       if (bk) {
+        const price = money(bk.nightly, bk.currency);
         blocks.push(
-          <a
+          <div
             key={`book${blocks.length}`}
-            href={bk.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="my-1 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="my-1 overflow-hidden rounded-xl border border-black/[0.08] bg-white"
           >
-            Reserve {bk.label} →
-          </a>,
+            {bk.image && (
+              <div className="relative h-28 w-full bg-black/[0.03]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={bk.image}
+                  alt={bk.label}
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
+                  className="h-28 w-full object-cover"
+                />
+              </div>
+            )}
+            <div className="p-3">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="font-semibold text-[#1a1a1a]">{bk.label}</p>
+                {price && (
+                  <p className="shrink-0 text-sm font-semibold text-[#1a1a1a]">
+                    {price}
+                    <span className="text-[11px] font-normal text-[#717171]"> / night</span>
+                  </p>
+                )}
+              </div>
+              {bk.description && (
+                <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-[#717171]">{bk.description}</p>
+              )}
+              <a
+                href={bk.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              >
+                Reserve →
+              </a>
+            </div>
+          </div>,
+        );
+      }
+      i++;
+      continue;
+    }
+
+    // Hotel tag: [hotel] on its own line → a preview card of this property
+    if (trimmed === "[hotel]") {
+      flushPara();
+      if (hotelCard) {
+        blocks.push(
+          <div
+            key={`hotel${blocks.length}`}
+            className="my-1 overflow-hidden rounded-xl border border-black/[0.08] bg-white"
+          >
+            {hotelCard.image && (
+              <div className="relative h-28 w-full bg-black/[0.03]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={hotelCard.image}
+                  alt={hotelCard.name}
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
+                  className="h-28 w-full object-cover"
+                />
+              </div>
+            )}
+            <div className="p-3">
+              <p className="font-semibold text-[#1a1a1a]">{hotelCard.name}</p>
+              {hotelCard.location && <p className="text-xs text-[#717171]">{hotelCard.location}</p>}
+              {hotelCard.blurb && (
+                <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-[#717171]">{hotelCard.blurb}</p>
+              )}
+              <a
+                href={hotelCard.url}
+                className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-black/15 px-4 py-2 text-sm font-semibold text-[#1a1a1a] transition-colors hover:bg-black/[0.04]"
+              >
+                View hotel →
+              </a>
+            </div>
+          </div>,
         );
       }
       i++;
