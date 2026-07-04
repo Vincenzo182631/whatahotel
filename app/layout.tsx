@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { MemorySync } from "@/components/memory-sync";
+import { NavigationProgress } from "@/components/navigation-progress";
 
 const sans = Manrope({
   subsets: ["latin"],
@@ -58,6 +59,7 @@ export default function RootLayout({
         <div className="grain" aria-hidden />
         <Providers>
           <MemorySync />
+          <NavigationProgress />
           <div className="relative z-10">{children}</div>
         </Providers>
       </body>
