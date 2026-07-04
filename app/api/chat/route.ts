@@ -1,6 +1,7 @@
 import { runTurn } from "@/lib/ai/advisor";
 import { streamReply } from "@/lib/ai/provider";
 import { rateLimitExceeded, tooManyText } from "@/lib/security/rate-limit";
+import { findCountryLinks } from "@/lib/ai/country-links";
 import type { ChatRequestBody } from "@/lib/chat/types";
 
 // In-memory session storage requires the Node runtime (not edge).
@@ -33,6 +34,16 @@ export async function POST(req: Request) {
   const tod = String(body.timeOfDay ?? "");
   ctx.timeOfDay = /^(morning|afternoon|evening|night)$/.test(tod) ? tod : undefined;
   ctx.greet = !body.messages.some((m) => m.role === "assistant");
+
+  // If the results are in a WhataHotel-covered country, offer a "browse the whole
+  // country" link to its region page.
+  const country =
+    payload.recommendations?.[0]?.country ||
+    payload.liveHotels?.[0]?.country ||
+    payload.criteria?.destinationLabel ||
+    "";
+  const region = country ? findCountryLinks(country)[0] : undefined;
+  if (region) payload.regionLink = { country: region.country, url: region.url };
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({

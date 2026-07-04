@@ -41,6 +41,8 @@ export interface AdvisorPayload {
   /** Live results for a city outside the local set (link out to WhataHotel). */
   liveHotels?: LiveHotel[];
   liveCity?: string;
+  /** A link to browse the whole country's inventory on WhataHotel's region page. */
+  regionLink?: { country: string; url: string };
 }
 
 export interface ChatMessage {
