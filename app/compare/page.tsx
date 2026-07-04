@@ -7,6 +7,7 @@ import { hotelDetailsService } from "@/lib/services";
 import { getLiveRates, getHotelInfo, getLiveHotel, type HotelInfo } from "@/lib/services/live-rates";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { ZoomableImage } from "@/components/ui/zoomable-image";
 import { CompareAdvisor } from "@/components/compare/compare-advisor";
 import { formatCurrency, cn } from "@/lib/utils";
 import type { AdvisorPerk, Hotel } from "@/lib/services/types";
@@ -190,7 +191,7 @@ export default async function ComparePage({ searchParams }: Params) {
                   {/* Always show a room thumbnail — fall back to the hotel photo so
                       all three columns look consistent even when a room has none. */}
                   <span className="relative size-9 shrink-0 overflow-hidden rounded-md bg-[#eee]">
-                    <ImageWithFallback src={r.image || c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} fill sizes="36px" className="object-cover" />
+                    <ZoomableImage src={r.image} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} sizes="36px" hint={false} />
                   </span>
                   <span className="truncate">{r.name}</span>
                 </span>

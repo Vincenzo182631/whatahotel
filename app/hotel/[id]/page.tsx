@@ -199,6 +199,7 @@ export default async function HotelPage({ params }: Params) {
                   hotelId={hotel.id}
                   sourceHotelId={hotel.sourceHotelId}
                   perks={perks.map((p) => ({ label: p.label }))}
+                  heroImage={hotel.image}
                 />
               </div>
             </section>

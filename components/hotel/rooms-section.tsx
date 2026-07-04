@@ -16,7 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { ZoomableImage } from "@/components/ui/zoomable-image";
 import { useConversation } from "@/store/conversation-store";
 import { useTravelDates } from "@/store/travel-dates-store";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -73,10 +73,13 @@ export function RoomsSection({
   hotelId,
   sourceHotelId,
   perks = [],
+  heroImage,
 }: {
   hotelId: string;
   sourceHotelId?: string;
   perks?: { label: string }[];
+  /** The hotel's own photo — used as a real-image fallback so room tiles are never blank. */
+  heroImage?: string;
 }) {
   const send = useConversation((s) => s.send);
   const router = useRouter();
@@ -259,16 +262,16 @@ export function RoomsSection({
               )}
             >
               <div className="flex min-w-0 gap-4">
-                {room.image ? (
-                  <div className="relative size-24 shrink-0 self-start overflow-hidden rounded-xl bg-black/[0.04]">
-                    <ImageWithFallback src={room.image} seed={room.name} alt={room.name} fill sizes="96px" className="object-cover" />
-                    {sold && <span className="absolute inset-0 bg-white/40" />}
-                  </div>
-                ) : (
-                  <div className="grid size-24 shrink-0 self-start place-items-center rounded-xl bg-black/[0.04] text-[#999]">
-                    <BedDouble className="size-7" strokeWidth={1.5} />
-                  </div>
-                )}
+                <div className="relative size-24 shrink-0 self-start overflow-hidden rounded-xl bg-black/[0.04]">
+                  <ZoomableImage
+                    src={room.image}
+                    fallbackSrc={heroImage}
+                    seed={room.name}
+                    alt={room.name}
+                    sizes="96px"
+                  />
+                  {sold && <span className="pointer-events-none absolute inset-0 bg-white/40" />}
+                </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h4 className="font-display text-lg font-medium text-[#1a1a1a]">{room.name}</h4>
