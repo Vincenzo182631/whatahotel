@@ -28,6 +28,18 @@ export const metadata: Metadata = {
       "Search a city's finest hotels, ranked out of 10 for your needs, and compared side by side — powered by AI, in conversation.",
     type: "website",
   },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "WhataHotel",
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {
