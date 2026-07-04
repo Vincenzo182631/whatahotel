@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type {
   AdvisorPayload,
   ChatMessage,
@@ -37,7 +38,9 @@ interface ConversationState {
   reset: () => void;
 }
 
-export const useConversation = create<ConversationState>()((set, get) => ({
+export const useConversation = create<ConversationState>()(
+  persist(
+    (set, get) => ({
   sessionId: getSessionId(),
   messages: [],
   criteria: {},
@@ -163,7 +166,22 @@ export const useConversation = create<ConversationState>()((set, get) => ({
       }));
     }
   },
-}));
+    }),
+    {
+      name: "whatahotel-conversation",
+      // Keep the transcript + learned criteria, but NOT `started`/`isStreaming`,
+      // so returning guests keep their history yet still land on the browse page
+      // until they reopen the chat. Streaming/loading flags are dropped.
+      partialize: (s) => ({
+        messages: s.messages
+          .filter((m) => !m.streaming)
+          .slice(-30)
+          .map((m) => ({ id: m.id, role: m.role, content: m.content, payload: m.payload })),
+        criteria: s.criteria,
+      }),
+    },
+  ),
+);
 
 /** A contextual loading message so the traveller knows what's being prepared. */
 function loadingLabelFor(text: string, intent?: ChatRequestBody["intent"]): string {

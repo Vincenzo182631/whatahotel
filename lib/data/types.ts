@@ -39,6 +39,8 @@ export interface User {
   membership: MembershipTier;
   subscription: Subscription;
   profile: UserProfile;
+  /** Durable traveller preferences, synced from the chatbots across devices. */
+  memory?: string[];
   createdAt: string; // ISO
 }
 
