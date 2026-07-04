@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { ChatComposer } from "@/components/chat/chat-composer";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
-import { ChatMarkdown, type ChatImage, type ChatBooking } from "@/components/chat/chat-markdown";
+import { ChatMarkdown, type ChatImage, type ChatBooking, type ChatHotelCard } from "@/components/chat/chat-markdown";
 import { answerHotelQuestion, DOCKED_SUGGESTIONS } from "@/lib/chat/hotel-qa";
 import { useTravelDates } from "@/store/travel-dates-store";
 import type { Hotel } from "@/lib/services/types";
@@ -28,6 +28,8 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
   const [busy, setBusy] = useState(false);
   const [images, setImages] = useState<Record<string, ChatImage>>({});
   const [bookings, setBookings] = useState<Record<string, ChatBooking>>({});
+  const [foundHotels, setFoundHotels] = useState<Record<string, ChatHotelCard>>({});
+  const attemptedHotels = useRef<Set<string>>(new Set());
   const checkIn = useTravelDates((s) => s.checkIn);
   const checkOut = useTravelDates((s) => s.checkOut);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -99,6 +101,39 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
       active = false;
     };
   }, [hotel.id, checkIn, checkOut]);
+
+  // Resolve any [findhotel:NAME] the advisor emits into a real hotel card by
+  // looking the name up in the WhataHotel catalogue.
+  useEffect(() => {
+    const names = new Set<string>();
+    for (const m of messages) {
+      if (m.role !== "assistant") continue;
+      const re = /\[findhotel:([^\]]+)\]/g;
+      let mt: RegExpExecArray | null;
+      while ((mt = re.exec(m.content))) names.add(mt[1].trim());
+    }
+    names.forEach((name) => {
+      if (!name || attemptedHotels.current.has(name)) return;
+      attemptedHotels.current.add(name);
+      fetch(`/api/hotel-search?q=${encodeURIComponent(name)}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d: { hotels?: { sourceHotelId: string; name: string; city: string; country: string; image: string }[] } | null) => {
+          const h = d?.hotels?.[0];
+          if (!h) return;
+          const dates = checkIn && checkOut ? `?checkIn=${checkIn}&checkOut=${checkOut}` : "";
+          setFoundHotels((prev) => ({
+            ...prev,
+            [name]: {
+              name: h.name,
+              location: [h.city, h.country].filter(Boolean).join(", "),
+              image: h.image,
+              url: `/stay/${h.sourceHotelId}${dates}`,
+            },
+          }));
+        })
+        .catch(() => {});
+    });
+  }, [messages, checkIn, checkOut]);
 
   const ask = async (question: string) => {
     if (busy || !question.trim()) return;
@@ -176,7 +211,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
                 <TypingIndicator />
               ) : (
                 <div className="text-[#2a2a2a]">
-                  <ChatMarkdown content={m.content} images={images} bookings={bookings} hotelCard={hotelCard} />
+                  <ChatMarkdown content={m.content} images={images} bookings={bookings} hotelCard={hotelCard} foundHotels={foundHotels} />
                   {m.streaming && (
                     <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-pulse-soft bg-primary align-middle" />
                   )}

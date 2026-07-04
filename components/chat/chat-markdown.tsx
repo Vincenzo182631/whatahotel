@@ -91,6 +91,7 @@ export function ChatMarkdown({
   images,
   bookings,
   hotelCard,
+  foundHotels,
 }: {
   content: string;
   /** Resolves `[img:ID]` tags the advisor emits into real photos. */
@@ -99,8 +100,41 @@ export function ChatMarkdown({
   bookings?: Record<string, ChatBooking>;
   /** Resolves a `[hotel]` tag into a preview card of this property. */
   hotelCard?: ChatHotelCard;
+  /** Resolves `[findhotel:NAME]` tags into a preview card of another named hotel. */
+  foundHotels?: Record<string, ChatHotelCard>;
 }) {
   const lines = content.replace(/\r\n/g, "\n").split("\n");
+
+  // Shared hotel preview card (used by [hotel] and [findhotel:NAME]).
+  const hotelCardEl = (hc: ChatHotelCard, key: string) => (
+    <div key={key} className="my-1 overflow-hidden rounded-xl border border-black/[0.08] bg-white">
+      {hc.image && (
+        <div className="relative h-28 w-full bg-black/[0.03]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={hc.image}
+            alt={hc.name}
+            loading="lazy"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.display = "none";
+            }}
+            className="h-28 w-full object-cover"
+          />
+        </div>
+      )}
+      <div className="p-3">
+        <p className="font-semibold text-[#1a1a1a]">{hc.name}</p>
+        {hc.location && <p className="text-xs text-[#717171]">{hc.location}</p>}
+        {hc.blurb && <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-[#717171]">{hc.blurb}</p>}
+        <a
+          href={hc.url}
+          className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-black/15 px-4 py-2 text-sm font-semibold text-[#1a1a1a] transition-colors hover:bg-black/[0.04]"
+        >
+          View hotel →
+        </a>
+      </div>
+    </div>
+  );
   const blocks: ReactNode[] = [];
   let i = 0;
   let para: string[] = [];
@@ -212,42 +246,17 @@ export function ChatMarkdown({
     // Hotel tag: [hotel] on its own line → a preview card of this property
     if (trimmed === "[hotel]") {
       flushPara();
-      if (hotelCard) {
-        blocks.push(
-          <div
-            key={`hotel${blocks.length}`}
-            className="my-1 overflow-hidden rounded-xl border border-black/[0.08] bg-white"
-          >
-            {hotelCard.image && (
-              <div className="relative h-28 w-full bg-black/[0.03]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={hotelCard.image}
-                  alt={hotelCard.name}
-                  loading="lazy"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                  }}
-                  className="h-28 w-full object-cover"
-                />
-              </div>
-            )}
-            <div className="p-3">
-              <p className="font-semibold text-[#1a1a1a]">{hotelCard.name}</p>
-              {hotelCard.location && <p className="text-xs text-[#717171]">{hotelCard.location}</p>}
-              {hotelCard.blurb && (
-                <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-[#717171]">{hotelCard.blurb}</p>
-              )}
-              <a
-                href={hotelCard.url}
-                className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-black/15 px-4 py-2 text-sm font-semibold text-[#1a1a1a] transition-colors hover:bg-black/[0.04]"
-              >
-                View hotel →
-              </a>
-            </div>
-          </div>,
-        );
-      }
+      if (hotelCard) blocks.push(hotelCardEl(hotelCard, `hotel${blocks.length}`));
+      i++;
+      continue;
+    }
+
+    // Named hotel: [findhotel:NAME] → a preview card of that other hotel (once resolved)
+    const findTag = trimmed.match(/^\[findhotel:([^\]]+)\]$/);
+    if (findTag) {
+      flushPara();
+      const hc = foundHotels?.[findTag[1].trim()];
+      if (hc) blocks.push(hotelCardEl(hc, `find${blocks.length}`));
       i++;
       continue;
     }
