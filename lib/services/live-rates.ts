@@ -30,6 +30,9 @@ export interface LiveRoom {
   total: number;
   currency: string;
   image?: string;
+  /** Deep link to the WhataHotel booking form, prefilled with this exact room,
+   *  rate, dates and guests. Present only for live dated fetches. */
+  bookingURL?: string;
 }
 
 export interface LiveRates {
@@ -75,6 +78,7 @@ interface WahRoom {
   rateDaily?: string;
   rateTotal?: string;
   images?: { imgFile?: string; imgDesc?: string }[];
+  bookingURL?: string;
 }
 interface WahRatesResponse {
   wahData?: {
@@ -158,6 +162,8 @@ export async function getLiveRates(params: {
         total: num(r.rateTotal) || nightly * nights,
         currency: (r.currency || "USD").toUpperCase(),
         image: (r.images ?? []).map((i) => i.imgFile?.trim()).find(Boolean) || undefined,
+        // Prefilled booking-form deep link (room + rate + dates + guests).
+        bookingURL: r.bookingURL?.trim() || undefined,
       };
       const existing = byName.get(name);
       if (!existing || room.nightly < existing.nightly) byName.set(name, room);

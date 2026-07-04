@@ -316,11 +316,22 @@ export function RoomsSection({
                     </>
                   )}
                 </div>
-                {!sold && (
-                  <Button size="sm" onClick={reserve}>
-                    <Check className="size-4" /> Reserve
-                  </Button>
-                )}
+                {!sold &&
+                  // Only deep-link when the room is priced for the guest's OWN
+                  // dates — a catalogue room's URL carries the probe dates.
+                  (available && room.bookingURL ? (
+                    // Straight to the WhataHotel booking form, prefilled with this
+                    // room, rate, the chosen dates and guests.
+                    <Button size="sm" asChild>
+                      <a href={room.bookingURL} target="_blank" rel="noopener noreferrer">
+                        <Check className="size-4" /> Reserve
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button size="sm" onClick={reserve}>
+                      <Check className="size-4" /> Reserve
+                    </Button>
+                  ))}
               </div>
             </div>
           );

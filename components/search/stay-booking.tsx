@@ -12,6 +12,7 @@ interface Room {
   nightly: number;
   currency: string;
   image?: string;
+  bookingURL?: string;
 }
 
 export function StayBooking({
@@ -186,7 +187,18 @@ export function StayBooking({
         })}
       </ul>
 
-      {!open ? (
+      {room?.bookingURL ? (
+        // Straight to the WhataHotel booking form, prefilled with this room, the
+        // live rate, the chosen dates and guests.
+        <a
+          href={room.bookingURL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 block w-full rounded-xl bg-[#FF385C] px-4 py-2.5 text-center text-sm font-semibold text-white hover:opacity-90"
+        >
+          Reserve — {formatCurrency(room.nightly, room.currency)}/night
+        </a>
+      ) : !open ? (
         <button
           onClick={() => room && setOpen(true)}
           disabled={!room}

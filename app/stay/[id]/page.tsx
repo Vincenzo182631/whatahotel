@@ -197,6 +197,7 @@ export default async function StayPage({ params, searchParams }: Params) {
                   nightly: r.nightly,
                   currency: r.currency,
                   image: r.image,
+                  bookingURL: r.bookingURL,
                 }))}
               />
               {info?.tax && (
