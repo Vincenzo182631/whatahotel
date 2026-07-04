@@ -5,8 +5,15 @@ import { DashboardChrome } from "@/components/dashboard/dashboard-chrome";
 
 export const dynamic = "force-dynamic";
 
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "info@lorrainetravel.com").toLowerCase();
+
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentPublicUser();
   if (!user) redirect("/login?next=/dashboard");
-  return <DashboardChrome user={user}>{children}</DashboardChrome>;
+  const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL;
+  return (
+    <DashboardChrome user={user} isAdmin={isAdmin}>
+      {children}
+    </DashboardChrome>
+  );
 }

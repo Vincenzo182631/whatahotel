@@ -73,6 +73,21 @@ export interface PasswordResetToken {
   expiresAt: string; // ISO
 }
 
+/** A captured lead (CRM) — a visitor who signed up, with their trip context. */
+export interface Lead {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  source: "chat-gate" | "google" | "signup";
+  city?: string;
+  checkIn?: string;
+  checkOut?: string;
+  /** How many chat exchanges they'd had when captured. */
+  exchanges?: number;
+  createdAt: string; // ISO
+}
+
 export function toPublicUser(u: User): PublicUser {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { passwordHash, ...rest } = u;

@@ -10,6 +10,11 @@ import { CriteriaBar } from "./criteria-bar";
 import { SUGGESTION_CHIPS } from "./suggested-prompts";
 import { ResultsCanvas, messageHasResults } from "./results-canvas";
 import { CompareBar } from "./compare-bar";
+import { LeadGate } from "./lead-gate";
+import { useAuth } from "@/hooks/use-auth";
+
+/** Number of advisor replies before a visitor must sign up to keep going. */
+const FREE_EXCHANGES = 3;
 
 export function ChatInterface() {
   const messages = useConversation((s) => s.messages);
@@ -17,6 +22,7 @@ export function ChatInterface() {
   const criteria = useConversation((s) => s.criteria);
   const send = useConversation((s) => s.send);
   const reset = useConversation((s) => s.reset);
+  const { user, isLoading: authLoading } = useAuth();
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -32,6 +38,11 @@ export function ChatInterface() {
   const lastRecs = [...messages]
     .reverse()
     .find((m) => m.payload?.recommendations?.length)?.payload?.recommendations;
+
+  // Sign-up gate: after a few advisor replies, a not-signed-in visitor must
+  // create a free account (captured as a lead) to keep chatting/comparing.
+  const advisorTurns = messages.filter((m) => m.role === "assistant" && !m.streaming).length;
+  const gated = !authLoading && !user && advisorTurns >= FREE_EXCHANGES && !isStreaming;
 
   return (
     <div
@@ -73,7 +84,7 @@ export function ChatInterface() {
           </div>
 
           {/* Contextual follow-ups once a shortlist exists */}
-          {lastRecs && lastRecs.length > 0 && (
+          {!gated && lastRecs && lastRecs.length > 0 && (
             <div className="no-scrollbar mb-2 flex gap-2 overflow-x-auto pb-1">
               {lastRecs.length >= 2 && (
                 <button
@@ -112,7 +123,7 @@ export function ChatInterface() {
           )}
 
           {/* Quick suggestions before the user has typed much */}
-          {!lastRecs && messages.length <= 2 && (
+          {!gated && !lastRecs && messages.length <= 2 && (
             <div className="no-scrollbar mb-2 flex gap-2 overflow-x-auto pb-1">
               {SUGGESTION_CHIPS.slice(0, 5).map((chip) => (
                 <button
@@ -128,18 +139,27 @@ export function ChatInterface() {
             </div>
           )}
 
-          {/* Composer */}
+          {/* Composer — or the sign-up gate once the free exchanges are used */}
           <div className="pb-4">
-            <ChatComposer
-              onSend={(t) => send(t)}
-              disabled={isStreaming}
-              autoFocus
-              placeholder={
-                isStreaming
-                  ? "Comparing…"
-                  : "Ask to compare any hotels, or reply…"
-              }
-            />
+            {gated ? (
+              <LeadGate
+                context={{
+                  city: criteria.destinationLabel,
+                  checkIn: criteria.checkIn,
+                  checkOut: criteria.checkOut,
+                  exchanges: advisorTurns,
+                }}
+              />
+            ) : (
+              <ChatComposer
+                onSend={(t) => send(t)}
+                disabled={isStreaming}
+                autoFocus
+                placeholder={
+                  isStreaming ? "Comparing…" : "Ask to compare any hotels, or reply…"
+                }
+              />
+            )}
           </div>
         </div>
 

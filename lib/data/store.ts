@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { PasswordResetToken, Trip, User } from "./types";
+import type { Lead, PasswordResetToken, Trip, User } from "./types";
 import { RedisStore, redisConfigured } from "./redis-store";
 
 /**
@@ -23,12 +23,17 @@ export interface DataStore {
 
   createResetToken(token: PasswordResetToken): Promise<void>;
   consumeResetToken(token: string): Promise<PasswordResetToken | null>;
+
+  addLead(lead: Lead): Promise<Lead>;
+  listLeads(): Promise<Lead[]>;
+  getLeadByEmail(email: string): Promise<Lead | null>;
 }
 
 interface Db {
   users: User[];
   trips: Trip[];
   resets: PasswordResetToken[];
+  leads: Lead[];
 }
 
 const DATA_DIR =
@@ -37,9 +42,10 @@ const DB_FILE = path.join(DATA_DIR, "db.json");
 
 function load(): Db {
   try {
-    return JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+    const parsed = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+    return { users: [], trips: [], resets: [], leads: [], ...parsed };
   } catch {
-    return { users: [], trips: [], resets: [] };
+    return { users: [], trips: [], resets: [], leads: [] };
   }
 }
 
@@ -102,6 +108,24 @@ class FileStore implements DataStore {
     save(db());
     if (new Date(t.expiresAt).getTime() < Date.now()) return null;
     return t;
+  }
+  async addLead(lead: Lead) {
+    lead.email = norm(lead.email);
+    const existing = db().leads.find((l) => l.email === lead.email);
+    if (existing) {
+      Object.assign(existing, lead, { id: existing.id, createdAt: existing.createdAt });
+      save(db());
+      return existing;
+    }
+    db().leads.push(lead);
+    save(db());
+    return lead;
+  }
+  async listLeads() {
+    return [...db().leads].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+  async getLeadByEmail(email: string) {
+    return db().leads.find((l) => l.email === norm(email)) ?? null;
   }
 }
 

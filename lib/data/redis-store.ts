@@ -1,5 +1,5 @@
 import type { DataStore } from "./store";
-import type { PasswordResetToken, Trip, User } from "./types";
+import type { Lead, PasswordResetToken, Trip, User } from "./types";
 
 /**
  * Durable data store backed by Upstash Redis over its REST API — no driver, no
@@ -117,5 +117,37 @@ export class RedisStore implements DataStore {
     await redis(["DEL", `reset:${token}`]);
     if (new Date(record.expiresAt).getTime() < Date.now()) return null;
     return record;
+  }
+
+  async addLead(lead: Lead) {
+    lead.email = norm(lead.email);
+    const existingId = await redis<string | null>(["GET", `leademail:${lead.email}`]);
+    if (existingId) {
+      const existing = await getJson<Lead>(`lead:${existingId}`);
+      if (existing) {
+        const merged = { ...existing, ...lead, id: existing.id, createdAt: existing.createdAt };
+        await redis(["SET", `lead:${existing.id}`, JSON.stringify(merged)]);
+        return merged;
+      }
+    }
+    await redis(["SET", `lead:${lead.id}`, JSON.stringify(lead)]);
+    await redis(["SET", `leademail:${lead.email}`, lead.id]);
+    await redis(["RPUSH", "leads:index", lead.id]);
+    return lead;
+  }
+
+  async listLeads() {
+    const ids = (await redis<string[]>(["LRANGE", "leads:index", 0, -1])) ?? [];
+    const leads: Lead[] = [];
+    for (const id of ids) {
+      const l = await getJson<Lead>(`lead:${id}`);
+      if (l) leads.push(l);
+    }
+    return leads.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  async getLeadByEmail(email: string) {
+    const id = await redis<string | null>(["GET", `leademail:${norm(email)}`]);
+    return id ? getJson<Lead>(`lead:${id}`) : null;
   }
 }

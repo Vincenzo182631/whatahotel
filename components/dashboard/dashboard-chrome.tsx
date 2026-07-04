@@ -12,6 +12,7 @@ import {
   Sparkles,
   LogOut,
   ArrowLeft,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLogout } from "@/hooks/use-auth";
@@ -28,14 +29,20 @@ const NAV = [
 
 export function DashboardChrome({
   user,
+  isAdmin = false,
   children,
 }: {
   user: PublicUser;
+  isAdmin?: boolean;
   children: ReactNode;
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const logout = useLogout();
+
+  const nav = isAdmin
+    ? [...NAV, { href: "/dashboard/leads", label: "Leads (CRM)", icon: Users }]
+    : NAV;
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname === href || pathname.startsWith(href + "/");
@@ -62,7 +69,7 @@ export function DashboardChrome({
           </div>
 
           <nav className="no-scrollbar flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:px-3 lg:pb-0">
-            {NAV.map((item) => {
+            {nav.map((item) => {
               const active = isActive(item.href, item.exact);
               return (
                 <Link
