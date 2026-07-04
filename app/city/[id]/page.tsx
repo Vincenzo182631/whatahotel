@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { hotelDetailsService } from "@/lib/services";
 import { DESTINATIONS } from "@/lib/services/mock-data";
-import { countrySlug } from "@/lib/services/country-pages";
 import { HotelGridCard } from "@/components/airbnb-landing";
 import { TravelDatesBar } from "@/components/search/travel-dates-bar";
 import { CityMap, type MapHotel } from "@/components/hotel/city-map";
@@ -89,13 +88,10 @@ export default async function CityPage({ params }: Params) {
         {/* Hotel list */}
         <div className="lg:h-full lg:overflow-y-auto">
           <div className="px-6 py-6">
-            <Link
-              href={`/country/${countrySlug(meta.country)}`}
-              className="mb-1 inline-flex items-center gap-1.5 text-sm text-[#717171] hover:text-[#FF385C]"
-            >
+            <div className="mb-1 flex items-center gap-1.5 text-sm text-[#717171]">
               <MapPin className="size-4 text-[#FF385C]" strokeWidth={2} />
-              All {meta.country} hotels →
-            </Link>
+              {meta.country}
+            </div>
             <h1 className="text-2xl font-semibold tracking-tight">
               {hotels.length} hotels in {meta.label.split(",")[0]}
             </h1>

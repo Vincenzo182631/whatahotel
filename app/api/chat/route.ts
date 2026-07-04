@@ -1,7 +1,6 @@
 import { runTurn } from "@/lib/ai/advisor";
 import { streamReply } from "@/lib/ai/provider";
 import { rateLimitExceeded, tooManyText } from "@/lib/security/rate-limit";
-import { countrySlug, hasCountryPage } from "@/lib/services/country-pages";
 import type { ChatRequestBody } from "@/lib/chat/types";
 
 // In-memory session storage requires the Node runtime (not edge).
@@ -34,16 +33,6 @@ export async function POST(req: Request) {
   const tod = String(body.timeOfDay ?? "");
   ctx.timeOfDay = /^(morning|afternoon|evening|night)$/.test(tod) ? tod : undefined;
   ctx.greet = !body.messages.some((m) => m.role === "assistant");
-
-  // If we have an in-app listing for the results' country, offer a "browse the
-  // whole country" link to our own /country/<slug> page (never off to WhataHotel).
-  const country =
-    payload.recommendations?.[0]?.country ||
-    payload.liveHotels?.[0]?.country ||
-    "";
-  if (country && hasCountryPage(country)) {
-    payload.regionLink = { country, url: `/country/${countrySlug(country)}` };
-  }
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
