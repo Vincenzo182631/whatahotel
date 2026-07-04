@@ -17,6 +17,7 @@ import { extractCriteriaPatch, classifyTurn } from "./provider";
 import { getCurrentUser } from "@/lib/auth/session";
 import { store } from "@/lib/data/store";
 import { getCityHotels, buildLiveComparison } from "@/lib/services/live-rates";
+import { bareCountry } from "./country-links";
 import { CITY_POIS } from "./itinerary-data";
 
 /** Pull concrete ISO dates the user typed (checkIn = earliest, checkOut = next). */
@@ -443,6 +444,26 @@ export async function runTurn(
       user,
     };
     return { ctx, payload: { action: "local", criteria } };
+  }
+
+  // ---- 4b-4. A whole COUNTRY, not a city — searches are city-based, so ask
+  // which city they intend to stay in (skip single-destination countries).
+  if (!criteria.destination && !refersToShown) {
+    const country = bareCountry(criteria.destinationLabel || "");
+    if (country) {
+      const ctx: ReplyContext = {
+        action: "ask",
+        criteria,
+        missing: [],
+        recommendations: session.lastRecommendations,
+        totalFound: session.lastRecommendations.length,
+        askCityCountry: country,
+        learned,
+        lastUserMessage,
+        user,
+      };
+      return { ctx, payload: { action: "ask", criteria } };
+    }
   }
 
   // ---- 4c. Live search — any city beyond the local set, via the API -------

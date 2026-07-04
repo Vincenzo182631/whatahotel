@@ -146,6 +146,33 @@ export const COVERED_COUNTRIES: string[] = [
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
 
+// Single-destination countries/territories — the country basically IS the
+// destination (island nations, city-states), so we should NOT ask "which city".
+const SINGLE_DESTINATION = new Set(
+  [
+    "Maldives", "The Maldives", "Monaco", "Singapore", "Hong Kong", "Bermuda", "Guam",
+    "Seychelles", "Mauritius", "Fiji Islands", "French Polynesia (Tahiti)",
+    "Northern Mariana Islands", "Bhutan", "Kingdom of Bhutan", "Malta", "Luxembourg",
+    "Qatar", "Bahrain", "Kuwait", "Anguilla, BWI", "Antigua", "Aruba", "Bahamas",
+    "Barbados", "British Virgin Islands", "Curacao", "Dominica", "Grand Cayman",
+    "Grenada", "Martinique", "Puerto Rico", "Saint Lucia", "St. Barts",
+    "St. Kitts and Nevis", "St. Martin", "St. Vincent & Grenadines",
+    "Turks and Caicos Islands", "US Virgin Islands",
+  ].map(norm),
+);
+
+/**
+ * If `label` is a WhataHotel-covered country (a whole country, not a city) that
+ * has multiple cities, return its display name — a cue to ask which city the
+ * traveller wants. Returns null for cities and for single-destination countries.
+ */
+export function bareCountry(label: string): string | null {
+  const t = norm(label);
+  if (!t || SINGLE_DESTINATION.has(t)) return null;
+  const match = COUNTRY_LINKS.find((c) => norm(c.country) === t);
+  return match ? match.country : null;
+}
+
 /** Find the region link(s) for a country the traveller mentions. */
 export function findCountryLinks(text: string): CountryLink[] {
   const t = norm(text);

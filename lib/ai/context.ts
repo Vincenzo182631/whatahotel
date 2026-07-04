@@ -45,4 +45,6 @@ export interface ReplyContext {
   timeOfDay?: string;
   /** True on the first assistant turn — cue for a warm, time-appropriate hello. */
   greet?: boolean;
+  /** Set when they named a whole country — ask which city they'll stay in. */
+  askCityCountry?: string;
 }

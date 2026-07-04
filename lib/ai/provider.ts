@@ -322,6 +322,8 @@ function buildSituation(ctx: ReplyContext): string {
       return `SITUATION: The traveller wants to book ${name}. Booking happens on the hotel's own page — do NOT ask for their name, email, phone or any personal details. In ONE warm sentence, tell them to open ${name} (its "Book now" / "View details" button on the card, or ask you to open it), choose their room in the Rooms section, and hit Reserve — that opens the secure WhataHotel booking form with their dates and advisor perks already filled in.`;
     }
     case "ask":
+      if (ctx.askCityCountry)
+        return `SITUATION: The traveller named a whole country (${ctx.askCityCountry}), but hotel searches are city-based, so you need the city to get it right. In ONE warm, natural sentence, ask which city in ${ctx.askCityCountry} they'd like to stay in — you may name a couple of well-known cities there as examples. Do NOT search or list hotels yet.`;
       return ctx.missing.includes("destination") && ctx.destinationSuggestions?.length
         ? `SITUATION: They're undecided on a destination but you know the vibe. Suggest these and ask which appeals: ${ctx.destinationSuggestions
             .map((d) => d.label)
