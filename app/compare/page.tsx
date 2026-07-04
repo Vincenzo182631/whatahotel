@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { ArrowLeft, Star, MapPin, Check, BedDouble, Sparkles, ArrowUpRight, UtensilsCrossed } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Check, Sparkles, ArrowUpRight, UtensilsCrossed } from "lucide-react";
 import { hotelDetailsService } from "@/lib/services";
 import { getLiveRates, getHotelInfo, getLiveHotel, type HotelInfo } from "@/lib/services/live-rates";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
@@ -186,14 +186,12 @@ export default async function ComparePage({ searchParams }: Params) {
           <ul className="space-y-1.5">
             {c.rooms.slice(0, 6).map((r) => (
               <li key={r.name} className="flex items-center justify-between gap-2 text-sm">
-                <span className="flex min-w-0 items-center gap-1.5 text-[#222]">
-                  {r.image ? (
-                    <span className="relative size-8 shrink-0 overflow-hidden rounded-md bg-[#eee]">
-                      <ImageWithFallback src={r.image} seed={r.name} alt={r.name} fill sizes="32px" className="object-cover" />
-                    </span>
-                  ) : (
-                    <BedDouble className="size-3.5 shrink-0 text-[#FF385C]/80" />
-                  )}
+                <span className="flex min-w-0 items-center gap-2 text-[#222]">
+                  {/* Always show a room thumbnail — fall back to the hotel photo so
+                      all three columns look consistent even when a room has none. */}
+                  <span className="relative size-9 shrink-0 overflow-hidden rounded-md bg-[#eee]">
+                    <ImageWithFallback src={r.image || c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} fill sizes="36px" className="object-cover" />
+                  </span>
                   <span className="truncate">{r.name}</span>
                 </span>
                 <span className="shrink-0 font-medium text-[#717171]">{formatCurrency(r.nightly, r.currency)}</span>

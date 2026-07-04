@@ -22,10 +22,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Missing hotel id" }, { status: 400 });
   }
 
+  // Curated slug → its source id; any other id is treated as a live WhataHotel
+  // source id directly (so live-city cards can fetch real rates too).
   const hotel = await hotelDetailsService.getHotelById(id);
-  if (!hotel) {
-    return NextResponse.json({ error: "Hotel not found" }, { status: 404 });
-  }
+  const sourceHotelId = hotel ? hotel.sourceHotelId : id;
 
   const nights = nightsBetween(checkIn, checkOut);
   if (nights <= 0) {
@@ -35,18 +35,13 @@ export async function GET(req: Request) {
     );
   }
 
-  // Try live rates from the source page.
-  if (hotel.sourceHotelId) {
-    const live = await getLiveRates({
-      sourceHotelId: hotel.sourceHotelId,
-      checkIn,
-      checkOut,
-      guests,
-    });
+  // Try live rates from the source.
+  if (sourceHotelId) {
+    const live = await getLiveRates({ sourceHotelId, checkIn, checkOut, guests });
     if (live) {
       return NextResponse.json({
-        id: hotel.id,
-        name: hotel.name,
+        id,
+        name: hotel?.name ?? "",
         live: true,
         checkIn,
         checkOut,
@@ -55,7 +50,7 @@ export async function GET(req: Request) {
         entryNightly: live.entryNightly,
         total: live.rooms[0]?.total ?? live.entryNightly * live.nights,
         rooms: live.rooms,
-        perks: live.perks.length ? live.perks : hotel.perks,
+        perks: live.perks.length ? live.perks : (hotel?.perks ?? []),
       });
     }
   }
@@ -63,8 +58,8 @@ export async function GET(req: Request) {
   // No live rate available for these dates — never show an estimated/synthetic
   // price. Return no price; the UI shows "Rate on request".
   return NextResponse.json({
-    id: hotel.id,
-    name: hotel.name,
+    id,
+    name: hotel?.name ?? "",
     live: false,
     checkIn,
     checkOut,
@@ -73,7 +68,7 @@ export async function GET(req: Request) {
     entryNightly: 0,
     total: 0,
     rooms: [],
-    perks: hotel.perks,
+    perks: hotel?.perks ?? [],
   });
 }
 
