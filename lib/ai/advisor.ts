@@ -261,6 +261,16 @@ export async function runTurn(
   ]);
   const routed = route?.action;
   const criteria = mergeCriteria(session.criteria, patch);
+  // Fold in the cross-chatbot traveller memory so the main chat knows what the
+  // guest told the hotel/compare advisors too, and never re-asks it.
+  if (Array.isArray(body.memory) && body.memory.length) {
+    const notes = [...(criteria.notes ?? [])];
+    for (const m of body.memory) {
+      const clean = String(m).trim();
+      if (clean && !notes.some((n) => n.toLowerCase() === clean.toLowerCase())) notes.push(clean);
+    }
+    criteria.notes = notes.slice(-16);
+  }
   // Fill concrete dates from any ISO date the user typed (LLM covers loose dates).
   if (!criteria.checkIn || !criteria.checkOut) {
     const d = parseIsoDates(lastUserMessage);

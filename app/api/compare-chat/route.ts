@@ -57,6 +57,9 @@ export async function POST(req: Request) {
   const history: { role: string; content: string }[] = Array.isArray(body.history)
     ? body.history.slice(-10)
     : [];
+  const memory: string[] = Array.isArray(body.memory)
+    ? body.memory.map((m: unknown) => String(m)).filter(Boolean).slice(0, 24)
+    : [];
 
   if (ids.length < 2) return new Response("Select at least two hotels to compare.", { status: 400 });
 
@@ -96,7 +99,11 @@ FOR A VERDICT (when there is no specific question), use exactly this shape:
 Set the confidence honestly: high (80–95%) when one hotel clearly leads on the facts/priority, moderate (55–75%) when it's close, and say what would tip it. Keep the whole verdict under ~160 words. No preamble.
 
 FOR A QUESTION, answer it directly and comparatively in 1–4 tight sentences or a short bullet list, naming hotels and citing the real facts. End with a one-line recommendation when it helps.
-
+${
+    memory.length
+      ? `\nTRAVELLER MEMORY — things this guest has told us across their conversations. Treat as known; never re-ask, and weight your pick toward these:\n${memory.map((m) => `- ${m}`).join("\n")}\n`
+      : ""
+  }
 ${brief}${!anyLive && nights > 0 ? "\n\nNOTE: live rates came back unavailable for these dates — compare on inclusions, rooms and location, and suggest trying nearby dates for live pricing." : ""}`;
 
   const convo = history.length

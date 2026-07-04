@@ -6,6 +6,7 @@ import { Sparkles, Scale } from "lucide-react";
 import { ChatComposer } from "@/components/chat/chat-composer";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { ChatMarkdown } from "@/components/chat/chat-markdown";
+import { useTravelerMemory } from "@/store/traveler-memory-store";
 
 interface Msg {
   id: string;
@@ -41,6 +42,8 @@ export function CompareAdvisor({
   const [messages, setMessages] = useState<Msg[]>([]);
   const [busy, setBusy] = useState(false);
   const [priority, setPriority] = useState<string>("");
+  const memory = useTravelerMemory((s) => s.notes);
+  const learn = useTravelerMemory((s) => s.learn);
   const scrollRef = useRef<HTMLDivElement>(null);
   const started = useRef(false);
 
@@ -84,6 +87,7 @@ export function CompareAdvisor({
           question: opts.question ?? "",
           priority: opts.priority,
           history,
+          memory,
         }),
       });
       if (!res.body) throw new Error("no body");
@@ -112,11 +116,13 @@ export function CompareAdvisor({
   const pickPriority = (key: string, label: string) => {
     if (busy) return;
     setPriority(key);
+    learn(label); // a chosen trip type is a durable preference
     run({ userLabel: `Best for ${label.toLowerCase()}?`, priority: key });
   };
 
   const ask = (question: string) => {
     if (busy || !question.trim()) return;
+    learn(question);
     run({ question, userLabel: question, priority });
   };
 

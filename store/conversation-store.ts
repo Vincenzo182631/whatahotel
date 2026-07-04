@@ -7,6 +7,7 @@ import type {
   ChatRequestBody,
 } from "@/lib/chat/types";
 import type { SearchCriteria } from "@/lib/services/types";
+import { useTravelerMemory } from "@/store/traveler-memory-store";
 
 function uid() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -60,6 +61,10 @@ export const useConversation = create<ConversationState>()((set, get) => ({
     const { sessionId, messages, isStreaming } = get();
     if (isStreaming || (!text.trim() && !intent)) return;
 
+    // Remember durable preferences across every chatbot on the site.
+    if (text.trim()) useTravelerMemory.getState().learn(text);
+    const memory = useTravelerMemory.getState().notes;
+
     const userMsg: ChatMessage = {
       id: uid(),
       role: "user",
@@ -96,7 +101,7 @@ export const useConversation = create<ConversationState>()((set, get) => ({
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId, messages: history, intent }),
+        body: JSON.stringify({ sessionId, messages: history, intent, memory }),
       });
       if (!res.body) throw new Error("No response body");
 

@@ -31,6 +31,9 @@ export async function POST(req: Request) {
   const question = String(body.question ?? "").trim().slice(0, 2000);
   const checkIn = String(body.checkIn ?? "");
   const checkOut = String(body.checkOut ?? "");
+  const memory: string[] = Array.isArray(body.memory)
+    ? body.memory.map((m: unknown) => String(m)).filter(Boolean).slice(0, 24)
+    : [];
   const history: { role: string; content: string }[] = Array.isArray(body.history)
     ? body.history.slice(-10)
     : [];
@@ -130,7 +133,11 @@ Read the guest's intent and tailor. If they mention an occasion or party, lead f
 Offer a next helpful step (e.g. "Want a 3-day plan?" or "Shall I suggest the best room for two?") — one line, not pushy.
 
 MEMORY
-Remember everything the guest has said this session (occasion, dates, party, preferences) and never re-ask it. Build on it.
+Remember everything the guest has said this session (occasion, dates, party, preferences) and never re-ask it. Build on it.${
+    memory.length
+      ? `\n\nTRAVELLER MEMORY — things this guest has told us across their conversations on WhataHotel. Treat these as known; never re-ask them, and tailor proactively:\n${memory.map((m) => `- ${m}`).join("\n")}`
+      : ""
+  }
 
 ${dossier.brief}${imageLibrary}${bookingLibrary}`;
 

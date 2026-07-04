@@ -61,6 +61,8 @@ export interface ChatRequestBody {
     type: "compare" | "book" | "details";
     hotelIds?: string[];
   };
+  /** Durable traveller preferences shared across every chatbot on the site. */
+  memory?: string[];
 }
 
 /** SSE event shapes streamed by /api/chat. */

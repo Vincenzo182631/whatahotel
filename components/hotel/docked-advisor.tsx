@@ -8,6 +8,7 @@ import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { ChatMarkdown, type ChatImage, type ChatBooking, type ChatHotelCard } from "@/components/chat/chat-markdown";
 import { answerHotelQuestion, DOCKED_SUGGESTIONS } from "@/lib/chat/hotel-qa";
 import { useTravelDates } from "@/store/travel-dates-store";
+import { useTravelerMemory } from "@/store/traveler-memory-store";
 import type { Hotel } from "@/lib/services/types";
 
 interface QA {
@@ -32,7 +33,11 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
   const attemptedHotels = useRef<Set<string>>(new Set());
   const checkIn = useTravelDates((s) => s.checkIn);
   const checkOut = useTravelDates((s) => s.checkOut);
+  const memory = useTravelerMemory((s) => s.notes);
+  const learn = useTravelerMemory((s) => s.learn);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const restored = useRef(false);
+  const threadKey = `wah-thread:${hotel.id}`;
 
   // A preview card of THIS property the advisor can drop in with `[hotel]`.
   const hotelCard = {
@@ -48,6 +53,33 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  // Restore this hotel's saved conversation on mount, so the guest picks up
+  // where they left off (across reloads and return visits).
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(threadKey);
+      if (raw) {
+        const saved = JSON.parse(raw) as QA[];
+        if (Array.isArray(saved) && saved.length) setMessages(saved.map((m) => ({ ...m, streaming: false })));
+      }
+    } catch {
+      /* ignore */
+    }
+    restored.current = true;
+  }, [threadKey]);
+
+  // Persist the thread whenever it settles (never mid-stream, never a bare intro).
+  useEffect(() => {
+    if (!restored.current || messages.some((m) => m.streaming)) return;
+    const real = messages.filter((m) => !m.streaming);
+    if (real.length <= 1 && real[0]?.id === "intro") return;
+    try {
+      localStorage.setItem(threadKey, JSON.stringify(real.slice(-40)));
+    } catch {
+      /* ignore quota */
+    }
+  }, [messages, threadKey]);
 
   // Load the real photo manifest so we can resolve the advisor's [img:ID] tags.
   useEffect(() => {
@@ -137,6 +169,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
 
   const ask = async (question: string) => {
     if (busy || !question.trim()) return;
+    learn(question); // remember any preference across all chatbots
     const uid = Math.random().toString(36).slice(2);
     const aid = uid + "-a";
     const history = messages
@@ -154,7 +187,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
       const res = await fetch("/api/hotel-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hotelId: hotel.id, question, history, checkIn, checkOut }),
+        body: JSON.stringify({ hotelId: hotel.id, question, history, checkIn, checkOut, memory }),
       });
       if (!res.body) throw new Error("no body");
       const reader = res.body.getReader();
