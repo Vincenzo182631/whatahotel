@@ -66,9 +66,19 @@ export default async function CountryPage({ params }: Params) {
         <div className="mt-8 space-y-10">
           {cities.map(([city, list]) => (
             <section key={city}>
-              <h2 className="mb-4 text-lg font-semibold text-[#1a1a1a]">
-                {city} <span className="text-sm font-normal text-[#9a9a9a]">· {list.length}</span>
-              </h2>
+              <div className="mb-4 flex items-baseline justify-between gap-4">
+                <h2 className="text-lg font-semibold text-[#1a1a1a]">
+                  {city} <span className="text-sm font-normal text-[#9a9a9a]">· {list.length}</span>
+                </h2>
+                {list[0].destinationKey && (
+                  <Link
+                    href={`/city/${list[0].destinationKey}`}
+                    className="shrink-0 text-sm font-medium text-[#FF385C] hover:underline"
+                  >
+                    View {city} on the map →
+                  </Link>
+                )}
+              </div>
               <div className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
                 {list.map((hotel) => (
                   <HotelGridCard key={hotel.id} hotel={hotel} />
