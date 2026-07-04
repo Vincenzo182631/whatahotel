@@ -13,6 +13,7 @@ import {
   LogOut,
   ArrowLeft,
   Users,
+  MessagesSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLogout } from "@/hooks/use-auth";
@@ -41,7 +42,11 @@ export function DashboardChrome({
   const logout = useLogout();
 
   const nav = isAdmin
-    ? [...NAV, { href: "/dashboard/leads", label: "Leads (CRM)", icon: Users }]
+    ? [
+        ...NAV,
+        { href: "/dashboard/leads", label: "Leads (CRM)", icon: Users },
+        { href: "/dashboard/conversations", label: "Conversations", icon: MessagesSquare },
+      ]
     : NAV;
 
   const isActive = (href: string, exact?: boolean) =>

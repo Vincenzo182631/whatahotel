@@ -52,7 +52,15 @@ export function MessageBubble({
     >
       <AdvisorMark />
       <div className="min-w-0 flex-1 space-y-4">
-        <div className="max-w-[92%] rounded-2xl rounded-tl-md border border-black/[0.06] bg-white px-4 py-3">
+        <div
+          className={cn(
+            "max-w-[92%] rounded-2xl rounded-tl-md border px-4 py-3",
+            message.fromAgent ? "border-primary/25 bg-primary/[0.04]" : "border-black/[0.06] bg-white",
+          )}
+        >
+          {message.fromAgent && (
+            <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-primary">Live advisor</p>
+          )}
           {showTyping ? (
             <TypingIndicator label={message.loadingLabel} />
           ) : (

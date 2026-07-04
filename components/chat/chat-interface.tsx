@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Headset } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useConversation } from "@/store/conversation-store";
 import { MessageBubble } from "./message-bubble";
@@ -22,6 +22,12 @@ export function ChatInterface() {
   const criteria = useConversation((s) => s.criteria);
   const send = useConversation((s) => s.send);
   const reset = useConversation((s) => s.reset);
+  const agentMode = useConversation((s) => s.agentMode);
+  const requestAgent = useConversation((s) => s.requestAgent);
+  const sendToAgent = useConversation((s) => s.sendToAgent);
+  const ingestAgent = useConversation((s) => s.ingestAgent);
+  const sessionId = useConversation((s) => s.sessionId);
+  const lastAgentTs = useConversation((s) => s.lastAgentTs);
   const { user, isLoading: authLoading } = useAuth();
 
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -29,6 +35,28 @@ export function ChatInterface() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
+
+  // While a human agent is handling the chat, poll for their replies.
+  useEffect(() => {
+    if (!agentMode) return;
+    let active = true;
+    const tick = async () => {
+      try {
+        const r = await fetch(`/api/chat/agent?sessionId=${encodeURIComponent(sessionId)}&since=${lastAgentTs}`);
+        if (!r.ok) return;
+        const d = await r.json();
+        if (active && Array.isArray(d.messages)) ingestAgent(d.messages);
+      } catch {
+        /* ignore */
+      }
+    };
+    tick();
+    const iv = setInterval(tick, 4000);
+    return () => {
+      active = false;
+      clearInterval(iv);
+    };
+  }, [agentMode, sessionId, lastAgentTs, ingestAgent]);
 
   // Once the advisor has surfaced hotels/comparisons, split into two columns:
   // conversation on the left, results canvas on the right (desktop only).
@@ -139,7 +167,7 @@ export function ChatInterface() {
             </div>
           )}
 
-          {/* Composer — or the sign-up gate once the free exchanges are used */}
+          {/* Composer — the sign-up gate, the live-agent chat, or the AI composer */}
           <div className="pb-4">
             {gated ? (
               <LeadGate
@@ -150,15 +178,28 @@ export function ChatInterface() {
                   exchanges: advisorTurns,
                 }}
               />
+            ) : agentMode ? (
+              <>
+                <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-primary">
+                  <Headset className="size-3.5" /> You're with a human advisor — replies appear here.
+                </p>
+                <ChatComposer onSend={(t) => sendToAgent(t)} autoFocus placeholder="Message your advisor…" />
+              </>
             ) : (
-              <ChatComposer
-                onSend={(t) => send(t)}
-                disabled={isStreaming}
-                autoFocus
-                placeholder={
-                  isStreaming ? "Comparing…" : "Ask to compare any hotels, or reply…"
-                }
-              />
+              <>
+                <ChatComposer
+                  onSend={(t) => send(t)}
+                  disabled={isStreaming}
+                  autoFocus
+                  placeholder={isStreaming ? "Comparing…" : "Ask to compare any hotels, or reply…"}
+                />
+                <button
+                  onClick={requestAgent}
+                  className="mt-2 inline-flex items-center gap-1.5 text-xs text-foreground/55 transition-colors hover:text-primary"
+                >
+                  <Headset className="size-3.5" /> Talk to a human advisor
+                </button>
+              </>
             )}
           </div>
         </div>

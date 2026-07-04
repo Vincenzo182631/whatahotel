@@ -51,6 +51,8 @@ export interface ChatMessage {
   streaming?: boolean;
   /** Contextual loading text shown while the reply is being prepared. */
   loadingLabel?: string;
+  /** True when this reply came from a human agent (not the AI). */
+  fromAgent?: boolean;
 }
 
 export interface ChatRequestBody {

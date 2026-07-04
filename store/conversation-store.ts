@@ -35,7 +35,14 @@ interface ConversationState {
   criteria: SearchCriteria;
   isStreaming: boolean;
   started: boolean;
+  /** True once the visitor asks for (and is handed to) a human agent. */
+  agentMode: boolean;
+  /** Latest agent-message timestamp we've shown, for polling. */
+  lastAgentTs: number;
   send: (text: string, intent?: ChatRequestBody["intent"]) => Promise<void>;
+  requestAgent: () => Promise<void>;
+  sendToAgent: (text: string) => Promise<void>;
+  ingestAgent: (msgs: { role: string; content: string; ts: number }[]) => void;
   reset: () => void;
 }
 
@@ -47,6 +54,8 @@ export const useConversation = create<ConversationState>()(
   criteria: {},
   isStreaming: false,
   started: false,
+  agentMode: false,
+  lastAgentTs: 0,
 
   reset: () => {
     if (typeof window !== "undefined") {
@@ -56,6 +65,8 @@ export const useConversation = create<ConversationState>()(
       sessionId: uid(),
       messages: [],
       criteria: {},
+      agentMode: false,
+      lastAgentTs: 0,
       isStreaming: false,
       started: false,
     });
@@ -170,7 +181,67 @@ export const useConversation = create<ConversationState>()(
           m.id === assistantId ? { ...m, streaming: false } : m,
         ),
       }));
+      // Persist the transcript for the CRM (fire-and-forget).
+      const st = get();
+      fetch("/api/chat/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: st.sessionId,
+          messages: st.messages.filter((m) => !m.streaming).map((m) => ({ role: m.role, content: m.content })),
+          city: st.criteria.destinationLabel,
+        }),
+      }).catch(() => {});
     }
+  },
+
+  requestAgent: async () => {
+    const { sessionId, agentMode } = get();
+    if (agentMode) return;
+    set((s) => ({
+      agentMode: true,
+      started: true,
+      messages: [
+        ...s.messages,
+        {
+          id: uid(),
+          role: "assistant",
+          content:
+            "You've asked to speak with a human advisor — I've flagged this conversation. A member of our team will reply right here shortly. You can keep typing in the meantime.",
+        },
+      ],
+    }));
+    await fetch("/api/chat/agent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, action: "request" }),
+    }).catch(() => {});
+  },
+
+  sendToAgent: async (text) => {
+    const t = text.trim();
+    if (!t) return;
+    const { sessionId } = get();
+    set((s) => ({ messages: [...s.messages, { id: uid(), role: "user", content: t }] }));
+    await fetch("/api/chat/agent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, action: "message", content: t }),
+    }).catch(() => {});
+  },
+
+  ingestAgent: (msgs) => {
+    if (!msgs.length) return;
+    const seen = new Set(get().messages.map((m) => m.content));
+    const toAdd = msgs
+      .filter((m) => m.role === "agent" && !seen.has(m.content))
+      .map((m) => ({ id: uid(), role: "assistant" as const, content: m.content, fromAgent: true }));
+    const maxTs = Math.max(get().lastAgentTs, ...msgs.map((m) => m.ts));
+    if (!toAdd.length) {
+      if (maxTs > get().lastAgentTs) set({ lastAgentTs: maxTs });
+      return;
+    }
+    set((s) => ({ messages: [...s.messages, ...toAdd], lastAgentTs: maxTs }));
   },
     }),
     {
