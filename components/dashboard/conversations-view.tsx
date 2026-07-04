@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Send, Headset, MessageSquare } from "lucide-react";
+import { Loader2, Send, Headset, MessageSquare, Bell, BellRing } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ConvMessage {
@@ -35,17 +35,53 @@ export function ConversationsView() {
   const [reply, setReply] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [notifPerm, setNotifPerm] = useState<NotificationPermission>("default");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const seenNeedsAgent = useRef<Set<string>>(new Set());
+  const firstLoad = useRef(true);
 
-  // Poll the list.
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) setNotifPerm(Notification.permission);
+  }, []);
+
+  const enableAlerts = async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    const p = await Notification.requestPermission();
+    setNotifPerm(p);
+  };
+
+  // Poll the list, and desktop-notify on each NEW live-agent request.
   useEffect(() => {
     let active = true;
     const load = async () => {
       const d = await fetch("/api/conversations").then((r) => (r.ok ? r.json() : null)).catch(() => null);
-      if (active && d?.conversations) {
-        setList(d.conversations);
-        setLoading(false);
+      if (!active || !d?.conversations) return;
+      const convs: Conversation[] = d.conversations;
+      setList(convs);
+      setLoading(false);
+
+      const current = new Set(convs.filter((c) => c.needsAgent).map((c) => c.sessionId));
+      if (!firstLoad.current && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+        for (const c of convs) {
+          if (c.needsAgent && !seenNeedsAgent.current.has(c.sessionId)) {
+            try {
+              const n = new Notification("WhataHotel — a guest needs a live advisor", {
+                body: `${c.name || c.email || "A guest"} asked to speak with a human.`,
+                tag: c.sessionId,
+              });
+              n.onclick = () => {
+                window.focus();
+                setSelId(c.sessionId);
+                n.close();
+              };
+            } catch {
+              /* ignore */
+            }
+          }
+        }
       }
+      seenNeedsAgent.current = current;
+      firstLoad.current = false;
     };
     load();
     const iv = setInterval(load, 6000);
@@ -106,10 +142,28 @@ export function ConversationsView() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Conversations</h1>
-      <p className="mt-1 text-sm text-[#717171]">
-        Read what leads discussed with the AI, and take over live when someone asks for a human.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Conversations</h1>
+          <p className="mt-1 text-sm text-[#717171]">
+            Read what leads discussed with the AI, and take over live when someone asks for a human.
+          </p>
+        </div>
+        {notifPerm === "granted" ? (
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#FF385C]/10 px-3 py-1.5 text-xs font-medium text-[#FF385C]">
+            <BellRing className="size-3.5" /> Desktop alerts on
+          </span>
+        ) : notifPerm === "denied" ? (
+          <span className="shrink-0 text-xs text-[#9a9a9a]">Alerts blocked in your browser settings</span>
+        ) : (
+          <button
+            onClick={enableAlerts}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-black/15 px-3 py-1.5 text-xs font-medium text-[#1a1a1a] transition-colors hover:bg-black/[0.04]"
+          >
+            <Bell className="size-3.5" /> Enable desktop alerts
+          </button>
+        )}
+      </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[20rem_1fr]">
         {/* List */}
