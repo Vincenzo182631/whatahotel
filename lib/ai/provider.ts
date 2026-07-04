@@ -317,10 +317,10 @@ function buildSituation(ctx: ReplyContext): string {
       const pri = ctx.comparePriority;
       return `SITUATION: You compared these hotels using LIVE data from the WhataHotel API (dated rates, room categories, advisor-exclusive perks, amenities, dining). The table is on screen. Real facts:\n${facts}\n${pri ? `The traveller cares most about ${pri} — weight your pick toward that.\n` : ""}\nReply in AT MOST 3 tight sentences: name the best pick FIRST and why (rate + perks${pri ? ` for ${pri}` : ""}), then the single key trade-off. Use ONLY these facts; never invent a price; if a rate says "Add dates", ask for their dates. No preamble, no restating the question.`;
     }
-    case "book":
-      return ctx.booking?.complete
-        ? `SITUATION: All booking details are collected for ${ctx.booking.hotelName}. Confirm warmly and say you'll secure the advisor rate + perks.`
-        : `SITUATION: You're collecting booking details for ${ctx.booking?.hotelName}. Ask ONLY for: ${ctx.booking?.nextField}. One friendly sentence.`;
+    case "book": {
+      const name = ctx.booking?.hotelName ?? ctx.focus?.[0]?.name ?? "that hotel";
+      return `SITUATION: The traveller wants to book ${name}. Booking happens on the hotel's own page — do NOT ask for their name, email, phone or any personal details. In ONE warm sentence, tell them to open ${name} (its "Book now" / "View details" button on the card, or ask you to open it), choose their room in the Rooms section, and hit Reserve — that opens the secure WhataHotel booking form with their dates and advisor perks already filled in.`;
+    }
     case "ask":
       return ctx.missing.includes("destination") && ctx.destinationSuggestions?.length
         ? `SITUATION: They're undecided on a destination but you know the vibe. Suggest these and ask which appeals: ${ctx.destinationSuggestions

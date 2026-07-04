@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { AMENITY_META } from "./amenity-meta";
 import { cn, formatCurrency } from "@/lib/utils";
-import { useConversation } from "@/store/conversation-store";
 import { usePreferences } from "@/store/preferences-store";
 import { useCompareSelection } from "@/store/compare-selection-store";
 import { useHotelLiveRate } from "@/hooks/use-hotel-live-rate";
@@ -43,8 +42,6 @@ export function HotelCard({
   checkOut?: string;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const send = useConversation((s) => s.send);
-  const isStreaming = useConversation((s) => s.isStreaming);
   const isSaved = usePreferences((s) => s.isSaved(hotel.id));
   const toggleSave = usePreferences((s) => s.toggleSave);
   const compareSelected = useCompareSelection((s) => s.isSelected(hotel.id));
@@ -208,12 +205,8 @@ export function HotelCard({
 
           {/* Actions */}
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <Button
-              size="sm"
-              disabled={isStreaming}
-              onClick={() => send("", { type: "book", hotelIds: [hotel.id] })}
-            >
-              Book now
+            <Button size="sm" asChild>
+              <Link href={`/hotel/${hotel.id}`}>Book now</Link>
             </Button>
             <Button size="sm" variant="outline" asChild>
               <Link href={`/hotel/${hotel.id}`}>View details</Link>

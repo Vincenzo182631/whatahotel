@@ -9,6 +9,7 @@ import type {
 } from "@/lib/chat/types";
 import type { SearchCriteria } from "@/lib/services/types";
 import { useTravelerMemory } from "@/store/traveler-memory-store";
+import { useTravelDates } from "@/store/travel-dates-store";
 
 function uid() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -139,6 +140,10 @@ export const useConversation = create<ConversationState>()(
             } else if (data.type === "final") {
               patchAssistant((m) => ({ ...m, payload: data.payload }));
               set({ criteria: data.payload.criteria });
+              // Share the trip dates so hotel/stay pages (and their Reserve
+              // deep-links to the real booking form) inherit them.
+              const { checkIn, checkOut } = data.payload.criteria;
+              if (checkIn && checkOut) useTravelDates.getState().setDates(checkIn, checkOut);
             }
           } catch {
             /* ignore malformed chunk */

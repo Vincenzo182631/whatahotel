@@ -319,7 +319,11 @@ export async function runTurn(
     routedIntent ??
     regexIntent;
 
-  // ---- 3. Booking start ---------------------------------------------------
+  // ---- 3. Booking — hand off to the real WhataHotel booking form ----------
+  // We no longer collect guest details in chat; booking happens on the hotel's
+  // page (pick a room → Reserve → the prefilled WhataHotel booking form). So the
+  // advisor just points them there. A "complete" booking marker on the context
+  // (not persisted, not in the payload) tells the reply which hotel to name.
   if (explicitIntent === "book") {
     const hotels = resolveHotels(lastUserMessage, session.lastRecommendations, intent?.hotelIds);
     const hotel = hotels[0] ?? session.lastRecommendations[0];
@@ -328,10 +332,9 @@ export async function runTurn(
         hotelId: hotel.id,
         hotelName: hotel.name,
         collected: [],
-        nextField: "guestName",
-        complete: false,
+        nextField: null,
+        complete: true,
       };
-      await sessionStorageService.save(sessionId, { booking });
       const ctx: ReplyContext = {
         action: "book",
         criteria,
@@ -343,7 +346,7 @@ export async function runTurn(
         lastUserMessage,
         user,
       };
-      return { ctx, payload: { action: "book", criteria, booking } };
+      return { ctx, payload: { action: "book", criteria } };
     }
   }
 
