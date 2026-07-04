@@ -36,15 +36,21 @@ export function LeadGate({ context }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ firstName, lastName, email, source: "chat-gate", ...context }),
       });
-      const d = await res.json();
+      // Read defensively: a server error may return an empty / non-JSON body.
+      const d = await res.json().catch(() => null);
       if (!res.ok) {
-        setError(d.error || "Something went wrong. Please try again.");
+        setError(
+          d?.error ||
+            (res.status >= 500
+              ? "Something went wrong on our end. Please try again in a moment."
+              : "Something went wrong. Please try again."),
+        );
         return;
       }
       // Signed in immediately — the auth query updates and the gate disappears.
       qc.setQueryData(["auth", "me"], { user: d.user });
     } catch {
-      setError("Couldn't reach the server. Please try again.");
+      setError("Couldn't reach the server. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
