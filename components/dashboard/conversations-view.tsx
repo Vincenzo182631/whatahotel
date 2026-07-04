@@ -28,6 +28,44 @@ const rel = (ts: number) => {
   return `${Math.floor(s / 86400)}d ago`;
 };
 
+function urlB64ToUint8Array(base64: string) {
+  const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+  const b64 = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(b64);
+  const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+
+/** Register the service worker + subscribe this browser to Web Push (so alerts
+ *  arrive with the tab or browser closed — e.g. on a phone). No-op if the
+ *  server has no VAPID keys configured yet. */
+async function subscribeToPush() {
+  try {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    const cfg = await fetch("/api/push/subscribe")
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+    if (!cfg?.configured || !cfg.publicKey) return;
+    const reg = await navigator.serviceWorker.register("/sw.js");
+    await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    const sub =
+      existing ??
+      (await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64ToUint8Array(cfg.publicKey),
+      }));
+    await fetch("/api/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(sub),
+    });
+  } catch {
+    /* push is best-effort; desktop + email alerts still cover it */
+  }
+}
+
 export function ConversationsView() {
   const [list, setList] = useState<Conversation[]>([]);
   const [selId, setSelId] = useState<string | null>(null);
@@ -41,13 +79,18 @@ export function ConversationsView() {
   const firstLoad = useRef(true);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && "Notification" in window) setNotifPerm(Notification.permission);
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setNotifPerm(Notification.permission);
+      // Already granted on a previous visit — make sure this browser is subscribed.
+      if (Notification.permission === "granted") subscribeToPush();
+    }
   }, []);
 
   const enableAlerts = async () => {
     if (typeof window === "undefined" || !("Notification" in window)) return;
     const p = await Notification.requestPermission();
     setNotifPerm(p);
+    if (p === "granted") subscribeToPush();
   };
 
   // Poll the list, and desktop-notify on each NEW live-agent request.
@@ -151,7 +194,7 @@ export function ConversationsView() {
         </div>
         {notifPerm === "granted" ? (
           <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#FF385C]/10 px-3 py-1.5 text-xs font-medium text-[#FF385C]">
-            <BellRing className="size-3.5" /> Desktop alerts on
+            <BellRing className="size-3.5" /> Alerts on
           </span>
         ) : notifPerm === "denied" ? (
           <span className="shrink-0 text-xs text-[#9a9a9a]">Alerts blocked in your browser settings</span>
@@ -160,7 +203,7 @@ export function ConversationsView() {
             onClick={enableAlerts}
             className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-black/15 px-3 py-1.5 text-xs font-medium text-[#1a1a1a] transition-colors hover:bg-black/[0.04]"
           >
-            <Bell className="size-3.5" /> Enable desktop alerts
+            <Bell className="size-3.5" /> Enable alerts (desktop + phone)
           </button>
         )}
       </div>
