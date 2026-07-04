@@ -28,6 +28,12 @@ export async function POST(req: Request) {
 
   const { ctx, payload } = await runTurn(body);
 
+  // Time-of-day + first-turn greeting cue (computed from the traveller's local
+  // clock on the client), used only to open warmly and naturally.
+  const tod = String(body.timeOfDay ?? "");
+  ctx.timeOfDay = /^(morning|afternoon|evening|night)$/.test(tod) ? tod : undefined;
+  ctx.greet = !body.messages.some((m) => m.role === "assistant");
+
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {

@@ -63,6 +63,8 @@ export interface ChatRequestBody {
   };
   /** Durable traveller preferences shared across every chatbot on the site. */
   memory?: string[];
+  /** The traveller's local time of day (morning/afternoon/evening/night) for a natural greeting. */
+  timeOfDay?: string;
 }
 
 /** SSE event shapes streamed by /api/chat. */

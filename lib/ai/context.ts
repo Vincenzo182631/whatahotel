@@ -41,4 +41,8 @@ export interface ReplyContext {
   learned: string[];
   lastUserMessage: string;
   user?: AdvisorUser;
+  /** The traveller's local time of day (morning/afternoon/evening/night). */
+  timeOfDay?: string;
+  /** True on the first assistant turn — cue for a warm, time-appropriate hello. */
+  greet?: boolean;
 }

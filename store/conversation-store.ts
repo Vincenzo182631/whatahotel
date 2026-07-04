@@ -67,6 +67,7 @@ export const useConversation = create<ConversationState>()(
     // Remember durable preferences across every chatbot on the site.
     if (text.trim()) useTravelerMemory.getState().learn(text);
     const memory = useTravelerMemory.getState().notes;
+    const timeOfDay = partOfDay();
 
     const userMsg: ChatMessage = {
       id: uid(),
@@ -104,7 +105,7 @@ export const useConversation = create<ConversationState>()(
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId, messages: history, intent, memory }),
+        body: JSON.stringify({ sessionId, messages: history, intent, memory, timeOfDay }),
       });
       if (!res.body) throw new Error("No response body");
 
@@ -182,6 +183,16 @@ export const useConversation = create<ConversationState>()(
     },
   ),
 );
+
+/** The traveller's local time of day, so the advisor can greet naturally. */
+function partOfDay(): string {
+  const h = new Date().getHours();
+  if (h < 5) return "night";
+  if (h < 12) return "morning";
+  if (h < 17) return "afternoon";
+  if (h < 22) return "evening";
+  return "night";
+}
 
 /** A contextual loading message so the traveller knows what's being prepared. */
 function loadingLabelFor(text: string, intent?: ChatRequestBody["intent"]): string {

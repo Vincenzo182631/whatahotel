@@ -247,16 +247,19 @@ async function* streamFromClaude(
   const u = ctx.user;
   const persona = u
     ? `TRAVELLER: ${u.firstName}${u.membership === "premium" ? " (Premium member)" : ""}${u.travelerType ? `, travelling as a ${u.travelerType}` : ""}.` +
-      `${u.upcomingTripCity ? ` Has an upcoming trip to ${u.upcomingTripCity}.` : u.lastTripCity ? ` Last travelled to ${u.lastTripCity}.` : ""}` +
-      `${u.greet ? " This is the first message this session — greet them warmly by first name once." : ""}\n\n`
+      `${u.upcomingTripCity ? ` Has an upcoming trip to ${u.upcomingTripCity}.` : u.lastTripCity ? ` Last travelled to ${u.lastTripCity}.` : ""}\n\n`
     : "";
+  const tod = ctx.timeOfDay;
+  const greetLine = ctx.greet
+    ? `THIS IS YOUR FIRST REPLY of the conversation${tod ? ` and it is ${tod} where the traveller is` : ""}. Open with a warm, sincere, human greeting${tod ? ` that fits the ${tod} (a natural "good ${tod}" feel — don't use those exact words every time)` : ""}${u ? `, greeting ${u.firstName} by name once` : ""}. Vary your wording, be genuinely gracious and polite, never a canned line — then get straight to helping.\n\n`
+    : `This is a CONTINUING conversation, not the first message — do NOT greet, say hello, or wish them a good morning/afternoon/evening again. Just continue naturally.\n\n`;
   const result = streamText({
     model: await chatModel(false),
     system: ADVISOR_SYSTEM_PROMPT,
     messages: [
       {
         role: "user",
-        content: `${persona}Known preferences: ${summarizeCriteria(ctx.criteria)}\n\nThe traveller just said: "${ctx.lastUserMessage}"\n\n${situation}\n\nReply now, in your advisor voice.`,
+        content: `${persona}${greetLine}Known preferences: ${summarizeCriteria(ctx.criteria)}\n\nThe traveller just said: "${ctx.lastUserMessage}"\n\n${situation}\n\nReply now, in your advisor voice.`,
       },
     ],
   });
