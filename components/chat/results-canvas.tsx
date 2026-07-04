@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import type { ChatMessage } from "@/lib/chat/types";
 import { HotelCard } from "@/components/hotel/hotel-card";
@@ -65,14 +66,12 @@ export function ResultsCanvas({ messages }: { messages: ChatMessage[] }) {
               />
             )}
             {p.regionLink && (p.recommendations?.length || p.liveHotels?.length) ? (
-              <a
+              <Link
                 href={p.regionLink.url}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-foreground/75 transition-colors hover:border-primary/40 hover:text-primary"
               >
-                Browse all {p.regionLink.country} hotels on WhataHotel →
-              </a>
+                Browse all {p.regionLink.country} hotels →
+              </Link>
             ) : null}
             {p.booking && <BookingSummary booking={p.booking} />}
           </motion.div>
