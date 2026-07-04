@@ -4,6 +4,7 @@ import { streamGrounded } from "@/lib/ai/provider";
 import { answerHotelQuestion } from "@/lib/chat/hotel-qa";
 import { buildHotelDossier } from "@/lib/ai/hotel-knowledge";
 import { buildHotelImageManifest } from "@/lib/services/hotel-images";
+import { buildBookingManifest } from "@/lib/services/hotel-booking";
 import { rateLimitExceeded, tooManyText } from "@/lib/security/rate-limit";
 import type { Hotel } from "@/lib/services/types";
 
@@ -28,6 +29,8 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const hotelId = String(body.hotelId ?? "");
   const question = String(body.question ?? "").trim().slice(0, 2000);
+  const checkIn = String(body.checkIn ?? "");
+  const checkOut = String(body.checkOut ?? "");
   const history: { role: string; content: string }[] = Array.isArray(body.history)
     ? body.history.slice(-10)
     : [];
@@ -64,11 +67,20 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
 
-  // Load the complete knowledge base + the real photo manifest for THIS hotel.
-  const [dossier, images] = await Promise.all([
+  // Load the complete knowledge base + the real photo manifest for THIS hotel,
+  // and (when dates are known) the prefilled booking links for those dates.
+  const [dossier, images, bookings] = await Promise.all([
     buildHotelDossier(h, { liveAmenities, liveDining }),
     buildHotelImageManifest(h).catch(() => []),
+    buildBookingManifest(h, checkIn, checkOut).catch(() => []),
   ]);
+
+  const bookingLibrary = bookings.length
+    ? `\n\n==== BOOKING LINKS (live for the guest's dates ${checkIn} → ${checkOut}) ====
+When the guest wants to book or reserve a specific room, output its tag on its OWN line: [book:ID]. It renders as a Reserve button that opens the secure WhataHotel booking form, prefilled with that room, rate, their dates and perks. Use ONLY these ids; NEVER invent one or write a URL yourself. If they haven't named a room, recommend one and offer its button. Never ask for card details yourself.
+${bookings.map((b) => `- [book:${b.id}] = ${b.room}`).join("\n")}
+==== END BOOKING LINKS ====`
+    : "";
 
   const roomImgs = images.filter((i) => i.kind === "room");
   const hotelImgs = images.filter((i) => i.kind === "hotel");
@@ -118,7 +130,7 @@ Offer a next helpful step (e.g. "Want a 3-day plan?" or "Shall I suggest the bes
 MEMORY
 Remember everything the guest has said this session (occasion, dates, party, preferences) and never re-ask it. Build on it.
 
-${dossier.brief}${imageLibrary}`;
+${dossier.brief}${imageLibrary}${bookingLibrary}`;
 
   const convo = history.length
     ? history.map((m) => `${m.role === "user" ? "Guest" : "You"}: ${m.content}`).join("\n") + "\n"

@@ -7,6 +7,7 @@ import { ChatComposer } from "@/components/chat/chat-composer";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { ChatMarkdown, type ChatImage } from "@/components/chat/chat-markdown";
 import { answerHotelQuestion, DOCKED_SUGGESTIONS } from "@/lib/chat/hotel-qa";
+import { useTravelDates } from "@/store/travel-dates-store";
 import type { Hotel } from "@/lib/services/types";
 
 interface QA {
@@ -26,6 +27,9 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
   ]);
   const [busy, setBusy] = useState(false);
   const [images, setImages] = useState<Record<string, ChatImage>>({});
+  const [bookings, setBookings] = useState<Record<string, ChatImage>>({});
+  const checkIn = useTravelDates((s) => s.checkIn);
+  const checkOut = useTravelDates((s) => s.checkOut);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -49,6 +53,30 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
     };
   }, [hotel.id]);
 
+  // Load the prefilled booking links for the guest's dates so [book:ID] tags
+  // resolve to real Reserve buttons. Refreshes when the dates change.
+  useEffect(() => {
+    if (!checkIn || !checkOut) {
+      setBookings({});
+      return;
+    }
+    let active = true;
+    fetch(
+      `/api/hotel-booking?hotelId=${encodeURIComponent(hotel.id)}&checkIn=${checkIn}&checkOut=${checkOut}`,
+    )
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { bookings?: { id: string; url: string; room: string }[] } | null) => {
+        if (!active || !d?.bookings) return;
+        const map: Record<string, ChatImage> = {};
+        for (const b of d.bookings) map[b.id] = { url: b.url, label: b.room };
+        setBookings(map);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [hotel.id, checkIn, checkOut]);
+
   const ask = async (question: string) => {
     if (busy || !question.trim()) return;
     const uid = Math.random().toString(36).slice(2);
@@ -68,7 +96,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
       const res = await fetch("/api/hotel-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hotelId: hotel.id, question, history }),
+        body: JSON.stringify({ hotelId: hotel.id, question, history, checkIn, checkOut }),
       });
       if (!res.body) throw new Error("no body");
       const reader = res.body.getReader();
@@ -125,7 +153,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
                 <TypingIndicator />
               ) : (
                 <div className="text-[#2a2a2a]">
-                  <ChatMarkdown content={m.content} images={images} />
+                  <ChatMarkdown content={m.content} images={images} bookings={bookings} />
                   {m.streaming && (
                     <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-pulse-soft bg-primary align-middle" />
                   )}

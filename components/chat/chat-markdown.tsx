@@ -65,10 +65,13 @@ export interface ChatImage {
 export function ChatMarkdown({
   content,
   images,
+  bookings,
 }: {
   content: string;
   /** Resolves `[img:ID]` tags the advisor emits into real photos. */
   images?: Record<string, ChatImage>;
+  /** Resolves `[book:ID]` tags into real Reserve buttons (prefilled booking form). */
+  bookings?: Record<string, ChatImage>;
 }) {
   const lines = content.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
@@ -118,6 +121,28 @@ export function ChatMarkdown({
             />
             <figcaption className="px-3 py-1.5 text-[11px] text-[#717171]">{img.label}</figcaption>
           </figure>,
+        );
+      }
+      i++;
+      continue;
+    }
+
+    // Booking tag: [book:ID] on its own line → a Reserve button (skip if unknown)
+    const bookTag = trimmed.match(/^\[book:([A-Za-z0-9_-]+)\]$/);
+    if (bookTag) {
+      flushPara();
+      const bk = bookings?.[bookTag[1]];
+      if (bk) {
+        blocks.push(
+          <a
+            key={`book${blocks.length}`}
+            href={bk.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="my-1 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            Reserve {bk.label} →
+          </a>,
         );
       }
       i++;
