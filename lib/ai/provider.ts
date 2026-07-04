@@ -251,7 +251,7 @@ async function* streamFromClaude(
     : "";
   const tod = ctx.timeOfDay;
   const greetLine = ctx.greet
-    ? `THIS IS YOUR FIRST REPLY of the conversation${tod ? ` and it is ${tod} where the traveller is` : ""}. Open with a warm, sincere, human greeting${tod ? ` that fits the ${tod} (a natural "good ${tod}" feel — don't use those exact words every time)` : ""}${u ? `, greeting ${u.firstName} by name once` : ""}. Vary your wording, be genuinely gracious and polite, never a canned line — then get straight to helping.\n\n`
+    ? `THIS IS YOUR FIRST REPLY of the conversation${tod ? ` and it is ${tod} where the traveller is` : ""}. Open with a REFINED, ELEGANT welcome in the manner of a five-star concierge receiving a valued guest — gracious, polished and genuinely warm${tod ? `, suited to the ${tod} (e.g. an elevated "Good ${tod}, and welcome" feel — vary the exact wording)` : ""}${u ? `, welcoming ${u.firstName} by name once` : ""}. Sound like a luxury travel house, never casual or breezy (avoid "hey", "lovely", "hope your day's treating you"), yet effortless and sincere — never flowery, gushing or a canned line. One graceful sentence, then get to helping.\n\n`
     : `This is a CONTINUING conversation, not the first message — do NOT greet, say hello, or wish them a good morning/afternoon/evening again. Just continue naturally.\n\n`;
   const result = streamText({
     model: await chatModel(false),
