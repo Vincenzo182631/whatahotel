@@ -561,6 +561,18 @@ function scoreHotel(
   return { km, anchorLabel, score, matchedAmenities, typeHits };
 }
 
+const LEAD_LABEL: Record<TravelerType, string> = {
+  honeymoon: "Romantic pick",
+  family: "Family-friendly",
+  business: "Business-ready",
+  luxury: "Top-tier luxury",
+  budget: "Good value",
+  quiet: "Calm & restful",
+  pet: "Pet-friendly",
+  accessible: "Accessible",
+  walkable: "Walkable base",
+};
+
 function buildReason(
   s: Scored,
   intent: TravelIntent,
@@ -576,25 +588,48 @@ function buildReason(
   }
 
   const phrases = s.matchedAmenities.map((k) => AMENITY_PHRASE[k]).filter(Boolean).slice(0, 3);
-  if (s.typeHits.length) {
-    const t = s.typeHits[0];
-    const lead: Record<TravelerType, string> = {
-      honeymoon: "Romantic pick",
-      family: "Family-friendly",
-      business: "Business-ready",
-      luxury: "Top-tier luxury",
-      budget: "Good value",
-      quiet: "Calm & restful",
-      pet: "Pet-friendly",
-      accessible: "Accessible",
-      walkable: "Walkable base",
-    };
-    parts.push(lead[t]);
-  }
+  if (s.typeHits.length) parts.push(LEAD_LABEL[s.typeHits[0]]);
   if (phrases.length) parts.push(`with ${phrases.join(", ")}`);
 
   const matchReason = parts.length && hasLocal ? parts.join(" · ").replace(" · with", " with") : undefined;
   return { matchReason, distanceLabel: distLabel };
+}
+
+/**
+ * Build a grounded "why it matches" note for a live hotel AFTER it's been
+ * enriched with real amenities + dining (attachLiveInfo). Merges the local
+ * catalogue's amenities (when the hotel overlaps it) with the live-derived ones,
+ * leads with the traveller type, names relevant facilities, and — for
+ * honeymoon/luxury — a real on-site restaurant. Returns undefined if there's
+ * nothing concrete to say (so the card falls back to distance / a perk).
+ */
+export function buildLiveMatchReason(hotel: LiveHotel, intent: TravelIntent): string | undefined {
+  const local = localBySourceId().get(hotel.sourceHotelId);
+  const amen = new Set<string>([...(local?.amenities ?? []), ...(hotel.amenities ?? [])]);
+  const dining = hotel.dining ?? [];
+  const types = intent.travelerTypes;
+  const parts: string[] = [];
+
+  const matched: string[] = [];
+  if (types.length) {
+    for (const t of types) {
+      for (const key of TYPE_AMENITIES[t]) if (amen.has(key) && !matched.includes(key)) matched.push(key);
+    }
+    parts.push(LEAD_LABEL[types[0]]);
+  } else {
+    for (const key of ["spa", "pool", "beachfront", "oceanview", "rooftop", "butler"]) {
+      if (amen.has(key)) matched.push(key);
+    }
+  }
+
+  const phrases = matched.map((k) => AMENITY_PHRASE[k]).filter(Boolean).slice(0, 3);
+  if (phrases.length) parts.push(`${parts.length ? "with " : ""}${phrases.join(", ")}`);
+
+  const wantsDining = types.includes("honeymoon") || types.includes("luxury") || parts.length === 0;
+  if (dining.length && wantsDining) parts.push(`dining incl. ${dining[0]}`);
+
+  if (!parts.length) return undefined;
+  return parts.join(" · ").replace(" · with", " with");
 }
 
 /**

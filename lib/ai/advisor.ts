@@ -16,7 +16,12 @@ import type { AdvisorUser, ReplyContext } from "./context";
 import { extractCriteriaPatch, classifyTurn } from "./provider";
 import { getCurrentUser } from "@/lib/auth/session";
 import { store } from "@/lib/data/store";
-import { getCityHotels, buildLiveComparison, attachLiveCoordinates } from "@/lib/services/live-rates";
+import {
+  getCityHotels,
+  buildLiveComparison,
+  attachLiveCoordinates,
+  attachLiveInfo,
+} from "@/lib/services/live-rates";
 import { bareCountry } from "./country-links";
 import { CITY_POIS } from "./itinerary-data";
 import {
@@ -26,6 +31,7 @@ import {
   getAnchor,
   validateAnchor,
   applyIntentRanking,
+  buildLiveMatchReason,
 } from "./travel-intent";
 
 /** Pull concrete ISO dates the user typed (checkIn = earliest, checkOut = next). */
@@ -505,7 +511,15 @@ export async function runTurn(
         anchor = validateAnchor(anchor, live); // drop a bad geocode → qualitative
       }
       const ranked = rankLiveHotels(live, intent, anchor);
-      const liveHotels = ranked.slice(0, 9);
+      let liveHotels: import("@/lib/services/live-rates").LiveHotel[] = ranked.slice(0, 9);
+      // Enrich the SHOWN hotels with real amenities + on-site dining so each card
+      // carries a grounded "why it matches" note (bounded, parallel, cached).
+      if (intent.proximity || intent.travelerTypes.length) {
+        liveHotels = (await attachLiveInfo(liveHotels, 9)).map((h) => {
+          const reason = buildLiveMatchReason(h, intent);
+          return reason ? { ...h, matchReason: reason } : h;
+        });
+      }
       const ctx: ReplyContext = {
         action: "live",
         criteria,

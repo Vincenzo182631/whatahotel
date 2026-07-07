@@ -290,6 +290,10 @@ export interface LiveHotel {
   matchReason?: string;
   /** Real distance to the requested anchor, e.g. "~1.2 km from South Beach". */
   distanceLabel?: string;
+  /** Canonical amenity keys derived from method=info (set by attachLiveInfo). */
+  amenities?: string[];
+  /** On-site restaurant names from method=info (set by attachLiveInfo). */
+  dining?: string[];
 }
 
 interface WahListHotel {
@@ -538,6 +542,58 @@ export async function getHotelInfo(hotelName: string, city: string): Promise<Hot
   } catch {
     return null;
   }
+}
+
+// Keyword → canonical amenity key (must match the keys travel-intent knows).
+// method=info's structured amenities are spotty, so we scan the description +
+// amenities + restaurant text together — best-effort, never fabricated.
+const AMENITY_SIGNALS: [RegExp, string][] = [
+  [/\bspa\b|wellness (?:cent|spa)|massage|hammam|thermal/i, "spa"],
+  [/\bpool\b|swimming/i, "pool"],
+  [/beach\s?front|on the beach|private beach|beach access|steps? (?:to|from) the beach/i, "beachfront"],
+  [/ocean\s?view|sea\s?view|water\s?view/i, "oceanview"],
+  [/\bgym\b|fitness|health club|workout/i, "gym"],
+  [/kids?[ '-]?club|children'?s club|kids? (?:program|activities)|babysitt|family (?:program|friendly)/i, "kidsclub"],
+  [/airport (?:transfer|shuttle|limousine)|complimentary shuttle/i, "airporttransfer"],
+  [/butler/i, "butler"],
+  [/roof\s?top|sky ?bar|sky ?lounge/i, "rooftop"],
+  [/casino/i, "casino"],
+  [/ski[ -](?:in|lift|slope|resort|valet)/i, "ski"],
+  [/connecting rooms?|adjoining rooms?/i, "connecting"],
+  [/complimentary breakfast|breakfast included/i, "breakfast"],
+  [/fireplace/i, "fireplace"],
+  [/michelin/i, "michelin"],
+];
+
+function deriveAmenities(info: HotelInfo): string[] {
+  const blob = [info.description ?? "", ...(info.amenities ?? []), ...(info.restaurants ?? [])].join(" ");
+  const out = new Set<string>();
+  for (const [re, key] of AMENITY_SIGNALS) if (re.test(blob)) out.add(key);
+  return [...out];
+}
+
+/**
+ * Enrich the SHOWN live hotels with real amenities + on-site dining (method=info)
+ * so each card can carry a grounded "why it matches" note. Bounded to `max`,
+ * parallel, cached (infoCache) and graceful — a failed lookup just leaves the
+ * hotel without extra facts. Never invents anything.
+ */
+export async function attachLiveInfo(hotels: LiveHotel[], max = 9): Promise<LiveHotel[]> {
+  const head = hotels.slice(0, max);
+  const enriched = await Promise.all(
+    head.map(async (h) => {
+      if (h.amenities) return h;
+      const info = await getHotelInfo(h.name, h.city).catch(() => null);
+      if (!info) return h;
+      // Prefer a real restaurant to name-drop over a coffee bar / lounge / in-room.
+      const proper = info.restaurants.filter(
+        (r) => !/coffee|\btea\b|in-?room|lounge|\bbar\b|caf[eé]|deli|market|poolside|grab|espresso|room service/i.test(r),
+      );
+      const dining = (proper.length ? proper : info.restaurants).slice(0, 3);
+      return { ...h, amenities: deriveAmenities(info), dining };
+    }),
+  );
+  return [...enriched, ...hotels.slice(max)];
 }
 
 /* --------------------------------------------------- live comparison builder */
