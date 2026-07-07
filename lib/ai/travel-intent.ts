@@ -13,7 +13,7 @@
  * only produced when we have real coordinates for both the hotel and the anchor.
  */
 import { HOTELS } from "@/lib/services/mock-data";
-import type { Hotel, SearchCriteria } from "@/lib/services/types";
+import type { Hotel, Recommendation, SearchCriteria } from "@/lib/services/types";
 import type { LiveHotel } from "@/lib/services/live-rates";
 
 export type ProximityKind =
@@ -471,6 +471,42 @@ export function rankLiveHotels(
   }
 
   return enriched.map(({ _km, ...h }) => h);
+}
+
+/**
+ * Re-rank the local catalogue's recommendations by a geographic intent, blending
+ * the engine's fit score with a real-distance boost to the requested anchor, and
+ * annotate each with a distance label. The engine already covers occasion /
+ * amenity / vibe fit, so this adds the one thing it lacks — true proximity.
+ * When the intent has no resolvable anchor for the city, the order is untouched.
+ */
+export function applyIntentRanking(
+  recs: Recommendation[],
+  city: string,
+  intent: TravelIntent,
+  limit: number,
+): Recommendation[] {
+  const anchor = intent.proximity ? resolveAnchor(city, intent.proximity) : null;
+  if (!anchor) return recs.slice(0, limit).map((r, i) => ({ ...r, rank: i + 1 }));
+
+  const scored = recs.map((r) => {
+    const c = r.coordinates;
+    let boost = 0;
+    let label: string | undefined;
+    if (c && c.lat && c.lng) {
+      const km = haversineKm(c, anchor);
+      // Only meaningful within ~12 km — beyond that the anchor is equally "far"
+      // for every city hotel (e.g. a downtown hotel vs. a distant airport), so a
+      // distance neither reorders nor is worth showing.
+      if (km <= 12) {
+        boost = Math.max(0, 30 - km * 3); // 0 km → +30, ~0 by 10 km
+        label = distanceLabel(km, anchor.label);
+      }
+    }
+    return { rec: r, blended: r.matchScore + boost, label };
+  });
+  scored.sort((a, b) => b.blended - a.blended);
+  return scored.slice(0, limit).map((s, i) => ({ ...s.rec, rank: i + 1, distanceLabel: s.label }));
 }
 
 /** One-line summary of the intent for the reply prompt. */

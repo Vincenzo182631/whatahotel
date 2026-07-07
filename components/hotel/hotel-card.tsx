@@ -115,6 +115,11 @@ export function HotelCard({
             <p className="mt-1 flex items-center gap-1 text-sm text-[#717171]">
               <MapPin className="size-3.5" /> {hotel.city}, {hotel.country}
             </p>
+            {hotel.distanceLabel && (
+              <p className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/[0.08] px-2.5 py-0.5 text-xs font-medium text-primary">
+                <MapPin className="size-3" strokeWidth={2} /> {hotel.distanceLabel}
+              </p>
+            )}
           </div>
 
           {/* Match (quiet) */}

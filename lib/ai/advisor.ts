@@ -19,7 +19,13 @@ import { store } from "@/lib/data/store";
 import { getCityHotels, buildLiveComparison, attachLiveCoordinates } from "@/lib/services/live-rates";
 import { bareCountry } from "./country-links";
 import { CITY_POIS } from "./itinerary-data";
-import { parseTravelIntent, rankLiveHotels, summarizeIntent, resolveAnchor } from "./travel-intent";
+import {
+  parseTravelIntent,
+  rankLiveHotels,
+  summarizeIntent,
+  resolveAnchor,
+  applyIntentRanking,
+} from "./travel-intent";
 
 /** Pull concrete ISO dates the user typed (checkIn = earliest, checkOut = next). */
 function parseIsoDates(text: string): { checkIn?: string; checkOut?: string } {
@@ -540,10 +546,19 @@ export async function runTurn(
         (changedSearch || session.lastRecommendations.length === 0)));
 
   if (shouldRecommend) {
-    const { recommendations, totalFound } = await recommendationService.recommend(
+    // Understand WHY they want this city. For a geographic intent we can anchor
+    // (near the beach / airport / a landmark), pull a deeper shortlist and
+    // re-rank it by real distance; otherwise the engine's fit ranking stands.
+    const intent = parseTravelIntent(lastUserMessage, criteria);
+    const anchorCity = criteria.destinationLabel || criteria.destination || "";
+    const wantsGeo = Boolean(intent.proximity && resolveAnchor(anchorCity, intent.proximity));
+    const { recommendations: raw, totalFound } = await recommendationService.recommend(
       criteria,
-      5,
+      wantsGeo ? 15 : 5,
     );
+    const recommendations = wantsGeo
+      ? applyIntentRanking(raw, anchorCity, intent, 5)
+      : raw.slice(0, 5);
     await sessionStorageService.save(sessionId, { lastRecommendations: recommendations });
     const ctx: ReplyContext = {
       action: "recommend",
@@ -551,6 +566,7 @@ export async function runTurn(
       missing: missingFields(criteria),
       recommendations,
       totalFound,
+      liveIntent: summarizeIntent(intent),
       learned,
       lastUserMessage,
       user,

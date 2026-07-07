@@ -113,6 +113,9 @@ export interface Recommendation extends Hotel {
   rank: number; // 1-based position in the ranked shortlist
   matchTags: string[]; // the criteria this hotel satisfies
   estimatedTotal?: number; // for the trip, if nights known
+  /** Real distance to a requested anchor when a geographic intent applies,
+   *  e.g. "~1.2 km from the Eiffel Tower". Set by applyIntentRanking. */
+  distanceLabel?: string;
 }
 
 export interface HotelSearchParams {

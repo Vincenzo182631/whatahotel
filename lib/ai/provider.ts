@@ -270,13 +270,19 @@ async function* streamFromClaude(
 
 function buildSituation(ctx: ReplyContext): string {
   switch (ctx.action) {
-    case "recommend":
-      return `SITUATION: You searched the best hotels in this city and RANKED them best-fit first for the traveller's needs. The app is showing ${ctx.recommendations.length} ranked hotel cards (out of ${ctx.totalFound} found). Real facts for each (use ONLY these — never invent ratings or perks, and NEVER state a nightly price: rates are only confirmed live for specific dates, so say "live rates for your dates" instead of any number):\n${ctx.recommendations
+    case "recommend": {
+      const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
+      return `SITUATION: You searched the best hotels in this city and RANKED them best-fit first for the traveller's needs.${
+        intent ? ` Their intent: ${intent} — the ranking reflects it (closest/most-relevant first).` : ""
+      } The app is showing ${ctx.recommendations.length} ranked hotel cards (out of ${ctx.totalFound} found). Real facts for each (use ONLY these — never invent ratings or perks, a distance is only real when shown here, and NEVER state a nightly price: rates are only confirmed live for specific dates, so say "live rates for your dates" instead of any number):\n${ctx.recommendations
         .map(
           (r) =>
-            `#${r.rank} ${r.name}${r.brand ? ` (${r.brand})` : ""} — fit ${r.fitScore.toFixed(1)}/10${r.rating > 0 ? `, guest ${r.rating}/10` : ""}${r.perks?.[0] ? ` · perk: ${r.perks[0].label}` : ""}`,
+            `#${r.rank} ${r.name}${r.brand ? ` (${r.brand})` : ""} — fit ${r.fitScore.toFixed(1)}/10${r.rating > 0 ? `, guest ${r.rating}/10` : ""}${r.distanceLabel ? ` · ${r.distanceLabel}` : ""}${r.perks?.[0] ? ` · perk: ${r.perks[0].label}` : ""}`,
         )
-        .join("\n")}\nIn 1–2 sentences, introduce the ranked shortlist and say why #1 leads with one concrete detail (never a price). The cards show the rest — don't list them. Then add one short line telling them they can select up to 3 hotels from the results and compare them side by side to choose. No preamble.`;
+        .join("\n")}\nIn 1–2 sentences, introduce the ranked shortlist and say why #1 leads with one concrete detail${
+        intent ? " that fits their intent (cite its real distance if shown)" : ""
+      } (never a price). The cards show the rest — don't list them. Then add one short line telling them they can select up to 3 hotels from the results and compare them side by side to choose. No preamble.`;
+    }
     case "explain": {
       const focus = ctx.focus?.length ? ctx.focus : ctx.recommendations.slice(0, 2);
       return `SITUATION: The traveller wants to understand specific hotels already on screen. Speak specifically and honestly about them using ONLY these facts (NEVER state a nightly price — rates are only confirmed live for specific dates, so say "live rates for your dates"): ${focus
