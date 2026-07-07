@@ -22,8 +22,26 @@ export function messageHasResults(m: ChatMessage): boolean {
  * — hotel shortlists, the side-by-side comparison and any booking summary —
  * leaving the left column as a clean conversation thread.
  */
+function hasHotels(m: ChatMessage): boolean {
+  const p = m.payload;
+  return Boolean((p?.recommendations && p.recommendations.length) || (p?.liveHotels && p.liveHotels.length));
+}
+
 export function ResultsCanvas({ messages }: { messages: ChatMessage[] }) {
-  const withResults = messages.filter(messageHasResults);
+  // Only ever show the CURRENT search. The moment a new hotel search runs (a new
+  // city, a changed proximity/budget/preference), everything before it is stale
+  // — so we render only from the latest hotel-results message onward (which also
+  // carries any comparison / booking the traveller did for that search).
+  let lastSearchIdx = -1;
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (hasHotels(messages[i])) {
+      lastSearchIdx = i;
+      break;
+    }
+  }
+  const withResults = messages.filter(
+    (m, i) => messageHasResults(m) && (lastSearchIdx === -1 || i >= lastSearchIdx),
+  );
   if (withResults.length === 0) return null;
 
   return (

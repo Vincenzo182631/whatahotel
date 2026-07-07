@@ -334,6 +334,29 @@ export async function runTurn(
     routedIntent ??
     regexIntent;
 
+  // Dynamic search context: is this turn a NEW / changed hotel search (not a
+  // follow-up about hotels already on screen)? If so, prior recommendations are
+  // stale and we must run a fresh search instead of answering a question or
+  // describing the area. Signals: a changed search field, a "near <X>" hotel
+  // request, or a switch phrase ("actually", "instead", "never mind"…) paired
+  // with a place / preference.
+  const turnIntent = parseTravelIntent(lastUserMessage, criteria);
+  const SEARCH_FIELDS = new Set([
+    "destination", "dates", "budget", "occasion", "amenities", "vibes", "brands", "nearby", "guests",
+  ]);
+  const changedSearch = learned.some((f) => SEARCH_FIELDS.has(f));
+  const SWITCH_RE =
+    /\b(actually|instead|never ?mind|forget (that|it)|scratch that|switch to|change (it|that)?(\s*to)?|make (it|that)|go with|rather|how about|what about|different (city|destination|place|hotel|area|beach|airport)|another (city|destination|hotel|place)|new (city|destination|search))\b/i;
+  const WANTS_HOTELS_RE =
+    /\b(hotels?|stay|resort|place to stay|somewhere|accommodations?|rooms?)\b/i;
+  const wantsHotels = WANTS_HOTELS_RE.test(lastUserMessage);
+  const searchIntentChange =
+    !refersToShown &&
+    (changedSearch ||
+      (turnIntent.proximity != null && wantsHotels) ||
+      (SWITCH_RE.test(lastUserMessage) &&
+        (turnIntent.proximity != null || turnIntent.travelerTypes.length > 0 || wantsHotels)));
+
   // ---- 3. Booking — hand off to the real WhataHotel booking form ----------
   // We no longer collect guest details in chat; booking happens on the hotel's
   // page (pick a room → Reserve → the prefilled WhataHotel booking form). So the
@@ -396,7 +419,7 @@ export async function runTurn(
   }
 
   // ---- 4b. Explain / "why this one" — talk about hotels already shown -----
-  if (explicitIntent === "explain" && session.lastRecommendations.length) {
+  if (explicitIntent === "explain" && session.lastRecommendations.length && !searchIntentChange) {
     let focus = resolveHotels(lastUserMessage, session.lastRecommendations) as Recommendation[];
     if (!focus.length) focus = session.lastRecommendations.slice(0, 2);
     const ctx: ReplyContext = {
@@ -415,7 +438,7 @@ export async function runTurn(
   }
 
   // ---- 4b-2. Q&A — a specific factual question about a shown hotel ---------
-  if (explicitIntent === "qa" && session.lastRecommendations.length) {
+  if (explicitIntent === "qa" && session.lastRecommendations.length && !searchIntentChange) {
     let focus = route?.targetHotels?.length
       ? resolveByNames(route.targetHotels, session.lastRecommendations)
       : (resolveHotels(lastUserMessage, session.lastRecommendations) as Recommendation[]);
@@ -436,7 +459,7 @@ export async function runTurn(
   }
 
   // ---- 4b-3. Local area — nearby attractions, dining, cafés, airport ------
-  if (explicitIntent === "local") {
+  if (explicitIntent === "local" && !searchIntentChange) {
     const focusHotel =
       (route?.targetHotels?.length
         ? resolveByNames(route.targetHotels, session.lastRecommendations)
@@ -499,7 +522,7 @@ export async function runTurn(
       // Understand WHY they want this city, then rank the live results by real
       // fit (proximity to the requested anchor + amenity/traveller-type match),
       // filtering out clearly-irrelevant options for strong geographic intents.
-      const intent = parseTravelIntent(lastUserMessage, criteria);
+      const intent = turnIntent;
       // For a geographic intent, resolve the anchor (curated coords, else a live
       // geocode for any covered city — disambiguated by the city's country) and
       // fetch real coordinates for the candidates so ranking uses true distance.
@@ -550,25 +573,21 @@ export async function runTurn(
     return { ctx, payload: { action: "ask", criteria, missing: ["dates"], liveCity } };
   }
 
-  // ---- 5. Recommend (explicit ask OR enough NEW signal) -------------------
-  // Only auto-recommend when the traveller explicitly asks, or when they gave
-  // new search criteria this turn, or when nothing's been shown yet — otherwise
-  // a plain follow-up would keep re-running the search.
-  const SEARCH_FIELDS = new Set([
-    "destination", "dates", "budget", "occasion", "amenities", "vibes", "brands", "nearby", "guests",
-  ]);
-  const changedSearch = learned.some((f) => SEARCH_FIELDS.has(f));
+  // ---- 5. Recommend (explicit ask OR new/changed search signal) -----------
+  // Auto-recommend when the traveller explicitly asks, when they changed the
+  // search this turn (new city, budget, preference, proximity…), or when nothing
+  // has been shown yet — otherwise a plain follow-up wouldn't re-run the search.
   const shouldRecommend =
     criteria.destination &&
     (explicitIntent === "recommend" ||
       (readyToRecommend(criteria) &&
-        (changedSearch || session.lastRecommendations.length === 0)));
+        (changedSearch || searchIntentChange || session.lastRecommendations.length === 0)));
 
   if (shouldRecommend) {
     // Understand WHY they want this city. For a geographic intent we can anchor
     // (near the beach / airport / a landmark), pull a deeper shortlist and
     // re-rank it by real distance; otherwise the engine's fit ranking stands.
-    const intent = parseTravelIntent(lastUserMessage, criteria);
+    const intent = turnIntent;
     const anchorCity = criteria.destinationLabel || criteria.destination || "";
     const region = anchorCity.includes(",")
       ? anchorCity.split(",").slice(1).join(",").trim()
