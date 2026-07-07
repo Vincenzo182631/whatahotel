@@ -593,13 +593,17 @@ export async function runTurn(
       ? anchorCity.split(",").slice(1).join(",").trim()
       : undefined;
     let anchor = intent.proximity ? await getAnchor(anchorCity, intent.proximity, region) : null;
-    const wantsGeo = Boolean(anchor);
+    // Re-rank when there's a geographic anchor OR a price intent (cheapest /
+    // premium / a budget cap) — pull a deeper shortlist so the re-rank has room.
+    const priceActive =
+      intent.priceSort === "cheapest" || intent.priceSort === "premium" || intent.budgetMax != null;
+    const needRank = Boolean(anchor) || priceActive;
     const { recommendations: raw, totalFound } = await recommendationService.recommend(
       criteria,
-      wantsGeo ? 15 : 5,
+      needRank ? 15 : 5,
     );
     if (anchor) anchor = validateAnchor(anchor, raw); // drop a bad geocode
-    const recommendations = anchor
+    const recommendations = needRank
       ? applyIntentRanking(raw, intent, 5, anchor)
       : raw.slice(0, 5);
     await sessionStorageService.save(sessionId, { lastRecommendations: recommendations });

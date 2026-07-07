@@ -69,6 +69,7 @@ function LiveHotelCard({
             <div className="mt-1.5 h-6 w-28 animate-pulse rounded-md bg-black/[0.06]" />
           ) : rate ? (
             <p className="mt-1.5">
+              <span className="text-xs text-foreground/60">From </span>
               <span className="text-lg font-semibold text-[#1a1a1a]">{formatCurrency(rate.nightly, rate.currency)}</span>
               <span className="text-xs text-foreground/60"> / night</span>
               <span className="ml-1 block text-[11px] text-foreground/50">

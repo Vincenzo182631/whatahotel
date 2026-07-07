@@ -294,6 +294,10 @@ export interface LiveHotel {
   amenities?: string[];
   /** On-site restaurant names from method=info (set by attachLiveInfo). */
   dining?: string[];
+  /** Approximate all-in nightly (reliable rateTotal ÷ nights) — used ONLY for
+   *  price ranking/budget filtering, NEVER displayed (the card fetches the true
+   *  live rate). rateDaily is unreliable, but rateTotal is trustworthy. */
+  approxNightly?: number;
 }
 
 interface WahListHotel {
@@ -357,10 +361,18 @@ export async function getCityHotels(params: {
     const wah = json.wahData;
     if (!wah || wah.status?.code !== "200" || !Array.isArray(wah.hotels)) return [];
     // Rank by the reliable all-in rateTotal (rateDaily is broken — see toLiveHotel).
+    const nights = nightsBetween(checkIn, checkOut);
     const data = wah.hotels
       .slice()
       .sort((a, b) => (num(a.rateTotal) || Infinity) - (num(b.rateTotal) || Infinity))
-      .map((h) => toLiveHotel(h))
+      .map((h) => {
+        const lh = toLiveHotel(h);
+        if (lh) {
+          const rt = num(h.rateTotal);
+          if (rt && nights > 0) lh.approxNightly = Math.round(rt / nights);
+        }
+        return lh;
+      })
       .filter((h): h is LiveHotel => Boolean(h));
     cityHotelsCache.set(key, { ts: Date.now(), data });
     return data;

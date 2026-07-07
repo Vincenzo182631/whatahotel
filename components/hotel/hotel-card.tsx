@@ -137,6 +137,7 @@ export function HotelCard({
               ) : rate ? (
                 <>
                   <p className="flex items-baseline gap-1.5">
+                    <span className="text-sm text-[#717171]">From</span>
                     <span className="text-3xl font-semibold tracking-tight text-[#1a1a1a]">
                       {formatCurrency(rate.nightly, rate.currency)}
                     </span>

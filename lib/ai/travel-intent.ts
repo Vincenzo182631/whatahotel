@@ -48,6 +48,12 @@ export interface TravelIntent {
   travelerTypes: TravelerType[];
   /** True when the traveller signalled they won't have a car. */
   carFree: boolean;
+  /** How price should weigh in ranking: "cheapest" (price dominates), "premium"
+   *  (don't penalise price), "ignore" (they said price doesn't matter), or null
+   *  (mild value tiebreak). */
+  priceSort: "cheapest" | "premium" | "ignore" | null;
+  /** Per-night budget cap (USD), from the running criteria. */
+  budgetMax?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -76,6 +82,10 @@ const TRAVELER_PATTERNS: { type: TravelerType; re: RegExp }[] = [
 ];
 
 const CAR_FREE_RE = /\b(no car|without a car|don'?t want to (?:rent|drive)|not renting a car|no rental car|public transport(?:ation)?|metro|subway|walk everywhere|car[- ]?free)\b/i;
+
+const CHEAPEST_RE = /\b(cheap(?:est|er)?|budget|affordable|inexpensive|lowest (?:price|rate|cost)|best (?:price|rate|deal)|save money|economical|good deal|great value|value for money|most affordable|not too (?:pricey|expensive))\b/i;
+const PREMIUM_RE = /\b(nicest|finest|most luxurious|best (?:hotel|resort|place|property)|top[- ]tier|ultra[- ]?luxe|splurge|premium|the very best)\b/i;
+const IGNORE_PRICE_RE = /\b(don'?t care about (?:the )?price|money'?s? (?:is )?no object|price (?:doesn'?t|does not|isn'?t|is not) (?:matter|a concern|an issue|important)|regardless of (?:price|cost|budget)|whatever (?:it costs|the cost)|budget (?:is )?(?:not|isn'?t) (?:a )?(?:concern|issue|problem))\b/i;
 
 /** Work out the travel intent from the raw message + the running criteria. */
 export function parseTravelIntent(message: string, criteria: SearchCriteria): TravelIntent {
@@ -114,7 +124,22 @@ export function parseTravelIntent(message: string, criteria: SearchCriteria): Tr
   const carFree = CAR_FREE_RE.test(text);
   if (carFree) travelerTypes.add("walkable");
 
-  return { proximity, travelerTypes: [...travelerTypes], carFree };
+  // How price should weigh. Explicit "don't care" wins; then cheapest vs premium
+  // from the message; else infer from the budget/luxury traveller type.
+  let priceSort: TravelIntent["priceSort"] = null;
+  if (IGNORE_PRICE_RE.test(text)) priceSort = "ignore";
+  else if (CHEAPEST_RE.test(text)) priceSort = "cheapest";
+  else if (PREMIUM_RE.test(text)) priceSort = "premium";
+  else if (travelerTypes.has("budget")) priceSort = "cheapest";
+  else if (travelerTypes.has("luxury")) priceSort = "premium";
+
+  return {
+    proximity,
+    travelerTypes: [...travelerTypes],
+    carFree,
+    priceSort,
+    budgetMax: criteria.budgetMax,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -645,7 +670,20 @@ export function rankLiveHotels(
   anchor: ResolvedAnchor | null,
 ): RankedLiveHotel[] {
   const idx = localBySourceId();
-  const hasIntent = Boolean(intent.proximity) || intent.travelerTypes.length > 0;
+  const priceActive =
+    intent.priceSort === "cheapest" || intent.priceSort === "premium" || intent.budgetMax != null;
+  const hasIntent = Boolean(intent.proximity) || intent.travelerTypes.length > 0 || priceActive;
+
+  // Price bounds across the set (from the reliable all-in rateTotal ÷ nights) so
+  // the price score is relative — the cheapest gets the biggest bump.
+  const nights = hotels
+    .map((h) => h.approxNightly)
+    .filter((n): n is number => typeof n === "number" && n > 0);
+  const minN = nights.length ? Math.min(...nights) : 0;
+  const maxN = nights.length ? Math.max(...nights) : 0;
+  // Weight scales with intent: cheapest makes price dominant; premium mildly
+  // favours the higher end; "ignore"/none leaves the geo/type ranking untouched.
+  const priceWeight = intent.priceSort === "cheapest" ? 40 : intent.priceSort === "premium" ? 12 : 0;
 
   const enriched: (RankedLiveHotel & { _km: number | null })[] = hotels.map((h, i) => {
     const local = idx.get(h.sourceHotelId);
@@ -653,11 +691,16 @@ export function rankLiveHotels(
     // enrichment); fall back to the local catalogue's coordinates.
     const coords = h.coordinates ?? local?.coordinates;
     const s = scoreHotel(h, local, coords, anchor, intent);
+    let priceScore = 0;
+    if (priceWeight && typeof h.approxNightly === "number" && maxN > minN) {
+      const norm = (h.approxNightly - minN) / (maxN - minN); // 0 cheapest → 1 priciest
+      priceScore = intent.priceSort === "cheapest" ? priceWeight * (1 - norm) : priceWeight * norm;
+    }
     const { matchReason, distanceLabel: dl } = buildReason(s, intent, Boolean(local));
     return {
       ...h,
       coordinates: coords,
-      relevanceScore: s.score,
+      relevanceScore: s.score + priceScore,
       matchReason,
       distanceLabel: dl,
       _km: s.km,
@@ -667,33 +710,46 @@ export function rankLiveHotels(
   });
 
   if (!hasIntent) {
-    return enriched.map(({ _km, ...h }) => h); // untouched order
+    return enriched.map(({ _km, ...h }) => h); // untouched order (already cheapest-first)
   }
 
   // Sort by relevance, then original order.
   enriched.sort((a, b) => b.relevanceScore - a.relevanceScore || (a.rank ?? 0) - (b.rank ?? 0));
 
   // Geographic filtering: for a beach/airport/cruise intent, if we have at least
-  // 3 hotels with a real distance under a sensible radius, drop the clearly-far
-  // ones (but never go below 3 results).
+  // 3 hotels with a real distance under a sensible radius, work within that set.
+  let working = enriched;
   const geoIntent = intent.proximity && ["beach", "airport", "cruise"].includes(intent.proximity.kind);
   if (geoIntent) {
     const RADIUS_KM = intent.proximity!.kind === "airport" ? 8 : 6;
     const near = enriched.filter((h) => h._km != null && h._km <= RADIUS_KM);
-    if (near.length >= 3) {
-      return near.map(({ _km, ...h }) => h);
-    }
+    if (near.length >= 3) working = near;
   }
 
-  return enriched.map(({ _km, ...h }) => h);
+  // Budget cap: keep only hotels within budget (+10% tolerance, since
+  // approxNightly is all-in). Hotels with no price signal stay; if the cap
+  // excludes everything, fall back to the cheapest few rather than show nothing.
+  if (intent.budgetMax) {
+    const cap = intent.budgetMax * 1.1;
+    const within = working.filter((h) => h.approxNightly == null || h.approxNightly <= cap);
+    working =
+      within.length > 0
+        ? within
+        : working
+            .slice()
+            .sort((a, b) => (a.approxNightly ?? Infinity) - (b.approxNightly ?? Infinity))
+            .slice(0, 3);
+  }
+
+  return working.map(({ _km, ...h }) => h);
 }
 
 /**
- * Re-rank the local catalogue's recommendations by a geographic intent, blending
- * the engine's fit score with a real-distance boost to the requested anchor, and
- * annotate each with a distance label. The engine already covers occasion /
- * amenity / vibe fit, so this adds the one thing it lacks — true proximity.
- * When the intent has no resolvable anchor for the city, the order is untouched.
+ * Re-rank the local catalogue's recommendations by intent: a real-distance boost
+ * to the requested anchor (proximity), a price component whose weight depends on
+ * the traveller's price intent, and a budget cap on the starting rate — blended
+ * on top of the engine's fit score (which already covers occasion/amenity/vibe).
+ * With neither a geographic anchor nor a price intent, the engine order stands.
  */
 export function applyIntentRanking(
   recs: Recommendation[],
@@ -701,23 +757,51 @@ export function applyIntentRanking(
   limit: number,
   anchor: ResolvedAnchor | null,
 ): Recommendation[] {
-  if (!anchor) return recs.slice(0, limit).map((r, i) => ({ ...r, rank: i + 1 }));
+  // Budget cap on the starting (lowest) rate — the engine pre-filters, this
+  // reinforces it. Keep all if the cap would empty the list.
+  let pool = recs;
+  if (intent.budgetMax) {
+    const within = recs.filter((r) => !r.startingRate || r.startingRate <= intent.budgetMax! * 1.05);
+    if (within.length) pool = within;
+  }
 
-  const scored = recs.map((r) => {
+  // "Cheapest" with no competing location anchor → price IS the priority. Sort
+  // purely by the starting rate (the engine's prestige score, which would
+  // otherwise float pricey grande-dames to the top, is only a tiebreaker).
+  if (intent.priceSort === "cheapest" && !anchor) {
+    return [...pool]
+      .sort(
+        (a, b) => (a.startingRate ?? Infinity) - (b.startingRate ?? Infinity) || b.matchScore - a.matchScore,
+      )
+      .slice(0, limit)
+      .map((r, i) => ({ ...r, rank: i + 1 }));
+  }
+
+  const rates = pool
+    .map((r) => r.startingRate)
+    .filter((n): n is number => typeof n === "number" && n > 0);
+  const minR = rates.length ? Math.min(...rates) : 0;
+  const maxR = rates.length ? Math.max(...rates) : 0;
+  const priceWeight = intent.priceSort === "cheapest" ? 50 : intent.priceSort === "premium" ? 12 : 0;
+
+  const scored = pool.map((r) => {
     const c = r.coordinates;
     let boost = 0;
     let label: string | undefined;
-    if (c && c.lat && c.lng) {
+    if (anchor && c && c.lat && c.lng) {
       const km = haversineKm(c, anchor);
-      // Only meaningful within ~12 km — beyond that the anchor is equally "far"
-      // for every city hotel (e.g. a downtown hotel vs. a distant airport), so a
-      // distance neither reorders nor is worth showing.
+      // Only meaningful within ~12 km — beyond that the anchor is equally "far".
       if (km <= 12) {
         boost = Math.max(0, 30 - km * 3); // 0 km → +30, ~0 by 10 km
         label = distanceLabel(km, anchor.label);
       }
     }
-    return { rec: r, blended: r.matchScore + boost, label };
+    let priceScore = 0;
+    if (priceWeight && typeof r.startingRate === "number" && maxR > minR) {
+      const norm = (r.startingRate - minR) / (maxR - minR);
+      priceScore = intent.priceSort === "cheapest" ? priceWeight * (1 - norm) : priceWeight * norm;
+    }
+    return { rec: r, blended: r.matchScore + boost + priceScore, label };
   });
   scored.sort((a, b) => b.blended - a.blended);
   return scored.slice(0, limit).map((s, i) => ({ ...s.rec, rank: i + 1, distanceLabel: s.label }));
@@ -729,5 +813,9 @@ export function summarizeIntent(intent: TravelIntent): string {
   if (intent.proximity) bits.push(`near ${intent.proximity.label}`);
   if (intent.travelerTypes.length) bits.push(intent.travelerTypes.join(" + "));
   if (intent.carFree) bits.push("no car");
+  if (intent.priceSort === "cheapest") bits.push("best value / lowest rates");
+  else if (intent.priceSort === "premium") bits.push("premium, price no concern");
+  else if (intent.priceSort === "ignore") bits.push("price not a factor");
+  if (intent.budgetMax) bits.push(`under $${intent.budgetMax}/night`);
   return bits.join(", ") || "general stay";
 }
