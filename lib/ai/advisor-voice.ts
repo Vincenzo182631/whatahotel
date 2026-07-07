@@ -93,9 +93,18 @@ function summaryClause(c: SearchCriteria): string {
 
 function composeLive(ctx: ReplyContext): string {
   const city = ctx.liveCity ?? "there";
-  const n = ctx.liveHotels?.length ?? 0;
+  const hotels = ctx.liveHotels ?? [];
+  const n = hotels.length;
   if (n === 0) {
     return `I searched ${city} live but couldn't find availability for those dates. Try nudging the dates or a nearby city and I'll look again.`;
+  }
+  const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
+  const top = hotels[0];
+  const topNote = [top?.distanceLabel, top?.matchReason].filter(Boolean).join(" · ");
+  if (intent) {
+    return `${greeting(ctx.user)}For ${city} (${intent}), I ranked WhataHotel's live availability by what actually fits — ${n} ${n === 1 ? "hotel" : "hotels"} with live rates and advisor perks.${
+      top && topNote ? ` ${top.name} leads: ${topNote}.` : ""
+    } Tap any to view rates and book.`;
   }
   return `${greeting(ctx.user)}${city} isn't in my curated list, so I checked WhataHotel's live availability — here ${n === 1 ? "is a match" : `are ${n} matches`} with live rates and advisor perks for your dates. Tap any to view rates and book.`;
 }

@@ -282,6 +282,14 @@ export interface LiveHotel {
   nightly?: number;
   currency?: string;
   rank?: number;
+  /** Travel-intent enrichment, set by rankLiveHotels (lib/ai/travel-intent).
+   *  Optional so the raw API mapping and other callers stay unaffected. */
+  coordinates?: { lat: number; lng: number };
+  relevanceScore?: number;
+  /** Human "why it matches" note, e.g. "Family-friendly · with a pool". */
+  matchReason?: string;
+  /** Real distance to the requested anchor, e.g. "~1.2 km from South Beach". */
+  distanceLabel?: string;
 }
 
 interface WahListHotel {
@@ -406,6 +414,25 @@ interface WahHotelLookup extends WahListHotel {
   "loc-long"?: string;
 }
 const hotelCache = new Map<string, { ts: number; data: LiveHotelFull | null }>();
+
+/**
+ * Attach real coordinates to live city-search hotels (which don't carry lat/lng)
+ * by looking each up via method=hotel. Bounded to the top `max` and run in
+ * parallel; results are cached (hotelCache) so a repeat search is free. Hotels
+ * whose lookup fails simply keep no coordinates (ranked without a distance).
+ * Used for geographic intents (near the beach/airport/cruise port…).
+ */
+export async function attachLiveCoordinates(hotels: LiveHotel[], max = 12): Promise<LiveHotel[]> {
+  const head = hotels.slice(0, max);
+  const enriched = await Promise.all(
+    head.map(async (h) => {
+      if (h.coordinates) return h;
+      const full = await getLiveHotel(h.sourceHotelId).catch(() => null);
+      return full?.coordinates ? { ...h, coordinates: full.coordinates } : h;
+    }),
+  );
+  return [...enriched, ...hotels.slice(max)];
+}
 
 /** Full identity for a single hotel by its WhataHotel id (method=hotel). */
 export async function getLiveHotel(sourceHotelId: string): Promise<LiveHotelFull | null> {

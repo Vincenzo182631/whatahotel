@@ -37,6 +37,8 @@ export interface ReplyContext {
   /** Live results + the city they're for, when searching beyond the local set. */
   liveCity?: string;
   liveHotels?: import("@/lib/services/live-rates").LiveHotel[];
+  /** One-line summary of the traveller's travel intent, when live-ranked. */
+  liveIntent?: string;
   /** Field names just learned this turn, for natural acknowledgements. */
   learned: string[];
   lastUserMessage: string;

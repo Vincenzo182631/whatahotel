@@ -58,6 +58,12 @@ function LiveHotelCard({
             <MapPin className="size-3" /> {[h.city, h.country].filter(Boolean).join(", ")}
           </p>
 
+          {h.distanceLabel && (
+            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/[0.08] px-2 py-0.5 text-[11px] font-medium text-primary">
+              <MapPin className="size-3" strokeWidth={2} /> {h.distanceLabel}
+            </p>
+          )}
+
           {/* Live rate */}
           {hasDates && isFetching && !rate ? (
             <div className="mt-1.5 h-6 w-28 animate-pulse rounded-md bg-black/[0.06]" />
@@ -75,11 +81,18 @@ function LiveHotelCard({
             </p>
           )}
 
-          {h.perks[0] && (
-            <p className="mt-1.5 flex items-start gap-1 text-[11px] leading-snug text-foreground/60">
-              <Sparkles className="mt-0.5 size-3 shrink-0 text-primary" strokeWidth={1.5} />
-              {h.perks[0].replace(/\*+$/g, "")}
+          {h.matchReason ? (
+            <p className="mt-1.5 flex items-start gap-1 text-[11px] leading-snug text-[#1a1a1a]/80">
+              <Check className="mt-0.5 size-3 shrink-0 text-primary" strokeWidth={2.5} />
+              {h.matchReason}
             </p>
+          ) : (
+            h.perks[0] && (
+              <p className="mt-1.5 flex items-start gap-1 text-[11px] leading-snug text-foreground/60">
+                <Sparkles className="mt-0.5 size-3 shrink-0 text-primary" strokeWidth={1.5} />
+                {h.perks[0].replace(/\*+$/g, "")}
+              </p>
+            )
           )}
         </div>
       </div>

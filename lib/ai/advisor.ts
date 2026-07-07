@@ -16,9 +16,10 @@ import type { AdvisorUser, ReplyContext } from "./context";
 import { extractCriteriaPatch, classifyTurn } from "./provider";
 import { getCurrentUser } from "@/lib/auth/session";
 import { store } from "@/lib/data/store";
-import { getCityHotels, buildLiveComparison } from "@/lib/services/live-rates";
+import { getCityHotels, buildLiveComparison, attachLiveCoordinates } from "@/lib/services/live-rates";
 import { bareCountry } from "./country-links";
 import { CITY_POIS } from "./itinerary-data";
+import { parseTravelIntent, rankLiveHotels, summarizeIntent, resolveAnchor } from "./travel-intent";
 
 /** Pull concrete ISO dates the user typed (checkIn = earliest, checkOut = next). */
 function parseIsoDates(text: string): { checkIn?: string; checkOut?: string } {
@@ -477,12 +478,23 @@ export async function runTurn(
       await sessionStorageService.save(sessionId, { criteria });
     }
     if (criteria.checkIn && criteria.checkOut) {
-      const live = await getCityHotels({
+      let live = await getCityHotels({
         city: liveCity,
         checkIn: criteria.checkIn,
         checkOut: criteria.checkOut,
       });
-      const liveHotels = live.slice(0, 9);
+      // Understand WHY they want this city, then rank the live results by real
+      // fit (proximity to the requested anchor + amenity/traveller-type match),
+      // filtering out clearly-irrelevant options for strong geographic intents.
+      const intent = parseTravelIntent(lastUserMessage, criteria);
+      // For a geographic intent we can anchor (near the beach/airport/cruise
+      // port/attraction), fetch real coordinates for the candidates so ranking
+      // uses true distance — these live cities aren't in the local catalogue.
+      if (intent.proximity && resolveAnchor(liveCity, intent.proximity)) {
+        live = await attachLiveCoordinates(live, 12);
+      }
+      const ranked = rankLiveHotels(live, liveCity, intent);
+      const liveHotels = ranked.slice(0, 9);
       const ctx: ReplyContext = {
         action: "live",
         criteria,
@@ -491,6 +503,7 @@ export async function runTurn(
         totalFound: session.lastRecommendations.length,
         liveCity,
         liveHotels,
+        liveIntent: summarizeIntent(intent),
         learned,
         lastUserMessage,
         user,

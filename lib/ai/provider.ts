@@ -286,8 +286,26 @@ function buildSituation(ctx: ReplyContext): string {
         )
         .join(" | ")}. In 2–3 tight sentences, give the real trade-off and who each suits. Invent nothing; no preamble.`;
     }
-    case "live":
-      return `SITUATION: ${ctx.liveCity} is outside your curated set, so you searched WhataHotel's live availability. The app is showing ${ctx.liveHotels?.length ?? 0} real hotels with live rates and advisor perks (each opens the hotel's booking page). Introduce the live results for ${ctx.liveCity} in one or two sentences — note the rates are live for their dates and perks are included. Do NOT list them; the cards do that.`;
+    case "live": {
+      const hotels = ctx.liveHotels ?? [];
+      const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
+      const facts = hotels
+        .slice(0, 4)
+        .map((h, i) => {
+          const bits = [h.distanceLabel, h.matchReason].filter(Boolean).join(" · ");
+          return `#${i + 1} ${h.name}${bits ? ` — ${bits}` : ""}`;
+        })
+        .join("\n");
+      return `SITUATION: ${ctx.liveCity} is outside your curated set, so you searched WhataHotel's live availability. ${
+        intent
+          ? `The traveller's intent: ${intent}. The app is showing ${hotels.length} real hotels RANKED by how well they fit that intent (closest/most-relevant first).`
+          : `The app is showing ${hotels.length} real hotels with live rates and advisor perks.`
+      } Real facts you may use (use ONLY these; a distance is only real when shown here — never invent one, and NEVER quote a nightly price, say "live rates for your dates"):
+${facts || "(no per-hotel notes)"}
+In 1–2 sentences, introduce the shortlist for ${ctx.liveCity}${
+        intent ? " and say why the top pick fits their intent using its real note above" : ""
+      }. Note rates are live for their dates and advisor perks are included. Do NOT list them all; the cards do that.`;
+    }
     case "qa": {
       const h = ctx.focus?.[0] ?? ctx.recommendations[0];
       if (!h)
