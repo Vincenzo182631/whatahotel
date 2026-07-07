@@ -207,6 +207,78 @@ const CITY_ANCHORS: Record<string, CityAnchors> = {
     airport: { label: "Barcelona (BCN)", lat: 41.2974, lng: 2.0833 },
     downtown: { label: "central Barcelona", lat: 41.3874, lng: 2.1686 },
   },
+  tokyo: {
+    airport: { label: "Haneda (HND)", lat: 35.5494, lng: 139.7798 },
+    downtown: { label: "central Tokyo", lat: 35.6812, lng: 139.7671 },
+    nightlife: { label: "Shibuya", lat: 35.6595, lng: 139.7005 },
+    shopping: { label: "Ginza", lat: 35.6717, lng: 139.764 },
+    landmarks: [
+      { match: /shibuya/i, label: "Shibuya", lat: 35.6595, lng: 139.7005 },
+      { match: /shinjuku/i, label: "Shinjuku", lat: 35.6896, lng: 139.7006 },
+      { match: /ginza/i, label: "Ginza", lat: 35.6717, lng: 139.764 },
+      { match: /tokyo tower/i, label: "Tokyo Tower", lat: 35.6586, lng: 139.7454 },
+    ],
+  },
+  bali: {
+    airport: { label: "Ngurah Rai (DPS)", lat: -8.7467, lng: 115.1668 },
+    beach: { label: "Seminyak Beach", lat: -8.6905, lng: 115.156 },
+    landmarks: [
+      { match: /ubud/i, label: "Ubud", lat: -8.5069, lng: 115.2625 },
+      { match: /seminyak/i, label: "Seminyak", lat: -8.6905, lng: 115.156 },
+      { match: /nusa dua/i, label: "Nusa Dua", lat: -8.7972, lng: 115.2317 },
+      { match: /jimbaran/i, label: "Jimbaran", lat: -8.7908, lng: 115.1573 },
+    ],
+  },
+  maui: {
+    airport: { label: "Kahului (OGG)", lat: 20.8986, lng: -156.4305 },
+    beach: { label: "Wailea Beach", lat: 20.687, lng: -156.442 },
+    landmarks: [
+      { match: /wailea/i, label: "Wailea", lat: 20.687, lng: -156.442 },
+      { match: /kaanapali/i, label: "Kaanapali Beach", lat: 20.9247, lng: -156.6947 },
+      { match: /lahaina/i, label: "Lahaina", lat: 20.8783, lng: -156.6825 },
+    ],
+  },
+  rome: {
+    airport: { label: "Fiumicino (FCO)", lat: 41.8003, lng: 12.2389 },
+    downtown: { label: "Rome's historic centre", lat: 41.9028, lng: 12.4964 },
+    shopping: { label: "the Spanish Steps", lat: 41.9058, lng: 12.4823 },
+    landmarks: [
+      { match: /colosseum|colosseo/i, label: "the Colosseum", lat: 41.8902, lng: 12.4922 },
+      { match: /vatican|st\.? peter/i, label: "the Vatican", lat: 41.9022, lng: 12.4539 },
+      { match: /trevi/i, label: "the Trevi Fountain", lat: 41.9009, lng: 12.4833 },
+      { match: /spanish steps/i, label: "the Spanish Steps", lat: 41.9058, lng: 12.4823 },
+    ],
+  },
+  singapore: {
+    airport: { label: "Changi (SIN)", lat: 1.3644, lng: 103.9915 },
+    downtown: { label: "Marina Bay", lat: 1.2834, lng: 103.8607 },
+    shopping: { label: "Orchard Road", lat: 1.304, lng: 103.8318 },
+    landmarks: [
+      { match: /marina bay|gardens by the bay/i, label: "Marina Bay", lat: 1.2834, lng: 103.8607 },
+      { match: /sentosa/i, label: "Sentosa", lat: 1.2494, lng: 103.8303 },
+    ],
+  },
+  bangkok: {
+    airport: { label: "Suvarnabhumi (BKK)", lat: 13.69, lng: 100.7501 },
+    downtown: { label: "central Bangkok", lat: 13.728, lng: 100.534 },
+    nightlife: { label: "Sukhumvit", lat: 13.7376, lng: 100.5602 },
+    shopping: { label: "Siam", lat: 13.746, lng: 100.534 },
+    landmarks: [
+      { match: /grand palace|wat phra/i, label: "the Grand Palace", lat: 13.75, lng: 100.4913 },
+      { match: /sukhumvit/i, label: "Sukhumvit", lat: 13.7376, lng: 100.5602 },
+    ],
+  },
+  cancun: {
+    beach: { label: "the Hotel Zone beach", lat: 21.1355, lng: -86.746 },
+    airport: { label: "Cancún (CUN)", lat: 21.0365, lng: -86.8771 },
+    downtown: { label: "downtown Cancún", lat: 21.1619, lng: -86.8515 },
+    cruise: { label: "the cruise port", lat: 20.5083, lng: -86.9458 },
+  },
+  honolulu: {
+    beach: { label: "Waikiki Beach", lat: 21.2765, lng: -157.827 },
+    airport: { label: "Honolulu (HNL)", lat: 21.3187, lng: -157.9225 },
+    shopping: { label: "Ala Moana Center", lat: 21.2911, lng: -157.8434 },
+  },
 };
 
 /** Resolve the coordinate anchor for a proximity intent in a city, if known. */
