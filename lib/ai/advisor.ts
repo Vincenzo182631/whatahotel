@@ -23,7 +23,8 @@ import {
   parseTravelIntent,
   rankLiveHotels,
   summarizeIntent,
-  resolveAnchor,
+  getAnchor,
+  validateAnchor,
   applyIntentRanking,
 } from "./travel-intent";
 
@@ -493,13 +494,17 @@ export async function runTurn(
       // fit (proximity to the requested anchor + amenity/traveller-type match),
       // filtering out clearly-irrelevant options for strong geographic intents.
       const intent = parseTravelIntent(lastUserMessage, criteria);
-      // For a geographic intent we can anchor (near the beach/airport/cruise
-      // port/attraction), fetch real coordinates for the candidates so ranking
-      // uses true distance — these live cities aren't in the local catalogue.
-      if (intent.proximity && resolveAnchor(liveCity, intent.proximity)) {
+      // For a geographic intent, resolve the anchor (curated coords, else a live
+      // geocode for any covered city — disambiguated by the city's country) and
+      // fetch real coordinates for the candidates so ranking uses true distance.
+      let anchor = intent.proximity
+        ? await getAnchor(liveCity, intent.proximity, live[0]?.country)
+        : null;
+      if (anchor) {
         live = await attachLiveCoordinates(live, 12);
+        anchor = validateAnchor(anchor, live); // drop a bad geocode → qualitative
       }
-      const ranked = rankLiveHotels(live, liveCity, intent);
+      const ranked = rankLiveHotels(live, intent, anchor);
       const liveHotels = ranked.slice(0, 9);
       const ctx: ReplyContext = {
         action: "live",
@@ -551,13 +556,18 @@ export async function runTurn(
     // re-rank it by real distance; otherwise the engine's fit ranking stands.
     const intent = parseTravelIntent(lastUserMessage, criteria);
     const anchorCity = criteria.destinationLabel || criteria.destination || "";
-    const wantsGeo = Boolean(intent.proximity && resolveAnchor(anchorCity, intent.proximity));
+    const region = anchorCity.includes(",")
+      ? anchorCity.split(",").slice(1).join(",").trim()
+      : undefined;
+    let anchor = intent.proximity ? await getAnchor(anchorCity, intent.proximity, region) : null;
+    const wantsGeo = Boolean(anchor);
     const { recommendations: raw, totalFound } = await recommendationService.recommend(
       criteria,
       wantsGeo ? 15 : 5,
     );
-    const recommendations = wantsGeo
-      ? applyIntentRanking(raw, anchorCity, intent, 5)
+    if (anchor) anchor = validateAnchor(anchor, raw); // drop a bad geocode
+    const recommendations = anchor
+      ? applyIntentRanking(raw, intent, 5, anchor)
       : raw.slice(0, 5);
     await sessionStorageService.save(sessionId, { lastRecommendations: recommendations });
     const ctx: ReplyContext = {

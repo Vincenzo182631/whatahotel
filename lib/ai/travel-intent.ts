@@ -281,21 +281,130 @@ const CITY_ANCHORS: Record<string, CityAnchors> = {
   },
 };
 
-/** Resolve the coordinate anchor for a proximity intent in a city, if known. */
-export function resolveAnchor(
-  city: string,
-  target: ProximityTarget,
-): ({ label: string } & LatLng) | null {
+export type ResolvedAnchor = { label: string } & LatLng;
+
+/** Resolve the coordinate anchor from the CURATED set only (sync). */
+export function resolveAnchor(city: string, target: ProximityTarget): ResolvedAnchor | null {
   const anchors = CITY_ANCHORS[cityKey(city)];
   if (!anchors) return null;
   if (target.kind === "attraction" && target.label) {
     const hit = anchors.landmarks?.find((l) => l.match.test(target.label));
     if (hit) return { label: hit.label, lat: hit.lat, lng: hit.lng };
-    // Fall back to downtown for an unknown named landmark.
     return anchors.downtown ?? null;
   }
   const a = anchors[target.kind];
   return a ?? null;
+}
+
+// --- Live geocoding fallback (OpenStreetMap Nominatim) for any covered city ---
+
+const KIND_QUERY: Record<ProximityKind, string> = {
+  beach: "beach",
+  airport: "airport",
+  cruise: "cruise port",
+  downtown: "city centre",
+  nightlife: "city centre",
+  shopping: "city centre",
+  attraction: "",
+  transit: "city centre",
+};
+const KIND_LABEL: Record<ProximityKind, string> = {
+  beach: "the beach",
+  airport: "the airport",
+  cruise: "the cruise port",
+  downtown: "the city centre",
+  nightlife: "the city centre",
+  shopping: "the city centre",
+  attraction: "",
+  transit: "the city centre",
+};
+
+// Cache per query (incl. negative results) so each city is geocoded at most once.
+const geoCache = new Map<string, ResolvedAnchor | null>();
+
+async function nominatim(query: string): Promise<LatLng | null> {
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 4000);
+  try {
+    const r = await fetch(url, {
+      headers: { "User-Agent": "WhataHotelAdvisor/1.0 (info@lorrainetravel.com)" },
+      signal: ctrl.signal,
+    });
+    if (!r.ok) return null;
+    const j = (await r.json()) as { lat?: string; lon?: string }[];
+    if (!j[0]?.lat || !j[0]?.lon) return null;
+    return { lat: +(+j[0].lat).toFixed(6), lng: +(+j[0].lon).toFixed(6) };
+  } catch {
+    return null; // timeout / network / block → graceful (qualitative) fallback
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+/** Geocode an anchor for a city outside the curated set. Cached, best-effort.
+ *  `region` (the city's country, from the live hotels) disambiguates duplicate
+ *  place names — without it "Amsterdam airport" can match the wrong continent. */
+async function geocodeAnchor(
+  city: string,
+  target: ProximityTarget,
+  region?: string,
+): Promise<ResolvedAnchor | null> {
+  const cityName = (city || "").split(",")[0].trim();
+  if (!cityName) return null;
+  const reg = (region || "").trim();
+  const isAttraction = target.kind === "attraction" && Boolean(target.label);
+  const base = isAttraction ? `${target.label}, ${cityName}` : `${cityName} ${KIND_QUERY[target.kind]}`;
+  const query = reg ? `${base}, ${reg}` : base;
+  const key = query.toLowerCase();
+  if (geoCache.has(key)) return geoCache.get(key) ?? null;
+  const ll = await nominatim(query);
+  const label = isAttraction ? target.label : KIND_LABEL[target.kind];
+  const anchor = ll ? { label, lat: ll.lat, lng: ll.lng } : null;
+  geoCache.set(key, anchor);
+  return anchor;
+}
+
+/**
+ * Resolve a proximity anchor for ANY city: the hand-curated coordinates first
+ * (most precise), then a live geocode fallback (cached) so "near the airport /
+ * beach / a landmark" works for every city WhataHotel covers — not just the
+ * curated set. `region` is the city's country, used to disambiguate the geocode.
+ * Returns null only if geocoding also fails (→ qualitative reply).
+ */
+export async function getAnchor(
+  city: string,
+  target: ProximityTarget,
+  region?: string,
+): Promise<ResolvedAnchor | null> {
+  const anchors = CITY_ANCHORS[cityKey(city)];
+  if (target.kind === "attraction" && target.label) {
+    const hit = anchors?.landmarks?.find((l) => l.match.test(target.label));
+    if (hit) return { label: hit.label, lat: hit.lat, lng: hit.lng };
+    const geo = await geocodeAnchor(city, target, region); // the specific landmark
+    if (geo) return geo;
+    return anchors?.downtown ? { ...anchors.downtown } : null;
+  }
+  const curated = anchors?.[target.kind];
+  if (curated) return { label: curated.label, lat: curated.lat, lng: curated.lng };
+  return geocodeAnchor(city, target, region);
+}
+
+/**
+ * Guard against a bad geocode: an anchor should sit within the same metro as the
+ * hotels. If it's implausibly far from the NEAREST hotel (> 150 km — i.e. the
+ * geocoder matched a same-named place on another continent), discard it so we
+ * fall back to a qualitative reply instead of showing garbage distances. Curated
+ * anchors always pass (they're same-city by construction).
+ */
+export function validateAnchor(
+  anchor: ResolvedAnchor,
+  hotels: { coordinates?: LatLng }[],
+): ResolvedAnchor | null {
+  const coords = hotels.map((h) => h.coordinates).filter(Boolean) as LatLng[];
+  if (!coords.length) return anchor; // nothing to check against; no distances computed anyway
+  const minKm = Math.min(...coords.map((c) => haversineKm(c, anchor)));
+  return minKm <= 150 ? anchor : null;
 }
 
 function haversineKm(a: LatLng, b: LatLng): number {
@@ -391,7 +500,7 @@ function scoreHotel(
   h: LiveHotel,
   local: Hotel | undefined,
   coords: LatLng | undefined,
-  city: string,
+  anchor: ResolvedAnchor | null,
   intent: TravelIntent,
 ): Scored {
   let score = 0;
@@ -403,7 +512,6 @@ function scoreHotel(
   let km: number | null = null;
   let anchorLabel: string | null = null;
   if (intent.proximity) {
-    const anchor = resolveAnchor(city, intent.proximity);
     if (anchor && coords) {
       km = haversineKm(coords, anchor);
       anchorLabel = anchor.label;
@@ -498,8 +606,8 @@ function buildReason(
  */
 export function rankLiveHotels(
   hotels: LiveHotel[],
-  city: string,
   intent: TravelIntent,
+  anchor: ResolvedAnchor | null,
 ): RankedLiveHotel[] {
   const idx = localBySourceId();
   const hasIntent = Boolean(intent.proximity) || intent.travelerTypes.length > 0;
@@ -509,7 +617,7 @@ export function rankLiveHotels(
     // Prefer coordinates already attached to the live hotel (from getLiveHotel
     // enrichment); fall back to the local catalogue's coordinates.
     const coords = h.coordinates ?? local?.coordinates;
-    const s = scoreHotel(h, local, coords, city, intent);
+    const s = scoreHotel(h, local, coords, anchor, intent);
     const { matchReason, distanceLabel: dl } = buildReason(s, intent, Boolean(local));
     return {
       ...h,
@@ -554,11 +662,10 @@ export function rankLiveHotels(
  */
 export function applyIntentRanking(
   recs: Recommendation[],
-  city: string,
   intent: TravelIntent,
   limit: number,
+  anchor: ResolvedAnchor | null,
 ): Recommendation[] {
-  const anchor = intent.proximity ? resolveAnchor(city, intent.proximity) : null;
   if (!anchor) return recs.slice(0, limit).map((r, i) => ({ ...r, rank: i + 1 }));
 
   const scored = recs.map((r) => {
