@@ -272,9 +272,13 @@ function buildSituation(ctx: ReplyContext): string {
   switch (ctx.action) {
     case "recommend": {
       const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
+      const shortfall =
+        ctx.requestedCount && ctx.recommendations.length < ctx.requestedCount
+          ? ` NOTE: they asked for ${ctx.requestedCount} but only ${ctx.recommendations.length} match — open by saying plainly that only ${ctx.recommendations.length} fit their criteria (never pad with weaker options).`
+          : "";
       return `SITUATION: You searched the best hotels in this city and RANKED them best-fit first for the traveller's needs.${
         intent ? ` Their intent: ${intent} — the ranking reflects it (closest/most-relevant first).` : ""
-      } The app is showing ${ctx.recommendations.length} ranked hotel cards (out of ${ctx.totalFound} found). Real facts for each (use ONLY these — never invent ratings or perks, a distance is only real when shown here, and NEVER state a nightly price: rates are only confirmed live for specific dates, so say "live rates for your dates" instead of any number):\n${ctx.recommendations
+      } The app is showing ${ctx.recommendations.length} ranked hotel cards (out of ${ctx.totalFound} found).${shortfall} Real facts for each (use ONLY these — never invent ratings or perks, a distance is only real when shown here, and NEVER state a nightly price: rates are only confirmed live for specific dates, so say "live rates for your dates" instead of any number):\n${ctx.recommendations
         .map(
           (r) =>
             `#${r.rank} ${r.name}${r.brand ? ` (${r.brand})` : ""} — fit ${r.fitScore.toFixed(1)}/10${r.rating > 0 ? `, guest ${r.rating}/10` : ""}${r.distanceLabel ? ` · ${r.distanceLabel}` : ""}${r.perks?.[0] ? ` · perk: ${r.perks[0].label}` : ""}`,
@@ -302,11 +306,15 @@ function buildSituation(ctx: ReplyContext): string {
           return `#${i + 1} ${h.name}${bits ? ` — ${bits}` : ""}`;
         })
         .join("\n");
+      const shortfall =
+        ctx.requestedCount && hotels.length < ctx.requestedCount
+          ? ` NOTE: they asked for ${ctx.requestedCount} but only ${hotels.length} match — say plainly that only ${hotels.length} fit their criteria (never pad with weaker options).`
+          : "";
       return `SITUATION: ${ctx.liveCity} is outside your curated set, so you searched WhataHotel's live availability. ${
         intent
           ? `The traveller's intent: ${intent}. The app is showing ${hotels.length} real hotels RANKED by how well they fit that intent (closest/most-relevant first).`
           : `The app is showing ${hotels.length} real hotels with live rates and advisor perks.`
-      } Real facts you may use (use ONLY these; a distance is only real when shown here — never invent one, and NEVER quote a nightly price, say "live rates for your dates"):
+      }${shortfall} Real facts you may use (use ONLY these; a distance is only real when shown here — never invent one, and NEVER quote a nightly price, say "live rates for your dates"):
 ${facts || "(no per-hotel notes)"}
 In 1–2 sentences, introduce the shortlist for ${ctx.liveCity}${
         intent ? " and say why the top pick fits their intent using its real note above" : ""

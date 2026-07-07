@@ -52,6 +52,9 @@ export interface SearchCriteria {
   /** Freeform preferences/needs the traveller has stated (pets, high floor,
    *  dietary, accessibility, celebration specifics…) — accumulated, never re-asked. */
   notes?: string[];
+  /** How many hotels the traveller asked to see (persists until they change it;
+   *  the advisor shows exactly this many, or fewer if fewer match). Default 5. */
+  requestedCount?: number;
 }
 
 export interface RoomOption {

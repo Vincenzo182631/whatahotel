@@ -26,6 +26,7 @@ import { bareCountry } from "./country-links";
 import { CITY_POIS } from "./itinerary-data";
 import {
   parseTravelIntent,
+  parseQuantity,
   rankLiveHotels,
   summarizeIntent,
   getAnchor,
@@ -341,6 +342,14 @@ export async function runTurn(
   // request, or a switch phrase ("actually", "instead", "never mind"…) paired
   // with a place / preference.
   const turnIntent = parseTravelIntent(lastUserMessage, criteria);
+  // Respect the number of hotels requested ("show me 3", "top 10", "just one").
+  // It persists in criteria until changed; default 5 when never specified.
+  const askedCount = parseQuantity(lastUserMessage);
+  if (askedCount != null && askedCount !== criteria.requestedCount) {
+    criteria.requestedCount = askedCount;
+    await sessionStorageService.save(sessionId, { criteria });
+  }
+  const shownLimit = criteria.requestedCount ?? 5;
   const SEARCH_FIELDS = new Set([
     "destination", "dates", "budget", "occasion", "amenities", "vibes", "brands", "nearby", "guests",
   ]);
@@ -534,11 +543,12 @@ export async function runTurn(
         anchor = validateAnchor(anchor, live); // drop a bad geocode → qualitative
       }
       const ranked = rankLiveHotels(live, intent, anchor);
-      let liveHotels: import("@/lib/services/live-rates").LiveHotel[] = ranked.slice(0, 9);
+      // Show exactly the requested number (or fewer if fewer match).
+      let liveHotels: import("@/lib/services/live-rates").LiveHotel[] = ranked.slice(0, shownLimit);
       // Enrich the SHOWN hotels with real amenities + on-site dining so each card
       // carries a grounded "why it matches" note (bounded, parallel, cached).
       if (intent.proximity || intent.travelerTypes.length) {
-        liveHotels = (await attachLiveInfo(liveHotels, 9)).map((h) => {
+        liveHotels = (await attachLiveInfo(liveHotels, shownLimit)).map((h) => {
           const reason = buildLiveMatchReason(h, intent);
           return reason ? { ...h, matchReason: reason } : h;
         });
@@ -552,6 +562,7 @@ export async function runTurn(
         liveCity,
         liveHotels,
         liveIntent: summarizeIntent(intent),
+        requestedCount: criteria.requestedCount,
         learned,
         lastUserMessage,
         user,
@@ -598,14 +609,15 @@ export async function runTurn(
     const priceActive =
       intent.priceSort === "cheapest" || intent.priceSort === "premium" || intent.budgetMax != null;
     const needRank = Boolean(anchor) || priceActive;
+    // Fetch a deep enough pool to rank AND to satisfy the requested count.
     const { recommendations: raw, totalFound } = await recommendationService.recommend(
       criteria,
-      needRank ? 15 : 5,
+      Math.max(shownLimit, needRank ? 15 : 5),
     );
     if (anchor) anchor = validateAnchor(anchor, raw); // drop a bad geocode
     const recommendations = needRank
-      ? applyIntentRanking(raw, intent, 5, anchor)
-      : raw.slice(0, 5);
+      ? applyIntentRanking(raw, intent, shownLimit, anchor)
+      : raw.slice(0, shownLimit);
     await sessionStorageService.save(sessionId, { lastRecommendations: recommendations });
     const ctx: ReplyContext = {
       action: "recommend",
@@ -614,6 +626,7 @@ export async function runTurn(
       recommendations,
       totalFound,
       liveIntent: summarizeIntent(intent),
+      requestedCount: criteria.requestedCount,
       learned,
       lastUserMessage,
       user,

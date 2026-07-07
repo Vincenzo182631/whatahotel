@@ -39,6 +39,9 @@ export interface ReplyContext {
   liveHotels?: import("@/lib/services/live-rates").LiveHotel[];
   /** One-line summary of the traveller's travel intent, when live-ranked. */
   liveIntent?: string;
+  /** How many hotels the traveller asked for — so the reply can explain a
+   *  shortfall ("only N match your criteria"). */
+  requestedCount?: number;
   /** Field names just learned this turn, for natural acknowledgements. */
   learned: string[];
   lastUserMessage: string;

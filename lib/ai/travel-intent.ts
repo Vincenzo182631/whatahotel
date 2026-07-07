@@ -142,6 +142,43 @@ export function parseTravelIntent(message: string, criteria: SearchCriteria): Tr
   };
 }
 
+const QTY_WORD: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7,
+  eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, single: 1,
+};
+const NUM_ALT = "\\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|single";
+const HOTEL_NOUN =
+  "(?:hotels?|resorts?|options?|places?|properties|recommendations?|results?|picks?|choices?|suggestions?|listings?)";
+const TOP_QTY_RE = new RegExp(`\\b(?:top|best|first)\\s+(${NUM_ALT})\\b`, "i");
+// Allow up to 3 adjectives between the number and the hotel noun ("3 beachfront
+// hotels", "5 luxury boutique resorts") — the middle words are vetted below.
+const N_NOUN_RE = new RegExp(`\\b(${NUM_ALT})\\s+((?:[\\w-]+\\s+){0,3})(?:${HOTEL_NOUN})\\b`, "i");
+// Reject counts where the middle words show it's a duration/party size or a
+// star-rating ("3 nights … hotel", "5 star hotels"), not a hotel count.
+const NOT_QTY_MID = /\b(night|nights|adult|adults|kid|kids|child|children|people|guest|guests|day|days|week|weeks|person|pax|star|stars)\b/i;
+const SINGLE_RE = /\b(a single|just one|only one|single hotel|one hotel|one option)\b/i;
+
+/**
+ * How many hotels did the traveller ask to see? Handles "3 hotels", "top 5",
+ * "five options", "just one", "a single hotel". Returns null if unspecified
+ * (caller defaults to 5). Ignores non-quantity numbers ("3 nights", "2 adults")
+ * by requiring a hotel noun or a "top N" phrasing. Capped at 12.
+ */
+export function parseQuantity(message: string): number | null {
+  const t = message || "";
+  const toNum = (s: string) => (/^\d+$/.test(s) ? parseInt(s, 10) : QTY_WORD[s.toLowerCase()] ?? null);
+  let n: number | null = null;
+  const top = t.match(TOP_QTY_RE);
+  if (top) n = toNum(top[1]);
+  if (n == null) {
+    const nn = t.match(N_NOUN_RE);
+    if (nn && !NOT_QTY_MID.test(nn[2] || "")) n = toNum(nn[1]);
+  }
+  if (n == null && SINGLE_RE.test(t)) n = 1;
+  if (n == null || n < 1) return null;
+  return Math.min(n, 12);
+}
+
 // ---------------------------------------------------------------------------
 // 2. Curated per-city anchors (public coordinates — airports, beaches, ports,
 //    landmarks). Used only to compute REAL distances for hotels that have
