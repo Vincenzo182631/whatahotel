@@ -2,10 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
-import { ComparisonView } from "@/components/compare/comparison-view";
+import { ComparisonView, resolveComparisonHotel } from "@/components/compare/comparison-view";
+import { ShareOfferButton } from "@/components/compare/share-offer-button";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
+
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "info@lorrainetravel.com").toLowerCase();
 
 type Search = { a?: string; b?: string; c?: string; checkIn?: string; checkOut?: string };
 type Params = { searchParams: Promise<Search> };
@@ -18,6 +22,11 @@ export default async function ComparePage({ searchParams }: Params) {
   const { a, b, c, checkIn = "", checkOut = "" } = await searchParams;
   if (!a || !b) notFound();
   const ids = [a, b, c].filter((x): x is string => Boolean(x));
+
+  // Only the advisor gets the "share as an offer" shortcut.
+  const me = await getCurrentUser();
+  const isAdmin = Boolean(me && me.email.toLowerCase() === ADMIN_EMAIL);
+  const city = isAdmin ? (await resolveComparisonHotel(ids[0]))?.city ?? "" : "";
 
   return (
     <div className="min-h-dvh bg-white text-[#222]">
@@ -34,7 +43,12 @@ export default async function ComparePage({ searchParams }: Params) {
       </header>
 
       <main className="mx-auto max-w-[1100px] px-6 py-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Side-by-side comparison</h1>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight">Side-by-side comparison</h1>
+          {isAdmin && (
+            <ShareOfferButton hotelIds={ids} city={city} checkIn={checkIn} checkOut={checkOut} />
+          )}
+        </div>
         <ComparisonView hotelIds={ids} checkIn={checkIn} checkOut={checkOut} />
       </main>
     </div>
