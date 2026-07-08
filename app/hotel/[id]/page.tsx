@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft, Star, MapPin, Gift, Check } from "lucide-react";
+import { PerksList } from "@/components/hotel/perks-list";
 import {
   hotelDetailsService,
   imagesService,
@@ -158,25 +159,12 @@ export default async function HotelPage({ params }: Params) {
               </section>
             )}
 
-            <section>
-              <h2 className="flex items-center gap-2 font-display text-2xl font-medium text-[#1a1a1a]">
-                <Gift className="size-5 text-primary" /> Advisor-exclusive perks
-              </h2>
-              <p className="mt-1.5 text-sm text-[#9a9a9a]">Complimentary with every WhataHotel booking.</p>
-              <ul className="mt-5 divide-y divide-black/[0.06] overflow-hidden rounded-2xl border border-black/[0.07] bg-white">
-                {perks.map((perk) => (
-                  <li key={perk.id} className="flex items-start gap-3 p-4">
-                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-primary/10">
-                      <Check className="size-3 text-primary" strokeWidth={2.5} />
-                    </span>
-                    <span className="text-[15px] leading-relaxed">
-                      <span className="font-medium text-[#1a1a1a]">{perk.label}</span>
-                      {perk.detail && <span className="text-[#717171]"> — {perk.detail}</span>}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <PerksList
+              perks={perks.map((p) => (p.detail ? `${p.label} — ${p.detail}` : p.label))}
+              subtitle="Complimentary with every WhataHotel booking."
+              icon={Gift}
+              headingClassName="font-display text-2xl font-medium text-[#1a1a1a]"
+            />
 
             {hotel.distances.length > 0 && (
               <section>

@@ -10,6 +10,7 @@ import { RoomGallery } from "@/components/ui/room-gallery";
 import { HotelGallery } from "@/components/ui/hotel-gallery";
 import { CompareAdvisor } from "@/components/compare/compare-advisor";
 import { formatCurrency, cn, formatDate } from "@/lib/utils";
+import { splitPerks } from "@/lib/perks";
 import type { AdvisorPerk, Hotel } from "@/lib/services/types";
 
 /**
@@ -443,19 +444,29 @@ export async function ComparisonView({
     },
     {
       key: "perks",
-      label: "Perks & inclusions",
-      cell: (c) =>
-        c.perks.length ? (
-          <ul className="space-y-1">
-            {c.perks.slice(0, 6).map((p) => (
-              <li key={p.id} className="flex gap-1.5 text-xs leading-snug text-[#333]">
-                <Sparkles className="mt-0.5 size-3 shrink-0 text-[#FF385C]" strokeWidth={1.5} /> {p.label}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <span className="text-sm text-[#9a9a9a]">—</span>
-        ),
+      label: "Exclusive Complimentary Perks",
+      cell: (c) => {
+        const { perks: items, conditions } = splitPerks(c.perks);
+        if (!items.length && !conditions.length) return <span className="text-sm text-[#9a9a9a]">—</span>;
+        return (
+          <div>
+            <ul className="space-y-1">
+              {items.map((p) => (
+                <li key={p} className="flex gap-1.5 text-xs leading-snug text-[#333]">
+                  <Sparkles className="mt-0.5 size-3 shrink-0 text-[#FF385C]" strokeWidth={1.5} /> {p}
+                </li>
+              ))}
+            </ul>
+            {conditions.length > 0 && (
+              <ul className="mt-1.5 space-y-0.5 border-t border-black/[0.06] pt-1.5">
+                {conditions.map((cond) => (
+                  <li key={cond} className="text-[10px] leading-snug text-[#9a9a9a]">{cond}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "highlights",

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, MapPin, Sparkles, UtensilsCrossed, Check } from "lucide-react";
+import { ArrowLeft, MapPin, UtensilsCrossed, Check } from "lucide-react";
+import { PerksList } from "@/components/hotel/perks-list";
 import { getLiveHotel, getLiveRates, getHotelInfo } from "@/lib/services/live-rates";
 import { ZoomableImage } from "@/components/ui/zoomable-image";
 import { CityMap } from "@/components/hotel/city-map";
@@ -143,19 +144,7 @@ export default async function StayPage({ params, searchParams }: Params) {
               </section>
             )}
 
-            {perks.length > 0 && (
-              <section>
-                <h2 className="mb-2 text-lg font-semibold">Advisor-exclusive perks</h2>
-                <ul className="grid gap-1.5 sm:grid-cols-2">
-                  {perks.map((p) => (
-                    <li key={p} className="flex gap-2 text-sm text-[#333]">
-                      <Sparkles className="mt-0.5 size-4 shrink-0 text-[#FF385C]" strokeWidth={1.5} />
-                      {p.replace(/\*+$/g, "")}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
+            {perks.length > 0 && <PerksList perks={perks} />}
 
             {info?.amenities && info.amenities.length > 0 && (
               <section>
