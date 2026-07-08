@@ -5,8 +5,6 @@ import { hotelDetailsService } from "@/lib/services";
 import { getLiveRates, getHotelInfo, getLiveHotel, type HotelInfo } from "@/lib/services/live-rates";
 import { usdPerUnit } from "@/lib/services/fx";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
-import { ZoomableImage } from "@/components/ui/zoomable-image";
-import { RoomGallery } from "@/components/ui/room-gallery";
 import { HotelGallery } from "@/components/ui/hotel-gallery";
 import { CompareAdvisor } from "@/components/compare/compare-advisor";
 import { formatCurrency, cn, formatDate } from "@/lib/utils";
@@ -155,34 +153,6 @@ function usdApprox(c: Col, amount: number): string | null {
   return `≈ ${formatCurrency(Math.round(amount * c.usdRate), "USD")}`;
 }
 
-/** One room row (its own photos when distinct + name + price + USD + bed + description). */
-function roomLi(c: Col, r: Col["rooms"][number]) {
-  // The source reuses the same shots across every room, so we only keep a photo
-  // when it's genuinely this room's own (deduped in buildCol). No distinct photo
-  // → text-only row, rather than repeating the generic hotel picture 20×.
-  const photos = r.images ?? [];
-  return (
-    <li key={r.name} className="flex gap-2.5">
-      {photos.length > 0 && (
-        <span className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#eee]">
-          <RoomGallery images={photos} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} />
-        </span>
-      )}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <span className="text-[13px] font-medium leading-snug text-[#222]">{r.name}</span>
-          <span className="shrink-0 text-right">
-            <span className="block text-xs font-semibold text-[#717171]">{formatCurrency(r.nightly, r.currency)}</span>
-            {usdApprox(c, r.nightly) && <span className="block text-[10px] text-[#9a9a9a]">{usdApprox(c, r.nightly)}</span>}
-          </span>
-        </div>
-        {r.bedType && <p className="text-[11px] text-[#9a9a9a]">{r.bedType}</p>}
-        {r.description && <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-[#717171]">{r.description}</p>}
-      </div>
-    </li>
-  );
-}
-
 /** Resolve an id to a Hotel — local slug via the catalogue, else a live id. */
 export async function resolveComparisonHotel(id: string): Promise<Hotel | null> {
   const local = await hotelDetailsService.getHotelById(id);
@@ -269,7 +239,7 @@ export async function ComparisonView({
   const rows: Row[] = [
     {
       key: "price",
-      label: "Rate for your dates",
+      label: "Entry-level rate for your dates",
       highlight: true,
       cell: (c) =>
         c.live && c.entryNightly > 0 ? (
@@ -294,26 +264,6 @@ export async function ComparisonView({
           <span className="text-sm text-[#9a9a9a]">
             {nights > 0 ? "Rate on request for these dates" : "Select dates for live pricing"}
           </span>
-        ),
-    },
-    {
-      key: "rooms",
-      label: "Room categories",
-      cell: (c) =>
-        c.rooms.length ? (
-          <div>
-            <ul className="space-y-3">{c.rooms.slice(0, 8).map((r) => roomLi(c, r))}</ul>
-            {c.rooms.length > 8 && (
-              <details className="mt-3 [&_summary::-webkit-details-marker]:hidden">
-                <summary className="cursor-pointer list-none text-xs font-semibold text-[#FF385C] hover:underline">
-                  + {c.rooms.length - 8} more room categories
-                </summary>
-                <ul className="mt-3 space-y-3">{c.rooms.slice(8).map((r) => roomLi(c, r))}</ul>
-              </details>
-            )}
-          </div>
-        ) : (
-          <span className="text-sm text-[#9a9a9a]">Room categories shown at booking</span>
         ),
     },
     {
