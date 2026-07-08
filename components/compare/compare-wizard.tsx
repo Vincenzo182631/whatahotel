@@ -6,7 +6,7 @@ import { X, Check, Scale, CalendarDays, ArrowRight, Star, Loader2 } from "lucide
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import type { CityGroup } from "@/hooks/use-hotels";
 import { useTravelDates } from "@/store/travel-dates-store";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 
 interface Opt {
   id: string;
@@ -206,9 +206,17 @@ export function CompareWizard({
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-5">
-            <div className="mb-3 flex items-center gap-2 text-sm text-[#717171]">
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-sm text-[#717171]">
               <CalendarDays className="size-4 text-[#FF385C]" />
-              {cityText} · {new Date(checkIn).toLocaleDateString()} → {new Date(checkOut).toLocaleDateString()} · {nights} night{nights > 1 ? "s" : ""}
+              <span>
+                {cityText} · {formatDate(checkIn)} → {formatDate(checkOut)} · {nights} night{nights > 1 ? "s" : ""}
+              </span>
+              <button
+                onClick={() => setStep(1)}
+                className="rounded-full border border-[#DDDDDD] px-2.5 py-0.5 text-xs font-semibold text-[#222] hover:border-[#FF385C] hover:text-[#FF385C]"
+              >
+                Change dates
+              </button>
             </div>
             <p className="mb-4 text-sm font-medium">
               Select <span className="text-[#FF385C]">2 or 3</span> hotels to compare ({selected.length}/3)

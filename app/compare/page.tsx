@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import { ComparisonView, resolveComparisonHotel } from "@/components/compare/comparison-view";
 import { ShareOfferButton } from "@/components/compare/share-offer-button";
+import { CompareDateBar } from "@/components/compare/compare-date-bar";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +50,7 @@ export default async function ComparePage({ searchParams }: Params) {
             <ShareOfferButton hotelIds={ids} city={city} checkIn={checkIn} checkOut={checkOut} />
           )}
         </div>
+        <CompareDateBar hotelIds={ids} checkIn={checkIn} checkOut={checkOut} />
         <ComparisonView hotelIds={ids} checkIn={checkIn} checkOut={checkOut} />
       </main>
     </div>

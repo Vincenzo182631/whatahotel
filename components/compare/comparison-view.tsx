@@ -9,7 +9,7 @@ import { ZoomableImage } from "@/components/ui/zoomable-image";
 import { RoomGallery } from "@/components/ui/room-gallery";
 import { HotelGallery } from "@/components/ui/hotel-gallery";
 import { CompareAdvisor } from "@/components/compare/compare-advisor";
-import { formatCurrency, cn } from "@/lib/utils";
+import { formatCurrency, cn, formatDate } from "@/lib/utils";
 import type { AdvisorPerk, Hotel } from "@/lib/services/types";
 
 /**
@@ -248,7 +248,7 @@ export async function ComparisonView({
 
   const dateLabel =
     nights > 0
-      ? `${new Date(checkIn).toLocaleDateString(undefined, { month: "short", day: "numeric" })} → ${new Date(checkOut).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} · ${nights} night${nights > 1 ? "s" : ""}`
+      ? `${formatDate(checkIn)} → ${formatDate(checkOut, { month: "short", day: "numeric", year: "numeric" })} · ${nights} night${nights > 1 ? "s" : ""}`
       : "Select dates for live pricing";
 
   interface Row {
