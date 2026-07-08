@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getRecognitionCtor, type SpeechRecognitionLike, cancelSpeech } from "./speech";
+import { getRecognitionCtor, type SpeechRecognitionLike } from "./speech";
+import { stopSpeaking } from "./tts";
 
 /**
  * Microphone dictation for the chat composer. Wraps the Web Speech API's
@@ -38,7 +39,7 @@ export function useDictation({
   const start = useCallback(() => {
     const Ctor = getRecognitionCtor();
     if (!Ctor || listening) return;
-    cancelSpeech(); // don't dictate over the advisor's own voice
+    stopSpeaking(); // don't dictate over the advisor's own voice
 
     const rec = new Ctor();
     rec.lang = "en-US";

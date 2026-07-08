@@ -4,21 +4,26 @@ import { useVoiceStore, type VoiceProvider } from "@/store/voice-store";
 import { speak, cancelSpeech, stripForSpeech, ttsSupported } from "./speech";
 
 /**
- * One place that turns advisor text into audio, honouring the guest's chosen
- * engine + voice. OpenAI path fetches natural MP3 from /api/tts and plays it;
- * the browser path uses the free built-in voice. Any OpenAI failure silently
- * falls back to the browser voice so speech never just dies.
+ * Streaming text-to-speech. The advisor's reply is fed in sentence-by-sentence
+ * as it's generated, and each sentence is spoken the moment it's ready — so the
+ * voice starts within ~a second instead of waiting for the whole answer. Chunks
+ * play in order; the next chunk's audio is prefetched while the current one
+ * plays so it flows without gaps.
+ *
+ * OpenAI/ElevenLabs fetch natural MP3 from /api/tts; any failure falls back to
+ * the free browser voice for that chunk so speech never dies.
  */
 
 let audioEl: HTMLAudioElement | null = null;
 let currentUrl: string | null = null;
-let playToken = 0; // invalidates in-flight fetches when a newer request starts
+let token = 0; // bumps on stop → invalidates in-flight fetches + playback
+let queue: string[] = [];
+let runnerActive = false;
 
 function getAudio(): HTMLAudioElement {
   if (!audioEl) audioEl = new Audio();
   return audioEl;
 }
-
 function releaseUrl() {
   if (currentUrl) {
     URL.revokeObjectURL(currentUrl);
@@ -26,81 +31,121 @@ function releaseUrl() {
   }
 }
 
-/** Stop any speech immediately (both engines). */
+/** Stop everything immediately and clear the queue. */
 export function stopSpeaking(): void {
-  playToken++;
+  token++;
+  queue = [];
   cancelSpeech();
   if (audioEl) {
     audioEl.pause();
+    audioEl.onended = null;
+    audioEl.onerror = null;
     audioEl.src = "";
   }
   releaseUrl();
 }
 
-async function playRemote(
-  provider: "openai" | "elevenlabs",
-  text: string,
-  voice: string,
-  onEnd?: () => void,
-  onStart?: () => void,
-): Promise<boolean> {
-  const token = ++playToken;
-  const clean = stripForSpeech(text);
-  if (!clean) return true;
+async function fetchTts(clean: string, provider: string, voice?: string): Promise<Blob | null> {
   try {
     const res = await fetch("/api/tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: clean, voice, provider }),
     });
-    if (!res.ok) return false;
-    const blob = await res.blob();
-    if (token !== playToken) return true; // superseded by a newer request
+    if (!res.ok) return null;
+    return await res.blob();
+  } catch {
+    return null;
+  }
+}
+
+function playBlob(blob: Blob, my: number): Promise<void> {
+  return new Promise((resolve) => {
+    if (my !== token) return resolve();
     releaseUrl();
     currentUrl = URL.createObjectURL(blob);
     const a = getAudio();
     a.src = currentUrl;
-    a.onended = () => onEnd?.();
-    a.onerror = () => onEnd?.();
-    onStart?.();
-    await a.play();
-    return true;
-  } catch {
-    return false;
+    a.onended = () => resolve();
+    a.onerror = () => resolve();
+    a.play().catch(() => resolve());
+  });
+}
+
+function playBrowser(clean: string, voiceURI: string | undefined, my: number): Promise<void> {
+  return new Promise((resolve) => {
+    if (my !== token || !ttsSupported()) return resolve();
+    speak(clean, { voiceURI, onEnd: resolve });
+  });
+}
+
+async function runQueue(): Promise<void> {
+  if (runnerActive) return;
+  runnerActive = true;
+  const my = token;
+  const s = useVoiceStore.getState();
+  const provider = s.provider;
+  const remote = provider === "openai" || provider === "elevenlabs";
+  const voice = provider === "elevenlabs" ? s.elevenVoice : s.openaiVoice;
+  const voiceURI = s.browserVoiceURI || undefined;
+  let pending: Promise<Blob | null> | null = null;
+  try {
+    while (queue.length && my === token) {
+      const clean = queue.shift()!;
+      if (remote) {
+        const blobP = pending ?? fetchTts(clean, provider, voice);
+        pending = queue.length ? fetchTts(queue[0], provider, voice) : null; // prefetch next
+        const blob = await blobP;
+        if (my !== token) break;
+        if (blob) await playBlob(blob, my);
+        else await playBrowser(clean, voiceURI, my); // per-chunk fallback
+      } else {
+        await playBrowser(clean, voiceURI, my);
+      }
+    }
+  } finally {
+    runnerActive = false;
+    // A stop (or a same-reply enqueue that arrived mid-await) may have left work.
+    if (queue.length) void runQueue();
   }
+}
+
+/** Queue a chunk of reply text to be spoken after anything already queued. */
+export function enqueueSpeech(text: string): void {
+  const clean = stripForSpeech(text);
+  if (!clean) return;
+  queue.push(clean);
+  void runQueue();
 }
 
 interface SpeakOpts {
   provider?: VoiceProvider;
-  voice?: string; // openai / elevenlabs voice id
-  voiceURI?: string; // browser voice uri
-  onStart?: () => void;
+  voice?: string;
+  voiceURI?: string;
   onEnd?: () => void;
 }
 
-/**
- * Speak text with the current (or overridden) voice settings. Returns once
- * playback has *started* (or finished, for the browser voice).
- */
+/** One-shot speak (stops anything first). Used for voice previews with overrides. */
 export async function speakText(text: string, opts: SpeakOpts = {}): Promise<void> {
-  const st = useVoiceStore.getState();
-  const provider = opts.provider ?? st.provider;
   stopSpeaking();
-
-  if (provider === "openai" || provider === "elevenlabs") {
-    const voice = opts.voice ?? (provider === "elevenlabs" ? st.elevenVoice : st.openaiVoice);
-    const ok = await playRemote(provider, text, voice, opts.onEnd, opts.onStart);
-    if (ok) return;
-    // fall through to the free browser voice on any remote failure
-  }
-
-  if (ttsSupported()) {
-    speak(text, {
-      voiceURI: opts.voiceURI ?? (st.browserVoiceURI || undefined),
-      onStart: opts.onStart,
-      onEnd: opts.onEnd,
-    });
-  } else {
+  const clean = stripForSpeech(text);
+  if (!clean) {
     opts.onEnd?.();
+    return;
   }
+  const s = useVoiceStore.getState();
+  const provider = opts.provider ?? s.provider;
+  const my = token;
+  if (provider === "openai" || provider === "elevenlabs") {
+    const voice = opts.voice ?? (provider === "elevenlabs" ? s.elevenVoice : s.openaiVoice);
+    const blob = await fetchTts(clean, provider, voice);
+    if (my !== token) return;
+    if (blob) {
+      await playBlob(blob, my);
+      opts.onEnd?.();
+      return;
+    }
+  }
+  await playBrowser(clean, opts.voiceURI ?? (s.browserVoiceURI || undefined), my);
+  opts.onEnd?.();
 }
