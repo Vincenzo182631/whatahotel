@@ -124,16 +124,22 @@ async function buildCol(hotel: Hotel, checkIn: string, checkOut: string, nights:
     if (r.perks.length) col.perks = r.perks;
   }
   col.info = info;
-  // De-redundant the room photos: the source repeats the hotel's generic images
-  // in every room set and reuses the same room-type shots across rooms. Drop any
-  // photo that's in the hotel gallery, and never let an image appear on two rooms
-  // — so each room shows only its own distinct pictures (or none → hotel photo).
+  // The source has no truly per-room photography: it returns the SAME room-photo
+  // set for every category (plus the hotel's generic gallery shots). So instead of
+  // repeating one picture down every row — or blanking most rooms by de-duping —
+  // pool the distinct room photos once (excluding the hotel-gallery images already
+  // in the header), then give every room the full pool ROTATED, so each category
+  // shows a photo and the thumbnails vary row to row. Clicking still opens them all.
   const hotelPhotos = new Set([hotel.image, ...(hotel.gallery ?? [])].filter(Boolean));
-  const seenRoomPhotos = new Set<string>();
-  col.rooms = col.rooms.map((rm) => {
-    const unique = [...new Set((rm.images ?? []).filter((u) => u && !hotelPhotos.has(u) && !seenRoomPhotos.has(u)))];
-    unique.forEach((u) => seenRoomPhotos.add(u));
-    return { ...rm, images: unique, image: unique[0] || undefined };
+  const roomPool = [...new Set(col.rooms.flatMap((rm) => rm.images ?? []).filter((u): u is string => Boolean(u) && !hotelPhotos.has(u)))];
+  // Never blank every room: if excluding the header shots left nothing, fall back
+  // to the raw room images.
+  const pool = roomPool.length ? roomPool : [...new Set(col.rooms.flatMap((rm) => rm.images ?? []).filter((u): u is string => Boolean(u)))];
+  col.rooms = col.rooms.map((rm, i) => {
+    if (!pool.length) return { ...rm, images: [], image: undefined };
+    const off = i % pool.length;
+    const rotated = [...pool.slice(off), ...pool.slice(0, off)];
+    return { ...rm, images: rotated, image: rotated[0] };
   });
   if (col.currency && col.currency.toUpperCase() !== "USD") {
     const rate = await usdPerUnit(col.currency).catch(() => null);
