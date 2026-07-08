@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft, Star, MapPin, Gift, Check } from "lucide-react";
 import { PerksList } from "@/components/hotel/perks-list";
@@ -15,7 +15,10 @@ import { RoomsSection } from "@/components/hotel/rooms-section";
 import { TrackView } from "@/components/hotel/track-view";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 
-type Params = { params: Promise<{ id: string }> };
+type Params = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ checkIn?: string; checkOut?: string }>;
+};
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
@@ -27,10 +30,20 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-export default async function HotelPage({ params }: Params) {
+export default async function HotelPage({ params, searchParams }: Params) {
   const { id } = await params;
   const hotel = await hotelDetailsService.getHotelById(id);
   if (!hotel) notFound();
+
+  // Everyone gets the same live-search hotel experience. Any hotel with a live
+  // source id (all main-page/curated-city hotels) redirects to /stay so curated
+  // and live cities look and behave identically. The rare catalogue entries with
+  // no source id fall through to the curated page below.
+  if (hotel.sourceHotelId) {
+    const { checkIn = "", checkOut = "" } = await searchParams;
+    const qs = checkIn && checkOut ? `?checkIn=${checkIn}&checkOut=${checkOut}` : "";
+    redirect(`/stay/${hotel.sourceHotelId}${qs}`);
+  }
 
   const gallery = imagesService.getGallery(hotel);
   const perks = await advisorPerksService.getPerks(id);
