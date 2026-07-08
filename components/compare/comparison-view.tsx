@@ -134,6 +134,28 @@ function usdApprox(c: Col, amount: number): string | null {
   return `≈ ${formatCurrency(Math.round(amount * c.usdRate), "USD")}`;
 }
 
+/** One room row (image + name + price + USD + bed type + description). */
+function roomLi(c: Col, r: Col["rooms"][number]) {
+  return (
+    <li key={r.name} className="flex gap-2.5">
+      <span className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#eee]">
+        <ZoomableImage src={r.image} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} sizes="96px" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <span className="text-[13px] font-medium leading-snug text-[#222]">{r.name}</span>
+          <span className="shrink-0 text-right">
+            <span className="block text-xs font-semibold text-[#717171]">{formatCurrency(r.nightly, r.currency)}</span>
+            {usdApprox(c, r.nightly) && <span className="block text-[10px] text-[#9a9a9a]">{usdApprox(c, r.nightly)}</span>}
+          </span>
+        </div>
+        {r.bedType && <p className="text-[11px] text-[#9a9a9a]">{r.bedType}</p>}
+        {r.description && <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-[#717171]">{r.description}</p>}
+      </div>
+    </li>
+  );
+}
+
 /** Resolve an id to a Hotel — local slug via the catalogue, else a live id. */
 export async function resolveComparisonHotel(id: string): Promise<Hotel | null> {
   const local = await hotelDetailsService.getHotelById(id);
@@ -252,29 +274,17 @@ export async function ComparisonView({
       label: "Room categories",
       cell: (c) =>
         c.rooms.length ? (
-          <ul className="space-y-3">
-            {c.rooms.slice(0, 8).map((r) => (
-              <li key={r.name} className="flex gap-2.5">
-                <span className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#eee]">
-                  <ZoomableImage src={r.image} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} sizes="96px" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-[13px] font-medium leading-snug text-[#222]">{r.name}</span>
-                    <span className="shrink-0 text-right">
-                      <span className="block text-xs font-semibold text-[#717171]">{formatCurrency(r.nightly, r.currency)}</span>
-                      {usdApprox(c, r.nightly) && <span className="block text-[10px] text-[#9a9a9a]">{usdApprox(c, r.nightly)}</span>}
-                    </span>
-                  </div>
-                  {r.bedType && <p className="text-[11px] text-[#9a9a9a]">{r.bedType}</p>}
-                  {r.description && (
-                    <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-[#717171]">{r.description}</p>
-                  )}
-                </div>
-              </li>
-            ))}
-            {c.rooms.length > 8 && <li className="text-xs text-[#9a9a9a]">+ {c.rooms.length - 8} more room categories</li>}
-          </ul>
+          <div>
+            <ul className="space-y-3">{c.rooms.slice(0, 8).map((r) => roomLi(c, r))}</ul>
+            {c.rooms.length > 8 && (
+              <details className="mt-3 [&_summary::-webkit-details-marker]:hidden">
+                <summary className="cursor-pointer list-none text-xs font-semibold text-[#FF385C] hover:underline">
+                  + {c.rooms.length - 8} more room categories
+                </summary>
+                <ul className="mt-3 space-y-3">{c.rooms.slice(8).map((r) => roomLi(c, r))}</ul>
+              </details>
+            )}
+          </div>
         ) : (
           <span className="text-sm text-[#9a9a9a]">Room categories shown at booking</span>
         ),
@@ -395,12 +405,11 @@ export async function ComparisonView({
       cell: (c) =>
         c.info?.roomTypes.length ? (
           <ul className="space-y-1 text-xs leading-snug text-[#555]">
-            {c.info.roomTypes.slice(0, 6).map((r) => (
+            {c.info.roomTypes.map((r) => (
               <li key={r.desc} className="flex gap-1.5">
                 <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#FF385C]" /> {r.desc}
               </li>
             ))}
-            {c.info.roomTypes.length > 6 && <li className="text-[#9a9a9a]">+{c.info.roomTypes.length - 6} more</li>}
           </ul>
         ) : (
           <span className="text-sm text-[#9a9a9a]">—</span>
