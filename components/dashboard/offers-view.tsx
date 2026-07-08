@@ -11,6 +11,7 @@ interface SearchHotel {
   country: string;
   image: string;
   approxNightly?: number;
+  available?: boolean;
   perk?: string | null;
 }
 interface Offer {
@@ -275,7 +276,9 @@ export function OffersView() {
                       <span className="block truncate text-sm font-semibold text-[#1a1a1a]">{h.name}</span>
                       <span className="block truncate text-xs text-[#717171]">
                         {[h.city, h.country].filter(Boolean).join(", ")}
-                        {h.approxNightly ? ` · ~${formatCurrency(h.approxNightly, "USD")}/night est.` : ""}
+                        {h.approxNightly
+                          ? ` · ~${formatCurrency(h.approxNightly, "USD")}/night est.`
+                          : " · rate on request for these dates"}
                       </span>
                     </span>
                     <span className={cn("grid size-6 shrink-0 place-items-center rounded-full border", isSelected(h.sourceHotelId) ? "border-[#FF385C] bg-[#FF385C] text-white" : "border-black/20")}>

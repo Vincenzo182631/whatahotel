@@ -394,9 +394,12 @@ export async function getCityHotels(params: {
 async function cityHotelsViaSearch(city: string): Promise<LiveHotel[]> {
   const results = await searchHotelsByName(city);
   const c = city.trim().toLowerCase();
+  // Keep hotels whose city OR name matches the term — a region's hotels
+  // sometimes carry a specific town as `city` (e.g. Park Hyatt Zanzibar).
   return results.filter((h) => {
     const hc = (h.city || "").toLowerCase();
-    return hc && (hc.includes(c) || c.includes(hc));
+    const nm = (h.name || "").toLowerCase();
+    return nm.includes(c) || hc.includes(c) || (hc.length > 0 && c.includes(hc));
   });
 }
 
