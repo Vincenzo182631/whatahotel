@@ -480,23 +480,29 @@ export async function ComparisonView({
         >
           <div />
           {cols.map((c) => {
-            const photos = [...new Set([c.hotel.image, ...(c.hotel.gallery ?? [])].filter(Boolean))].slice(0, 12);
+            const photos = [...new Set([c.hotel.image, ...(c.hotel.gallery ?? [])].filter(Boolean))];
+            const primary = photos[0] || c.hotel.image;
+            const thumbs = photos.slice(1, 5); // up to 4 thumbnails under the hero
+            const extra = Math.max(0, photos.length - 5);
             return (
               <div key={c.hotel.id} className="px-4 pb-4">
-                {/* Swipeable photo gallery — all real hotel images, tap to zoom */}
-                <div className="no-scrollbar mb-1.5 flex snap-x snap-mandatory gap-2 overflow-x-auto">
-                  {(photos.length ? photos : [c.hotel.image]).map((src, i) => (
-                    <span
-                      key={i}
-                      className="relative aspect-[4/3] shrink-0 snap-start overflow-hidden rounded-xl bg-[#eee]"
-                      style={{ width: "100%" }}
-                    >
-                      <ZoomableImage src={src} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-g${i}`} alt={`${c.hotel.name} photo ${i + 1}`} sizes="(max-width:768px) 90vw, 300px" />
-                    </span>
-                  ))}
+                {/* Hero photo + a visible thumbnail grid — tap any to enlarge */}
+                <div className="relative mb-1.5 aspect-[4/3] overflow-hidden rounded-xl bg-[#eee]">
+                  <ZoomableImage src={primary} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-g0`} alt={c.hotel.name} sizes="300px" />
                 </div>
-                {photos.length > 1 && (
-                  <p className="mb-2 text-[10px] text-[#9a9a9a]">{photos.length} photos · swipe & tap to zoom</p>
+                {thumbs.length > 0 && (
+                  <div className="mb-2 grid grid-cols-4 gap-1.5">
+                    {thumbs.map((src, i) => (
+                      <span key={i} className="relative aspect-square overflow-hidden rounded-lg bg-[#eee]">
+                        <ZoomableImage src={src} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-g${i + 1}`} alt={`${c.hotel.name} photo ${i + 2}`} sizes="70px" hint={false} />
+                        {i === thumbs.length - 1 && extra > 0 && (
+                          <span className="pointer-events-none absolute inset-0 grid place-items-center bg-black/50 text-[11px] font-semibold text-white">
+                            +{extra}
+                          </span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
                 )}
                 {c.hotel.brand && <p className="text-[10px] uppercase tracking-wider text-[#FF385C]">{c.hotel.brand}</p>}
                 <p className="text-base font-semibold leading-tight">{c.hotel.name}</p>
