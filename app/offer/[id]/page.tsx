@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Sparkles, TrendingUp } from "lucide-react";
-import { getOffer, markOfferViewed } from "@/lib/services/offers";
+import { getOffer, markOfferViewed, advisorLabel } from "@/lib/services/offers";
 import { getCurrentUser } from "@/lib/auth/session";
 import { ComparisonView } from "@/components/compare/comparison-view";
 
@@ -32,14 +32,8 @@ export default async function OfferPage({ params }: Params) {
   const isAgent = me && me.email.toLowerCase() === ADMIN_EMAIL;
   if (!isAgent) await markOfferViewed(id);
 
-  const advisor = offer.agentName || "Your WhataHotel advisor";
-  const initials = advisor
-    .split(" ")
-    .map((w) => w[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const advisor = advisorLabel(offer.agentName);
+  const initials = (offer.agentName?.trim()?.[0] || "W").toUpperCase();
 
   return (
     <div className="min-h-dvh bg-white text-[#222]">

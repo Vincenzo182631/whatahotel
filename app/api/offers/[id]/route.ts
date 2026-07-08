@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getOffer, markOfferViewed, markOfferSent } from "@/lib/services/offers";
+import { getOffer, markOfferViewed, markOfferSent, advisorLabel } from "@/lib/services/offers";
 import { sendEmail, emailConfigured } from "@/lib/services/email";
 
 export const runtime = "nodejs";
@@ -42,7 +42,7 @@ export async function POST(req: Request, { params }: Ctx) {
 
   const origin = new URL(req.url).origin;
   const link = `${origin}/offer/${offer.id}`;
-  const advisor = offer.agentName || "Your WhataHotel advisor";
+  const advisor = advisorLabel(offer.agentName);
   const hi = offer.guestName ? `Hi ${offer.guestName},` : "Hello,";
   const note = offer.note
     ? `<p style="white-space:pre-wrap;color:#333;margin:0 0 16px">${escapeHtml(offer.note)}</p>`

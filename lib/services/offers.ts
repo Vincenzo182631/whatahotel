@@ -42,6 +42,18 @@ function shortId(): string {
   return BigInt("0x" + randomBytes(6).toString("hex")).toString(36);
 }
 
+/**
+ * The advisor label shown to the guest (email + offer page). Uses the agent's
+ * first name → "Lorraine's WhataHotel! Travel Advisor". Override with the
+ * OFFER_ADVISOR_NAME env var for a fully custom string.
+ */
+export function advisorLabel(agentName?: string): string {
+  const custom = process.env.OFFER_ADVISOR_NAME?.trim();
+  if (custom) return custom;
+  const first = (agentName || "").trim().split(/\s+/)[0];
+  return first ? `${first}'s WhataHotel! Travel Advisor` : "WhataHotel! Travel Advisor";
+}
+
 async function load(id: string): Promise<Offer | null> {
   if (useRedis) {
     try {
