@@ -17,6 +17,58 @@ import type { AdvisorPerk, Hotel } from "@/lib/services/types";
  * shows today's real pricing every time it's opened.
  */
 
+// Detect the brand / collection from a hotel name — live-only hotels don't carry
+// a brand field, so we recognise the well-known luxury flags in the name.
+const BRAND_PATTERNS: [RegExp, string][] = [
+  [/ritz[- ]carlton reserve/i, "Ritz-Carlton Reserve"],
+  [/ritz[- ]carlton/i, "Ritz-Carlton"],
+  [/four seasons/i, "Four Seasons"],
+  [/mandarin oriental/i, "Mandarin Oriental"],
+  [/rosewood/i, "Rosewood"],
+  [/st\.?\s?regis/i, "St. Regis"],
+  [/waldorf astoria/i, "Waldorf Astoria"],
+  [/jw marriott/i, "JW Marriott"],
+  [/park hyatt/i, "Park Hyatt"],
+  [/grand hyatt/i, "Grand Hyatt"],
+  [/hyatt regency/i, "Hyatt Regency"],
+  [/\bandaz\b/i, "Andaz"],
+  [/intercontinental/i, "InterContinental"],
+  [/fairmont/i, "Fairmont"],
+  [/sofitel/i, "Sofitel"],
+  [/raffles/i, "Raffles"],
+  [/belmond/i, "Belmond"],
+  [/aman(?:puri|kila|jena|resorts)?\b/i, "Aman"],
+  [/one\s?&\s?only|one and only/i, "One&Only"],
+  [/six senses/i, "Six Senses"],
+  [/banyan tree/i, "Banyan Tree"],
+  [/anantara/i, "Anantara"],
+  [/kempinski/i, "Kempinski"],
+  [/shangri-?la/i, "Shangri-La"],
+  [/conrad/i, "Conrad"],
+  [/westin/i, "Westin"],
+  [/le m[eé]ridien/i, "Le Méridien"],
+  [/autograph collection/i, "Autograph Collection"],
+  [/luxury collection/i, "The Luxury Collection"],
+  [/\boberoi\b/i, "Oberoi"],
+  [/peninsula/i, "The Peninsula"],
+  [/b[vu]lgari/i, "Bulgari"],
+  [/cheval blanc/i, "Cheval Blanc"],
+  [/nobu/i, "Nobu"],
+  [/singita/i, "Singita"],
+  [/and\s?beyond/i, "andBeyond"],
+  [/gran mel[ií]a|mel[ií]a/i, "Meliá"],
+  [/m[öo]venpick/i, "Mövenpick"],
+  [/renaissance/i, "Renaissance"],
+  [/sheraton/i, "Sheraton"],
+  [/^w\s+\S/i, "W Hotels"],
+  [/marriott/i, "Marriott"],
+];
+function detectBrand(name?: string): string | undefined {
+  const n = (name || "").trim();
+  for (const [re, b] of BRAND_PATTERNS) if (re.test(n)) return b;
+  return undefined;
+}
+
 interface Col {
   hotel: Hotel;
   live: boolean;
@@ -222,6 +274,7 @@ export async function ComparisonView({
     {
       key: "guest",
       label: "Guest rating",
+      visible: cols.some((c) => c.hotel.rating > 0),
       cell: (c) =>
         c.hotel.rating > 0 ? (
           <span className="text-sm">
@@ -235,7 +288,7 @@ export async function ComparisonView({
     {
       key: "brand",
       label: "Brand / collection",
-      cell: (c) => <span className="text-sm text-[#222]">{c.hotel.brand || "Independent"}</span>,
+      cell: (c) => <span className="text-sm text-[#222]">{c.hotel.brand || detectBrand(c.hotel.name) || "Independent"}</span>,
     },
     {
       key: "location",
