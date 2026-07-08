@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Heart, Menu, Scale, Sparkles } from "lucide-react";
+import { Heart, Menu, Scale, Sparkles, Mic } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { ChatComposer } from "@/components/chat/chat-composer";
+import { RealtimeVoice } from "@/components/voice/realtime-voice";
 import { useConversation } from "@/store/conversation-store";
 import { usePreferences } from "@/store/preferences-store";
 import { type FeaturedHotel } from "@/hooks/use-hotels";
@@ -133,6 +134,7 @@ export function AirbnbLanding() {
   const send = useConversation((s) => s.send);
   const isStreaming = useConversation((s) => s.isStreaming);
   const [compareOpen, setCompareOpen] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
   // Each pill slot's current index into its column. Start staggered so the row
   // looks varied from the first paint.
   const [pillIdx, setPillIdx] = useState<number[]>([0, 1, 2, 3, 4]);
@@ -254,13 +256,21 @@ export function AirbnbLanding() {
             })}
           </div>
 
-          {/* Secondary: side-by-side compare wizard */}
-          <button
-            onClick={() => setCompareOpen(true)}
-            className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#717171] transition-colors hover:text-[#FF385C]"
-          >
-            <Scale className="size-4" strokeWidth={2} /> Or compare hotels side by side
-          </button>
+          {/* Secondary actions: live voice + side-by-side compare */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+            <button
+              onClick={() => setVoiceOpen(true)}
+              className="inline-flex items-center gap-2 rounded-full bg-[#FF385C] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_20px_-6px_rgba(255,56,92,0.6)] transition-transform hover:scale-[1.03]"
+            >
+              <Mic className="size-4" strokeWidth={2.5} /> Talk to the advisor live
+            </button>
+            <button
+              onClick={() => setCompareOpen(true)}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[#717171] transition-colors hover:text-[#FF385C]"
+            >
+              <Scale className="size-4" strokeWidth={2} /> Compare hotels side by side
+            </button>
+          </div>
         </div>
       </main>
 
@@ -277,6 +287,7 @@ export function AirbnbLanding() {
       </footer>
 
       <CompareWizard open={compareOpen} onClose={() => setCompareOpen(false)} cities={[]} />
+      {voiceOpen && <RealtimeVoice onClose={() => setVoiceOpen(false)} />}
     </div>
   );
 }
