@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Share2, Loader2, Link2, Check, Send, ExternalLink, X, Sparkles } from "lucide-react";
+import { Share2, Loader2, Link2, Check, ExternalLink, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
  * Agent-only shortcut on the /compare page: turn the current comparison into a
- * shareable offer (link + copy + email) without going to the dashboard builder.
+ * shareable offer link without going to the dashboard builder. The advisor
+ * copies the link and pastes it into their own email/message to the guest.
  * Rendered only for the advisor (the compare page checks the admin email).
  */
 export function ShareOfferButton({
@@ -22,14 +23,11 @@ export function ShareOfferButton({
 }) {
   const [open, setOpen] = useState(false);
   const [guestName, setGuestName] = useState("");
-  const [emails, setEmails] = useState("");
   const [note, setNote] = useState("");
   const [creating, setCreating] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [offer, setOffer] = useState<{ id: string; guestEmails?: string[]; status: string } | null>(null);
+  const [offer, setOffer] = useState<{ id: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const link = offer ? `${origin}/offer/${offer.id}` : "";
@@ -44,7 +42,7 @@ export function ShareOfferButton({
       const res = await fetch("/api/offers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ city, checkIn, checkOut, hotelIds, guestName, guestEmails: emails, note }),
+        body: JSON.stringify({ city, checkIn, checkOut, hotelIds, guestName, note }),
       });
       const d = await res.json().catch(() => null);
       if (!res.ok) {
@@ -69,34 +67,13 @@ export function ShareOfferButton({
     }
   };
 
-  const email = async () => {
-    if (!offer) return;
-    setError(null);
-    setNotice(null);
-    setSending(true);
-    try {
-      const res = await fetch(`/api/offers/${offer.id}`, { method: "POST" });
-      const d = await res.json().catch(() => null);
-      if (!res.ok) {
-        setError(d?.error || "Couldn't send — use Copy link instead.");
-        return;
-      }
-      setOffer({ ...offer, status: "sent" });
-      setNotice(`Emailed to ${offer.guestEmails?.length ?? 0} recipient${(offer.guestEmails?.length ?? 0) > 1 ? "s" : ""}.`);
-    } catch {
-      setError("Couldn't send — use Copy link instead.");
-    } finally {
-      setSending(false);
-    }
-  };
-
   return (
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-1.5 rounded-full border border-[#FF385C]/40 bg-[#FF385C]/[0.06] px-3.5 py-2 text-sm font-semibold text-[#FF385C] transition-colors hover:bg-[#FF385C]/10"
       >
-        <Share2 className="size-4" /> Share / email this comparison
+        <Share2 className="size-4" /> Share this comparison
       </button>
 
       {open && (
@@ -115,7 +92,6 @@ export function ShareOfferButton({
           {!offer ? (
             <div className="mt-3 space-y-2.5">
               <input className={field} placeholder="Guest first name (optional)" value={guestName} onChange={(e) => setGuestName(e.target.value)} />
-              <input className={field} placeholder="Email(s) — separate multiple with commas" value={emails} onChange={(e) => setEmails(e.target.value)} />
               <textarea className={cn(field, "min-h-20 resize-y")} placeholder="A personal note (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
               <button
                 onClick={create}
@@ -131,23 +107,11 @@ export function ShareOfferButton({
                 <Link2 className="size-4 shrink-0 text-[#717171]" />
                 <span className="truncate text-xs text-[#333]">{link}</span>
               </div>
-              {notice && <p className="text-xs font-medium text-[#2e7d32]">{notice}</p>}
+              <p className="text-xs text-[#717171]">Copy this link and paste it into your own email or message to the guest.</p>
               <div className="flex flex-wrap gap-2">
-                <button onClick={copy} className="inline-flex items-center gap-1.5 rounded-full border border-black/15 px-3 py-1.5 text-sm font-semibold hover:bg-black/[0.04]">
-                  {copied ? <Check className="size-4 text-[#FF385C]" /> : <Link2 className="size-4" />} {copied ? "Copied" : "Copy link"}
+                <button onClick={copy} className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C] px-3.5 py-1.5 text-sm font-semibold text-white hover:opacity-90">
+                  {copied ? <Check className="size-4" /> : <Link2 className="size-4" />} {copied ? "Copied!" : "Copy link"}
                 </button>
-                {offer.guestEmails && offer.guestEmails.length > 0 && (
-                  <button
-                    onClick={email}
-                    disabled={sending || offer.status !== "draft"}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C] px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
-                  >
-                    {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-                    {offer.status !== "draft"
-                      ? "Emailed"
-                      : `Email ${offer.guestEmails.length} recipient${offer.guestEmails.length > 1 ? "s" : ""}`}
-                  </button>
-                )}
                 <a href={link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-[#717171] hover:bg-black/[0.04]">
                   <ExternalLink className="size-4" /> Open
                 </a>
