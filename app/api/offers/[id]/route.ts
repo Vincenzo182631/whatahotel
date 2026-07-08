@@ -48,7 +48,7 @@ export async function POST(req: Request, { params }: Ctx) {
     ? `<p style="white-space:pre-wrap;color:#333;margin:0 0 16px">${escapeHtml(offer.note)}</p>`
     : "";
 
-  const ok = await sendEmail({
+  const sent = await sendEmail({
     to: offer.guestEmail,
     subject: `Your ${offer.city} hotel options from WhataHotel`,
     html: `<div style="font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:520px;margin:0 auto;color:#1a1a1a">
@@ -62,7 +62,12 @@ export async function POST(req: Request, { params }: Ctx) {
     text: `${hi}\n\n${advisor} prepared a comparison of hotels in ${offer.city} for your dates.${offer.note ? `\n\n${offer.note}` : ""}\n\nView your options: ${link}\n\nRates are live for your dates and can change as your trip nears.`,
   });
 
-  if (!ok) return NextResponse.json({ error: "Couldn't send the email — try again." }, { status: 502 });
+  if (!sent.ok) {
+    return NextResponse.json(
+      { error: sent.error ? `Couldn't send: ${sent.error}` : "Couldn't send the email — try again." },
+      { status: 502 },
+    );
+  }
   const updated = await markOfferSent(id);
   return NextResponse.json({ ok: true, offer: updated });
 }

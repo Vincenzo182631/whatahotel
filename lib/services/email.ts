@@ -19,8 +19,8 @@ export async function sendEmail(opts: {
   subject: string;
   html: string;
   text?: string;
-}): Promise<boolean> {
-  if (!RESEND_KEY) return false;
+}): Promise<{ ok: boolean; error?: string }> {
+  if (!RESEND_KEY) return { ok: false, error: "Email isn't configured — set RESEND_API_KEY." };
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -36,8 +36,19 @@ export async function sendEmail(opts: {
         text: opts.text,
       }),
     });
-    return res.ok;
-  } catch {
-    return false;
+    if (res.ok) return { ok: true };
+    // Surface Resend's real message so setup issues (unverified domain, wrong
+    // key, test-only recipient) are obvious instead of a generic failure.
+    let detail = `HTTP ${res.status}`;
+    try {
+      const j = (await res.json()) as { message?: string; error?: string };
+      detail = j?.message || j?.error || detail;
+    } catch {
+      /* keep status */
+    }
+    console.error("Resend send failed:", res.status, detail);
+    return { ok: false, error: detail };
+  } catch (e) {
+    return { ok: false, error: (e as Error)?.message || "network error" };
   }
 }
