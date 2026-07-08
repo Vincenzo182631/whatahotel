@@ -144,10 +144,10 @@ export function StayBooking({
   return (
     <div className="mt-5">
       <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#717171]">
-        Choose a room — {nights} night{nights > 1 ? "s" : ""}
+        Choose a room — {nights} night{nights > 1 ? "s" : ""} · {rooms.length} categor{rooms.length === 1 ? "y" : "ies"}
       </p>
-      <ul className="space-y-2">
-        {rooms.slice(0, 6).map((r) => {
+      <ul className="no-scrollbar max-h-[440px] space-y-2 overflow-y-auto pr-1">
+        {rooms.map((r) => {
           const sel = r.name === roomName;
           return (
             <li key={r.name}>
