@@ -76,6 +76,15 @@ export function stripForSpeech(input: string): string {
 
 let cachedVoice: SpeechSynthesisVoice | null = null;
 
+/** All available browser voices (English first), for the picker. */
+export function listBrowserVoices(): SpeechSynthesisVoice[] {
+  if (!ttsSupported()) return [];
+  const voices = window.speechSynthesis.getVoices();
+  const en = voices.filter((v) => /^en(-|_|$)/i.test(v.lang));
+  const rest = voices.filter((v) => !/^en(-|_|$)/i.test(v.lang));
+  return [...en, ...rest];
+}
+
 /** Pick the nicest available English voice once, then reuse it. */
 function pickVoice(): SpeechSynthesisVoice | null {
   if (!ttsSupported()) return null;
@@ -109,17 +118,20 @@ if (typeof window !== "undefined" && ttsSupported()) {
   };
 }
 
-/** Speak `text` aloud, cancelling anything already speaking. Returns the utterance. */
+/** Speak `text` aloud with the free browser voice, cancelling anything already speaking. */
 export function speak(
   text: string,
-  handlers?: { onStart?: () => void; onEnd?: () => void },
+  handlers?: { onStart?: () => void; onEnd?: () => void; voiceURI?: string },
 ): SpeechSynthesisUtterance | null {
   if (!ttsSupported()) return null;
   const clean = stripForSpeech(text);
   if (!clean) return null;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(clean.slice(0, 4000)); // guard runaway length
-  const voice = pickVoice();
+  const chosen = handlers?.voiceURI
+    ? listBrowserVoices().find((v) => v.voiceURI === handlers.voiceURI)
+    : null;
+  const voice = chosen || pickVoice();
   if (voice) {
     u.voice = voice;
     u.lang = voice.lang;

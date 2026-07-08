@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useVoiceStore } from "@/store/voice-store";
-import { speak, cancelSpeech, ttsSupported } from "./speech";
+import { speakText, stopSpeaking } from "./tts";
 
 interface SpeakableMsg {
   id: string;
@@ -35,18 +35,18 @@ export function useSpeakReplies(messages: SpeakableMsg[]): void {
   }, []);
 
   useEffect(() => {
-    if (!speakReplies || !ttsSupported()) return;
+    if (!speakReplies) return;
     for (const m of messages) {
       if (m.role !== "assistant" || m.streaming) continue;
       if (spoken.current.has(m.id)) continue;
       spoken.current.add(m.id);
-      if (m.content.trim()) speak(m.content);
+      if (m.content.trim()) void speakText(m.content);
     }
   }, [messages, speakReplies]);
 
   // Stop talking if the user turns the feature off, or the view unmounts.
   useEffect(() => {
-    if (!speakReplies) cancelSpeech();
+    if (!speakReplies) stopSpeaking();
   }, [speakReplies]);
-  useEffect(() => () => cancelSpeech(), []);
+  useEffect(() => () => stopSpeaking(), []);
 }

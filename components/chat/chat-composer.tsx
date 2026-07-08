@@ -1,11 +1,12 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { ArrowUp, Mic, Volume2, VolumeX } from "lucide-react";
+import { ArrowUp, Mic, Volume2, VolumeX, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDictation } from "@/lib/voice/use-dictation";
-import { ttsSupported, cancelSpeech } from "@/lib/voice/speech";
+import { stopSpeaking } from "@/lib/voice/tts";
 import { useVoiceStore } from "@/store/voice-store";
+import { VoiceMenu } from "./voice-menu";
 
 interface Props {
   onSend: (text: string) => void;
@@ -28,8 +29,7 @@ export function ChatComposer({
   // Voice: dictation (speech-to-text) + a toggle for spoken replies (TTS).
   const speakReplies = useVoiceStore((s) => s.speakReplies);
   const toggleSpeak = useVoiceStore((s) => s.toggleSpeak);
-  const [canSpeak, setCanSpeak] = useState(false);
-  useEffect(() => setCanSpeak(ttsSupported()), []);
+  const [voiceMenu, setVoiceMenu] = useState(false);
 
   const grow = () => {
     const el = ref.current;
@@ -94,19 +94,19 @@ export function ChatComposer({
         )}
       />
 
-      {/* Speaker toggle — read the advisor's replies aloud. */}
-      {canSpeak && (
+      {/* Speaker toggle + voice picker — read the advisor's replies aloud. */}
+      <div className="relative flex shrink-0 items-center">
         <button
           type="button"
           onClick={() => {
-            if (speakReplies) cancelSpeech();
+            if (speakReplies) stopSpeaking();
             toggleSpeak();
           }}
           aria-pressed={speakReplies}
           aria-label={speakReplies ? "Turn off spoken replies" : "Read replies aloud"}
           title={speakReplies ? "Spoken replies on" : "Read replies aloud"}
           className={cn(
-            "grid shrink-0 place-items-center rounded-2xl transition-colors",
+            "grid place-items-center rounded-2xl transition-colors",
             isHero ? "size-12" : "size-10",
             speakReplies
               ? "bg-primary/12 text-primary"
@@ -115,7 +115,20 @@ export function ChatComposer({
         >
           {speakReplies ? <Volume2 className={isHero ? "size-5" : "size-4"} /> : <VolumeX className={isHero ? "size-5" : "size-4"} />}
         </button>
-      )}
+        <button
+          type="button"
+          onClick={() => setVoiceMenu((v) => !v)}
+          aria-label="Choose voice"
+          title="Choose voice"
+          className={cn(
+            "grid place-items-center rounded-lg text-foreground/45 transition-colors hover:text-foreground",
+            isHero ? "size-6" : "size-5",
+          )}
+        >
+          <ChevronDown className="size-3.5" />
+        </button>
+        {voiceMenu && <VoiceMenu onClose={() => setVoiceMenu(false)} />}
+      </div>
 
       {/* Microphone — dictate instead of typing. */}
       {micSupported && (
