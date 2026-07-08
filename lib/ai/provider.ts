@@ -298,6 +298,9 @@ function buildSituation(ctx: ReplyContext): string {
     }
     case "live": {
       const hotels = ctx.liveHotels ?? [];
+      if (!hotels.length) {
+        return `SITUATION: You searched WhataHotel's live availability for ${ctx.liveCity}, but it returned no hotels — that destination isn't in WhataHotel's collection right now (some places simply aren't covered). Warmly tell the traveller you couldn't find any WhataHotel properties in ${ctx.liveCity} at the moment — do NOT blame the dates. If a well-known nearby destination is likely covered, you may gently suggest trying it. Then invite them to email info@lorrainetravel.com so the team can help arrange ${ctx.liveCity} directly. 1–2 warm sentences.`;
+      }
       const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
       const facts = hotels
         .slice(0, 4)

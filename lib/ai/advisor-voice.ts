@@ -96,7 +96,7 @@ function composeLive(ctx: ReplyContext): string {
   const hotels = ctx.liveHotels ?? [];
   const n = hotels.length;
   if (n === 0) {
-    return `I searched ${city} live but couldn't find availability for those dates. Try nudging the dates or a nearby city and I'll look again.`;
+    return `I'm sorry — I couldn't find any WhataHotel properties in ${city} at the moment; that destination isn't in our collection right now. If there's a nearby city you'd consider I'm happy to look, or email info@lorrainetravel.com and the team will help arrange ${city} directly.`;
   }
   const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
   const top = hotels[0];
