@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, MapPin, UtensilsCrossed, Check } from "lucide-react";
+import { MapPin, UtensilsCrossed, Check } from "lucide-react";
 import { PerksList } from "@/components/hotel/perks-list";
+import { BackButton } from "@/components/ui/back-button";
 import { getLiveHotel, getLiveRates, getHotelInfo } from "@/lib/services/live-rates";
 import { ZoomableImage } from "@/components/ui/zoomable-image";
 import { CityMap } from "@/components/hotel/city-map";
@@ -98,9 +99,7 @@ export default async function StayPage({ params, searchParams }: Params) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="What a Hotel" className="h-8 w-auto" />
           </Link>
-          <Link href="/find" className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold hover:bg-[#f7f7f7]">
-            <ArrowLeft className="size-4" /> Back to search
-          </Link>
+          <BackButton fallback="/" />
         </div>
       </header>
 

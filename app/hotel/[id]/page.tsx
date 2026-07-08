@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, Star, MapPin, Gift, Check } from "lucide-react";
+import { Star, MapPin, Gift, Check } from "lucide-react";
 import { PerksList } from "@/components/hotel/perks-list";
+import { BackButton } from "@/components/ui/back-button";
 import {
   hotelDetailsService,
   imagesService,
@@ -62,12 +63,10 @@ export default async function HotelPage({ params, searchParams }: Params) {
       <SiteHeader />
 
       <div className="container py-8">
-        <Link
-          href="/"
-          className="mb-6 inline-flex items-center gap-2 text-sm text-foreground/72 transition-colors hover:text-primary"
-        >
-          <ArrowLeft className="size-4" /> Back to your advisor
-        </Link>
+        <BackButton
+          fallback="/"
+          className="mb-6 gap-2 rounded-none px-0 py-0 font-normal text-foreground/72 transition-colors hover:bg-transparent hover:text-primary"
+        />
 
         {/* Gallery */}
         <div className="grid gap-3 md:grid-cols-[2fr_1fr]">

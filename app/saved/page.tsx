@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Heart, Trash2 } from "lucide-react";
+import { Heart, Trash2 } from "lucide-react";
 import { SiteHeader } from "@/components/layout/site-header";
+import { BackButton } from "@/components/ui/back-button";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { Button } from "@/components/ui/button";
 import { usePreferences } from "@/store/preferences-store";
@@ -15,12 +16,10 @@ export default function SavedPage() {
     <main className="min-h-dvh">
       <SiteHeader />
       <div className="container py-10">
-        <Link
-          href="/"
-          className="mb-6 inline-flex items-center gap-2 text-sm text-foreground/72 transition-colors hover:text-primary"
-        >
-          <ArrowLeft className="size-4" /> Back to your advisor
-        </Link>
+        <BackButton
+          fallback="/"
+          className="mb-6 gap-2 rounded-none px-0 py-0 font-normal text-foreground/72 transition-colors hover:bg-transparent hover:text-primary"
+        />
 
         <h1 className="font-display text-4xl font-light">
           Your saved <span className="text-gradient-gold">collection</span>

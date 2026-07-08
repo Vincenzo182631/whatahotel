@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 import { hotelDetailsService } from "@/lib/services";
 import { DESTINATIONS } from "@/lib/services/mock-data";
 import { HotelGridCard } from "@/components/airbnb-landing";
@@ -69,12 +70,7 @@ export default async function CityPage({ params }: Params) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="What a Hotel" className="h-8 w-auto max-w-none" />
           </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7]"
-          >
-            <ArrowLeft className="size-4" /> All cities
-          </Link>
+          <BackButton fallback="/" />
         </div>
       </header>
 
