@@ -6,6 +6,7 @@ import { getLiveRates, getHotelInfo, getLiveHotel, type HotelInfo } from "@/lib/
 import { usdPerUnit } from "@/lib/services/fx";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { ZoomableImage } from "@/components/ui/zoomable-image";
+import { RoomGallery } from "@/components/ui/room-gallery";
 import { CompareAdvisor } from "@/components/compare/compare-advisor";
 import { formatCurrency, cn } from "@/lib/utils";
 import type { AdvisorPerk, Hotel } from "@/lib/services/types";
@@ -83,6 +84,7 @@ interface Col {
     nightly: number;
     currency: string;
     image?: string;
+    images?: string[];
     bedType?: string;
     description?: string;
   }[];
@@ -139,7 +141,7 @@ function roomLi(c: Col, r: Col["rooms"][number]) {
   return (
     <li key={r.name} className="flex gap-2.5">
       <span className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#eee]">
-        <ZoomableImage src={r.image} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} sizes="96px" />
+        <RoomGallery images={r.images ?? (r.image ? [r.image] : [])} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} />
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
