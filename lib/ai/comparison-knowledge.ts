@@ -91,6 +91,9 @@ export async function buildComparisonBrief(
     const perks = (h.perks ?? []).map((p) => p.label.replace(/\*+$/g, "").trim()).filter(Boolean);
     const dining = (info?.restaurants ?? []).slice(0, 6);
     const distances = (h.distances ?? []).map((d) => `${d.label}: ${d.value}`);
+    const realAttractions = (info?.attractions ?? []).slice(0, 8);
+    const roomTypes = (info?.roomTypes ?? []).map((r) => r.desc).slice(0, 6);
+    const policies = (info?.policies ?? []).slice(0, 3);
 
     const key = (h.destinationKey || h.city).toLowerCase().replace(/[^a-z]/g, "");
     const pois = CITY_POIS[key] ?? null;
@@ -109,12 +112,16 @@ export async function buildComparisonBrief(
         `- Class: ${h.starRating ? `${h.starRating}-star` : "not stated"}${h.rating > 0 ? ` · Guest rating: ${h.rating}/10${h.reviewCount ? ` (${h.reviewCount} reviews)` : ""}` : ""}`,
         `- Live rate: ${rateLine}`,
         `- Room categories: ${rooms}`,
+        roomTypes.length ? `- Room/suite types & sizes: ${roomTypes.join("; ")}` : "",
         `- Amenities: ${amenities.length ? amenities.join(", ") : "not individually listed"}`,
         `- On-site dining: ${dining.length ? dining.join(", ") : "not listed"}`,
         `- Advisor-exclusive perks: ${perks.length ? perks.join("; ") : "advisor perks apply"}`,
         `- Location: ${[h.neighborhood && h.neighborhood !== h.city ? h.neighborhood : "", h.city, h.country].filter(Boolean).join(", ")}`,
         distances.length ? `- Distances: ${distances.join("; ")}` : "",
-        `- Nearby: ${area}`,
+        realAttractions.length
+          ? `- Nearby (real, from the property — safe to cite): ${realAttractions.join(", ")}`
+          : `- Nearby: ${area}`,
+        policies.length ? `- Policies (real): ${policies.join(" | ")}` : "",
         info?.description ? `- About: ${info.description.length > 260 ? info.description.slice(0, 260) + "…" : info.description}` : "",
         info?.tax ? `- Taxes/fees note: ${info.tax.length > 160 ? info.tax.slice(0, 160) + "…" : info.tax}` : "",
       ]
