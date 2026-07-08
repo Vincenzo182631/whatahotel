@@ -44,6 +44,24 @@ export default async function StayPage({ params, searchParams }: Params) {
   const perks = hotel.perks.length ? hotel.perks : info ? [] : [];
   const gallery = hotel.gallery.filter((g) => g !== hotel.image).slice(0, 6);
 
+  // Give each room its OWN photo. The source reuses the same image set across
+  // every room, so we pool all the distinct room photos and hand out a different
+  // one per room — only reusing an image once every distinct photo has appeared.
+  const usedRoomPhotos = new Set<string>();
+  const roomPhotoPool = [
+    ...new Set((rates?.rooms ?? []).flatMap((r) => r.images ?? (r.image ? [r.image] : [])).filter(Boolean)),
+  ];
+  const roomsForBooking = (rates?.rooms ?? []).map((r) => {
+    const own = (r.images ?? (r.image ? [r.image] : [])).filter(Boolean);
+    const pick =
+      own.find((u) => !usedRoomPhotos.has(u)) ??
+      roomPhotoPool.find((u) => !usedRoomPhotos.has(u)) ??
+      own[0] ??
+      r.image;
+    if (pick) usedRoomPhotos.add(pick);
+    return { name: r.name, nightly: r.nightly, currency: r.currency, image: pick, bookingURL: r.bookingURL };
+  });
+
   // Shape the live hotel into the advisor's Hotel type so the docked advisor can
   // load its full knowledge base (the /api/hotel-chat route resolves this live
   // source id back via getLiveHotel + getHotelInfo and builds the dossier).
@@ -229,13 +247,7 @@ export default async function StayPage({ params, searchParams }: Params) {
                 checkIn={checkIn}
                 checkOut={checkOut}
                 nights={nights}
-                rooms={(rates?.rooms ?? []).map((r) => ({
-                  name: r.name,
-                  nightly: r.nightly,
-                  currency: r.currency,
-                  image: r.image,
-                  bookingURL: r.bookingURL,
-                }))}
+                rooms={roomsForBooking}
               />
               {info?.tax && (
                 <p className="mt-3 text-[11px] leading-snug text-[#9a9a9a]">

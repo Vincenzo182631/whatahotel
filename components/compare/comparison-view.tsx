@@ -7,6 +7,7 @@ import { usdPerUnit } from "@/lib/services/fx";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { ZoomableImage } from "@/components/ui/zoomable-image";
 import { RoomGallery } from "@/components/ui/room-gallery";
+import { HotelGallery } from "@/components/ui/hotel-gallery";
 import { CompareAdvisor } from "@/components/compare/compare-advisor";
 import { formatCurrency, cn } from "@/lib/utils";
 import type { AdvisorPerk, Hotel } from "@/lib/services/types";
@@ -528,29 +529,10 @@ export async function ComparisonView({
           <div />
           {cols.map((c) => {
             const photos = [...new Set([c.hotel.image, ...(c.hotel.gallery ?? [])].filter(Boolean))];
-            const primary = photos[0] || c.hotel.image;
-            const thumbs = photos.slice(1, 5); // up to 4 thumbnails under the hero
-            const extra = Math.max(0, photos.length - 5);
             return (
               <div key={c.hotel.id} className="px-4 pb-4">
-                {/* Hero photo + a visible thumbnail grid — tap any to enlarge */}
-                <div className="relative mb-1.5 aspect-[4/3] overflow-hidden rounded-xl bg-[#eee]">
-                  <ZoomableImage src={primary} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-g0`} alt={c.hotel.name} sizes="300px" />
-                </div>
-                {thumbs.length > 0 && (
-                  <div className="mb-2 grid grid-cols-4 gap-1.5">
-                    {thumbs.map((src, i) => (
-                      <span key={i} className="relative aspect-square overflow-hidden rounded-lg bg-[#eee]">
-                        <ZoomableImage src={src} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-g${i + 1}`} alt={`${c.hotel.name} photo ${i + 2}`} sizes="70px" hint={false} />
-                        {i === thumbs.length - 1 && extra > 0 && (
-                          <span className="pointer-events-none absolute inset-0 grid place-items-center bg-black/50 text-[11px] font-semibold text-white">
-                            +{extra}
-                          </span>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                {/* Hero + thumbnail grid — tap any (incl. "+N") to browse ALL photos */}
+                <HotelGallery images={photos} seed={`${c.hotel.id}-g`} alt={c.hotel.name} />
                 {c.hotel.brand && <p className="text-[10px] uppercase tracking-wider text-[#FF385C]">{c.hotel.brand}</p>}
                 <p className="text-base font-semibold leading-tight">{c.hotel.name}</p>
               </div>
