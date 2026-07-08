@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   Users,
   MessagesSquare,
+  Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLogout } from "@/hooks/use-auth";
@@ -44,6 +45,7 @@ export function DashboardChrome({
   const nav = isAdmin
     ? [
         ...NAV,
+        { href: "/dashboard/offers", label: "Offers", icon: Tag },
         { href: "/dashboard/leads", label: "Leads (CRM)", icon: Users },
         { href: "/dashboard/conversations", label: "Conversations", icon: MessagesSquare },
       ]
