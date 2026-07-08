@@ -14,6 +14,20 @@ async function requireAdmin() {
 }
 
 const clean = (v: unknown, max = 200) => String(v ?? "").trim().slice(0, max);
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Parse one or many recipient emails from a string ("a@x.com, b@y.com") or array. */
+function parseEmails(input: unknown): string[] {
+  const raw = Array.isArray(input) ? input.join(",") : String(input ?? "");
+  return [
+    ...new Set(
+      raw
+        .split(/[\s,;]+/)
+        .map((s) => s.trim().toLowerCase())
+        .filter((e) => EMAIL_RE.test(e)),
+    ),
+  ].slice(0, 20);
+}
 
 /** Agent creates an offer (2–3 hotels + dates + a personal note). */
 export async function POST(req: Request) {
@@ -39,7 +53,7 @@ export async function POST(req: Request) {
     agentEmail: me.email,
     agentName: me.name || undefined,
     guestName: clean(body.guestName, 80) || undefined,
-    guestEmail: clean(body.guestEmail, 160).toLowerCase() || undefined,
+    guestEmails: parseEmails(body.guestEmails ?? body.guestEmail),
     city,
     checkIn,
     checkOut,

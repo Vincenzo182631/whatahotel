@@ -15,7 +15,7 @@ export interface Offer {
   agentEmail: string;
   agentName?: string;
   guestName?: string;
-  guestEmail?: string;
+  guestEmails: string[]; // one or more recipients
   city: string;
   checkIn: string;
   checkOut: string;

@@ -30,8 +30,8 @@ export async function POST(req: Request, { params }: Ctx) {
   const { id } = await params;
   const offer = await getOffer(id);
   if (!offer) return NextResponse.json({ error: "Offer not found" }, { status: 404 });
-  if (!offer.guestEmail) {
-    return NextResponse.json({ error: "This offer has no guest email." }, { status: 400 });
+  if (!offer.guestEmails?.length) {
+    return NextResponse.json({ error: "This offer has no recipient email." }, { status: 400 });
   }
   if (!emailConfigured()) {
     return NextResponse.json(
@@ -49,7 +49,7 @@ export async function POST(req: Request, { params }: Ctx) {
     : "";
 
   const sent = await sendEmail({
-    to: offer.guestEmail,
+    to: offer.guestEmails,
     subject: `Your ${offer.city} hotel options from WhataHotel`,
     html: `<div style="font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:520px;margin:0 auto;color:#1a1a1a">
         <p style="font-size:15px;margin:0 0 14px">${hi}</p>

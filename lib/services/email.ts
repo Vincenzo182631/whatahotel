@@ -15,12 +15,14 @@ export function emailConfigured(): boolean {
 }
 
 export async function sendEmail(opts: {
-  to: string;
+  to: string | string[];
   subject: string;
   html: string;
   text?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   if (!RESEND_KEY) return { ok: false, error: "Email isn't configured — set RESEND_API_KEY." };
+  const to = (Array.isArray(opts.to) ? opts.to : [opts.to]).filter(Boolean);
+  if (!to.length) return { ok: false, error: "No recipient." };
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -30,7 +32,7 @@ export async function sendEmail(opts: {
       },
       body: JSON.stringify({
         from: FROM,
-        to: [opts.to],
+        to,
         subject: opts.subject,
         html: opts.html,
         text: opts.text,

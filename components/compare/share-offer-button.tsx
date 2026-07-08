@@ -22,11 +22,11 @@ export function ShareOfferButton({
 }) {
   const [open, setOpen] = useState(false);
   const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
+  const [emails, setEmails] = useState("");
   const [note, setNote] = useState("");
   const [creating, setCreating] = useState(false);
   const [sending, setSending] = useState(false);
-  const [offer, setOffer] = useState<{ id: string; guestEmail?: string; status: string } | null>(null);
+  const [offer, setOffer] = useState<{ id: string; guestEmails?: string[]; status: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -44,7 +44,7 @@ export function ShareOfferButton({
       const res = await fetch("/api/offers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ city, checkIn, checkOut, hotelIds, guestName, guestEmail, note }),
+        body: JSON.stringify({ city, checkIn, checkOut, hotelIds, guestName, guestEmails: emails, note }),
       });
       const d = await res.json().catch(() => null);
       if (!res.ok) {
@@ -82,7 +82,7 @@ export function ShareOfferButton({
         return;
       }
       setOffer({ ...offer, status: "sent" });
-      setNotice(`Emailed to ${offer.guestEmail}.`);
+      setNotice(`Emailed to ${offer.guestEmails?.length ?? 0} recipient${(offer.guestEmails?.length ?? 0) > 1 ? "s" : ""}.`);
     } catch {
       setError("Couldn't send — use Copy link instead.");
     } finally {
@@ -115,7 +115,7 @@ export function ShareOfferButton({
           {!offer ? (
             <div className="mt-3 space-y-2.5">
               <input className={field} placeholder="Guest first name (optional)" value={guestName} onChange={(e) => setGuestName(e.target.value)} />
-              <input className={field} type="email" placeholder="Guest email (for the Email button)" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} />
+              <input className={field} placeholder="Email(s) — separate multiple with commas" value={emails} onChange={(e) => setEmails(e.target.value)} />
               <textarea className={cn(field, "min-h-20 resize-y")} placeholder="A personal note (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
               <button
                 onClick={create}
@@ -136,14 +136,16 @@ export function ShareOfferButton({
                 <button onClick={copy} className="inline-flex items-center gap-1.5 rounded-full border border-black/15 px-3 py-1.5 text-sm font-semibold hover:bg-black/[0.04]">
                   {copied ? <Check className="size-4 text-[#FF385C]" /> : <Link2 className="size-4" />} {copied ? "Copied" : "Copy link"}
                 </button>
-                {offer.guestEmail && (
+                {offer.guestEmails && offer.guestEmails.length > 0 && (
                   <button
                     onClick={email}
                     disabled={sending || offer.status !== "draft"}
                     className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C] px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
                   >
                     {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-                    {offer.status !== "draft" ? "Emailed" : "Email guest"}
+                    {offer.status !== "draft"
+                      ? "Emailed"
+                      : `Email ${offer.guestEmails.length} recipient${offer.guestEmails.length > 1 ? "s" : ""}`}
                   </button>
                 )}
                 <a href={link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-[#717171] hover:bg-black/[0.04]">

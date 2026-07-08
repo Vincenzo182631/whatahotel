@@ -16,7 +16,7 @@ interface SearchHotel {
 interface Offer {
   id: string;
   guestName?: string;
-  guestEmail?: string;
+  guestEmails?: string[];
   city: string;
   checkIn: string;
   checkOut: string;
@@ -51,7 +51,7 @@ export function OffersView() {
   const [results, setResults] = useState<SearchHotel[]>([]);
   const [selected, setSelected] = useState<SearchHotel[]>([]);
   const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
+  const [emails, setEmails] = useState("");
   const [note, setNote] = useState("");
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState<Offer | null>(null);
@@ -119,7 +119,7 @@ export function OffersView() {
           checkIn,
           checkOut,
           guestName,
-          guestEmail,
+          guestEmails: emails,
           note,
           hotelIds: selected.map((s) => s.sourceHotelId),
         }),
@@ -172,7 +172,7 @@ export function OffersView() {
     setSelected([]);
     setResults([]);
     setGuestName("");
-    setGuestEmail("");
+    setEmails("");
     setNote("");
     setCity("");
     setCheckIn("");
@@ -220,14 +220,16 @@ export function OffersView() {
               {copiedId === created.id ? <Check className="size-4 text-[#FF385C]" /> : <Link2 className="size-4" />}
               {copiedId === created.id ? "Copied" : "Copy link"}
             </button>
-            {created.guestEmail && (
+            {created.guestEmails && created.guestEmails.length > 0 && (
               <button
                 onClick={() => send(created.id)}
                 disabled={sendingId === created.id || created.status !== "draft"}
                 className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C] px-3.5 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
               >
                 {sendingId === created.id ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-                {created.status !== "draft" ? "Emailed" : `Email ${created.guestEmail}`}
+                {created.status !== "draft"
+                  ? "Emailed"
+                  : `Email ${created.guestEmails.length} recipient${created.guestEmails.length > 1 ? "s" : ""}`}
               </button>
             )}
             <a href={linkFor(created.id)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[#717171] hover:bg-black/[0.04]">
@@ -301,7 +303,7 @@ export function OffersView() {
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <input className={field} placeholder="Guest first name" value={guestName} onChange={(e) => setGuestName(e.target.value)} />
-                <input className={field} type="email" placeholder="Guest email (for the Send button)" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} />
+                <input className={field} placeholder="Email(s) — separate multiple with commas" value={emails} onChange={(e) => setEmails(e.target.value)} />
               </div>
               <textarea
                 className={cn(field, "mt-3 min-h-24 resize-y")}
@@ -333,7 +335,7 @@ export function OffersView() {
                 <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase", statusBadge(o.status))}>{o.status}</span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-[#1a1a1a]">
-                    {o.guestName || o.guestEmail || "Guest"} · {o.city}
+                    {o.guestName || o.guestEmails?.[0] || "Guest"} · {o.city}
                   </p>
                   <p className="truncate text-xs text-[#717171]">
                     {fmtDate(o.checkIn)} → {fmtDate(o.checkOut)} · {o.hotelIds.length} hotels · {rel(o.createdAt)}
@@ -348,8 +350,8 @@ export function OffersView() {
                   <button onClick={() => copy(o.id)} title="Copy link" className="grid size-8 place-items-center rounded-full hover:bg-black/[0.05]">
                     {copiedId === o.id ? <Check className="size-4 text-[#FF385C]" /> : <Link2 className="size-4 text-[#555]" />}
                   </button>
-                  {o.guestEmail && o.status === "draft" && (
-                    <button onClick={() => send(o.id)} disabled={sendingId === o.id} title={`Email ${o.guestEmail}`} className="grid size-8 place-items-center rounded-full hover:bg-black/[0.05]">
+                  {o.guestEmails && o.guestEmails.length > 0 && o.status === "draft" && (
+                    <button onClick={() => send(o.id)} disabled={sendingId === o.id} title={`Email ${o.guestEmails.length} recipient(s)`} className="grid size-8 place-items-center rounded-full hover:bg-black/[0.05]">
                       {sendingId === o.id ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4 text-[#555]" />}
                     </button>
                   )}
