@@ -93,7 +93,13 @@ function areaBlock(pois: CityPois, city: string): string {
  */
 export async function buildHotelDossier(
   hotel: Hotel,
-  opts: { liveAmenities?: string[]; liveDining?: string[] } = {},
+  opts: {
+    liveAmenities?: string[];
+    liveDining?: string[];
+    liveAttractions?: string[];
+    liveRoomTypes?: { desc: string; features: string[] }[];
+    livePolicies?: string[];
+  } = {},
 ): Promise<HotelDossier> {
   const cacheKey = hotel.sourceHotelId || hotel.id;
   const hit = cache.get(cacheKey);
@@ -109,6 +115,9 @@ export async function buildHotelDossier(
 
   const liveAmenities = opts.liveAmenities ?? info?.amenities ?? [];
   const liveDining = opts.liveDining ?? info?.restaurants ?? [];
+  const liveAttractions = opts.liveAttractions ?? info?.attractions ?? [];
+  const liveRoomTypes = opts.liveRoomTypes ?? info?.roomTypes ?? [];
+  const livePolicies = opts.livePolicies ?? info?.policies ?? [];
   const liveDescription = info?.description;
   const tax = info?.tax;
 
@@ -171,11 +180,17 @@ export async function buildHotelDossier(
     roomsBlock
       ? `\nROOM CATEGORIES (real, from live availability — features only; quote NO price, direct guests to the on-page Rooms section for live dated rates):\n${roomsBlock}`
       : "\nROOM CATEGORIES: pulled live in the on-page Rooms section once dates are set — invite the guest to add their dates there.",
+    liveRoomTypes.length
+      ? `\nROOM / SUITE TYPES & SIZES (real, from the property):\n${liveRoomTypes.map((r) => `- ${r.desc}${r.features.length ? ` (${r.features.slice(0, 4).join(", ")})` : ""}`).join("\n")}`
+      : "",
     liveDining.length ? `\nON-SITE DINING:\n${liveDining.join(", ")}` : "",
     perks.length ? `\nADVISOR-EXCLUSIVE PERKS (complimentary on every WhataHotel booking):\n${perks.join("; ")}` : "",
     distances.length ? `\nDISTANCES / GETTING AROUND:\n${distances.join("; ")}` : "",
+    liveAttractions.length ? `\nNEARBY ATTRACTIONS (real, listed by the property — safe to cite by name):\n${liveAttractions.join(", ")}` : "",
     tax ? `\nTAXES & FEES: ${tax}` : "",
-    "\nPOLICIES (check-in/out, cancellation, deposits, children, pets, extra beds): confirm specifics directly with the hotel unless stated above — do not invent them.",
+    livePolicies.length
+      ? `\nPOLICIES (real, from the property — you MAY state these; for anything not listed here confirm with the hotel):\n${livePolicies.join("\n")}`
+      : "\nPOLICIES (check-in/out, cancellation, deposits, children, pets, extra beds): confirm specifics directly with the hotel unless stated above — do not invent them.",
     pois ? `\n${areaBlock(pois, hotel.city)}` : `\nDESTINATION KNOWLEDGE: use reliable general knowledge of ${hotel.city}, ${hotel.country} for nearby attractions, dining, cafés and the nearest airport — frame specifics as things to confirm.`,
     "\n==== END KNOWLEDGE BASE ====",
   ]

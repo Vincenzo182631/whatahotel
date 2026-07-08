@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft, MapPin, Sparkles, UtensilsCrossed, Check } from "lucide-react";
 import { getLiveHotel, getLiveRates, getHotelInfo } from "@/lib/services/live-rates";
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { ZoomableImage } from "@/components/ui/zoomable-image";
 import { CityMap } from "@/components/hotel/city-map";
 import { StayDatePicker } from "@/components/search/stay-date-picker";
 import { StayBooking } from "@/components/search/stay-booking";
@@ -97,14 +97,14 @@ export default async function StayPage({ params, searchParams }: Params) {
           {[hotel.address, hotel.city, hotel.country].filter(Boolean).join(", ")}
         </p>
 
-        {/* Gallery */}
+        {/* Gallery — all real photos, tap any to zoom */}
         <div className="mt-4 grid gap-2 sm:grid-cols-4 sm:grid-rows-2">
           <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-[#eee] sm:col-span-2 sm:row-span-2 sm:aspect-auto">
-            <ImageWithFallback src={hotel.image} seed={hotel.sourceHotelId} alt={hotel.name} fill sizes="(max-width:640px) 100vw, 550px" className="object-cover" />
+            <ZoomableImage src={hotel.image} seed={hotel.sourceHotelId} alt={hotel.name} sizes="(max-width:640px) 100vw, 550px" />
           </div>
           {gallery.slice(0, 4).map((g, i) => (
             <div key={i} className="relative hidden aspect-[4/3] overflow-hidden rounded-xl bg-[#eee] sm:block">
-              <ImageWithFallback src={g} seed={hotel.sourceHotelId + i} alt="" fill sizes="270px" className="object-cover" />
+              <ZoomableImage src={g} fallbackSrc={hotel.image} seed={`${hotel.sourceHotelId}-${i}`} alt={`${hotel.name} photo ${i + 2}`} sizes="270px" />
             </div>
           ))}
         </div>
@@ -160,6 +160,43 @@ export default async function StayPage({ params, searchParams }: Params) {
                     <li key={r} className="flex gap-2 text-sm text-[#555]">
                       <UtensilsCrossed className="mt-0.5 size-4 shrink-0 text-[#FF385C]/80" strokeWidth={1.5} /> {r}
                     </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {info?.roomTypes && info.roomTypes.length > 0 && (
+              <section>
+                <h2 className="mb-2 text-lg font-semibold">Room &amp; suite types</h2>
+                <ul className="grid gap-1.5 sm:grid-cols-2">
+                  {info.roomTypes.map((r) => (
+                    <li key={r.desc} className="flex gap-2 text-sm text-[#333]">
+                      <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#FF385C]" /> {r.desc}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {info?.attractions && info.attractions.length > 0 && (
+              <section>
+                <h2 className="mb-2 text-lg font-semibold">Nearby</h2>
+                <div className="flex flex-wrap gap-2">
+                  {info.attractions.map((a) => (
+                    <span key={a} className="inline-flex items-center gap-1 rounded-full bg-black/[0.04] px-2.5 py-1 text-xs text-[#555]">
+                      <MapPin className="size-3 text-[#FF385C]/80" strokeWidth={2} /> {a}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {info?.policies && info.policies.length > 0 && (
+              <section>
+                <h2 className="mb-2 text-lg font-semibold">Good to know</h2>
+                <ul className="space-y-1.5">
+                  {info.policies.map((p) => (
+                    <li key={p} className="text-sm leading-snug text-[#717171]">{p}</li>
                   ))}
                 </ul>
               </section>

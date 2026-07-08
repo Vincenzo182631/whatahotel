@@ -43,12 +43,18 @@ export async function POST(req: Request) {
   let hotel: Hotel | null = await hotelDetailsService.getHotelById(hotelId);
   let liveAmenities: string[] | undefined;
   let liveDining: string[] | undefined;
+  let liveAttractions: string[] | undefined;
+  let liveRoomTypes: { desc: string; features: string[] }[] | undefined;
+  let livePolicies: string[] | undefined;
   if (!hotel) {
     const live = await getLiveHotel(hotelId);
     if (live) {
       const info = await getHotelInfo(live.name, live.city);
       liveAmenities = info?.amenities ?? [];
       liveDining = info?.restaurants ?? [];
+      liveAttractions = info?.attractions ?? [];
+      liveRoomTypes = info?.roomTypes ?? [];
+      livePolicies = info?.policies ?? [];
       hotel = {
         id: live.sourceHotelId, name: live.name, city: live.city, destinationKey: "",
         country: live.country, neighborhood: live.address || live.city, shortPitch: "",
@@ -73,7 +79,7 @@ export async function POST(req: Request) {
   // Load the complete knowledge base + the real photo manifest for THIS hotel,
   // and (when dates are known) the prefilled booking links for those dates.
   const [dossier, images, bookings] = await Promise.all([
-    buildHotelDossier(h, { liveAmenities, liveDining }),
+    buildHotelDossier(h, { liveAmenities, liveDining, liveAttractions, liveRoomTypes, livePolicies }),
     buildHotelImageManifest(h).catch(() => []),
     buildBookingManifest(h, checkIn, checkOut).catch(() => []),
   ]);
