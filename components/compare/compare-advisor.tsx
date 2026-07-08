@@ -7,6 +7,7 @@ import { ChatComposer } from "@/components/chat/chat-composer";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { ChatMarkdown } from "@/components/chat/chat-markdown";
 import { useTravelerMemory } from "@/store/traveler-memory-store";
+import { useSpeakReplies } from "@/lib/voice/use-speak-replies";
 
 interface Msg {
   id: string;
@@ -46,6 +47,9 @@ export function CompareAdvisor({
   const learn = useTravelerMemory((s) => s.learn);
   const scrollRef = useRef<HTMLDivElement>(null);
   const started = useRef(false);
+
+  // Read the verdict + answers aloud when the guest has voice on.
+  useSpeakReplies(messages);
 
   const ids = hotels.map((h) => h.id);
 

@@ -12,6 +12,7 @@ import { ResultsCanvas, messageHasResults } from "./results-canvas";
 import { CompareBar } from "./compare-bar";
 import { LeadGate } from "./lead-gate";
 import { useAuth } from "@/hooks/use-auth";
+import { useSpeakReplies } from "@/lib/voice/use-speak-replies";
 
 /** Number of advisor replies before a visitor must sign up to keep going. */
 const FREE_EXCHANGES = 3;
@@ -31,6 +32,9 @@ export function ChatInterface() {
   const { user, isLoading: authLoading } = useAuth();
 
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Read advisor replies aloud when the guest has voice on.
+  useSpeakReplies(messages);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });

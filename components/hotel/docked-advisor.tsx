@@ -7,6 +7,7 @@ import { ChatComposer } from "@/components/chat/chat-composer";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { ChatMarkdown, type ChatImage, type ChatBooking, type ChatHotelCard } from "@/components/chat/chat-markdown";
 import { answerHotelQuestion, DOCKED_SUGGESTIONS } from "@/lib/chat/hotel-qa";
+import { useSpeakReplies } from "@/lib/voice/use-speak-replies";
 import { useTravelDates } from "@/store/travel-dates-store";
 import { useTravelerMemory } from "@/store/traveler-memory-store";
 import type { Hotel } from "@/lib/services/types";
@@ -38,6 +39,9 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const restored = useRef(false);
   const threadKey = `wah-thread:${hotel.id}`;
+
+  // Read advisor replies aloud when the guest has voice on.
+  useSpeakReplies(messages);
 
   // A preview card of THIS property the advisor can drop in with `[hotel]`.
   const hotelCard = {
