@@ -45,24 +45,17 @@ export default async function StayPage({ params, searchParams }: Params) {
   const perks = hotel.perks.length ? hotel.perks : info ? [] : [];
   const gallery = hotel.gallery.filter((g) => g !== hotel.image).slice(0, 6);
 
-  // Room photos: the source reuses the same photo set for every room, so pool the
-  // distinct room photos once and give each room the full pool ROTATED. That way
-  // each room's thumbnail differs, and tapping any room opens a zoomable gallery
-  // of all the room photos. Falls back to the raw room images if the pool is empty.
-  const roomPhotoPool = [
-    ...new Set((rates?.rooms ?? []).flatMap((r) => r.images ?? (r.image ? [r.image] : [])).filter(Boolean)),
-  ];
-  const roomsForBooking = (rates?.rooms ?? []).map((r, i) => {
-    const own = (r.images ?? (r.image ? [r.image] : [])).filter(Boolean);
-    const source = roomPhotoPool.length ? roomPhotoPool : own;
-    const off = source.length ? i % source.length : 0;
-    const rotated = source.length ? [...source.slice(off), ...source.slice(0, off)] : own;
+  // Each room category shows only ITS OWN photos (2–5 per room, as the source
+  // provides) — not a pooled hotel-wide gallery. Tapping a room zooms just that
+  // category's photos.
+  const roomsForBooking = (rates?.rooms ?? []).map((r) => {
+    const own = [...new Set((r.images ?? (r.image ? [r.image] : [])).filter(Boolean))];
     return {
       name: r.name,
       nightly: r.nightly,
       currency: r.currency,
-      image: rotated[0] ?? r.image,
-      images: rotated,
+      image: own[0] ?? r.image,
+      images: own,
       bookingURL: r.bookingURL,
     };
   });
