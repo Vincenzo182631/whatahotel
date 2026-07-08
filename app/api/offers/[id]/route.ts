@@ -63,10 +63,17 @@ export async function POST(req: Request, { params }: Ctx) {
   });
 
   if (!sent.ok) {
-    return NextResponse.json(
-      { error: sent.error ? `Couldn't send: ${sent.error}` : "Couldn't send the email — try again." },
-      { status: 502 },
-    );
+    const raw = sent.error || "";
+    // Resend's most common setup snag: on an unverified account it only delivers
+    // to the account's own signup email. Translate the raw API error into a clear,
+    // actionable message instead of dumping the technical string on the agent.
+    const testMode = /only send testing emails|verify a domain/i.test(raw);
+    const message = testMode
+      ? "Resend is still in test mode — it can only email your own Resend account address until you verify a sending domain. To email real guests, verify your domain at resend.com/domains and set EMAIL_FROM to an address on it. (For now, Copy the link and send it yourself.)"
+      : raw
+        ? `Couldn't send: ${raw}`
+        : "Couldn't send the email — try again.";
+    return NextResponse.json({ error: message }, { status: 502 });
   }
   const updated = await markOfferSent(id);
   return NextResponse.json({ ok: true, offer: updated });
