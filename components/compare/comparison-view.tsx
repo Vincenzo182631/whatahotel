@@ -4,7 +4,6 @@ import { Star, MapPin, Check, Sparkles, ArrowUpRight, UtensilsCrossed } from "lu
 import { hotelDetailsService } from "@/lib/services";
 import { getLiveRates, getHotelInfo, getLiveHotel, type HotelInfo } from "@/lib/services/live-rates";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { ZoomableImage } from "@/components/ui/zoomable-image";
 import { CompareAdvisor } from "@/components/compare/compare-advisor";
 import { formatCurrency, cn } from "@/lib/utils";
@@ -24,7 +23,14 @@ interface Col {
   currency: string;
   entryNightly: number;
   total: number;
-  rooms: { name: string; nightly: number; currency: string; image?: string }[];
+  rooms: {
+    name: string;
+    nightly: number;
+    currency: string;
+    image?: string;
+    bedType?: string;
+    description?: string;
+  }[];
   perks: AdvisorPerk[];
   info: HotelInfo | null;
 }
@@ -178,19 +184,25 @@ export async function ComparisonView({
       label: "Room categories",
       cell: (c) =>
         c.rooms.length ? (
-          <ul className="space-y-1.5">
-            {c.rooms.slice(0, 6).map((r) => (
-              <li key={r.name} className="flex items-center justify-between gap-2 text-sm">
-                <span className="flex min-w-0 items-center gap-2 text-[#222]">
-                  <span className="relative size-9 shrink-0 overflow-hidden rounded-md bg-[#eee]">
-                    <ZoomableImage src={r.image} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} sizes="36px" hint={false} />
-                  </span>
-                  <span className="truncate">{r.name}</span>
+          <ul className="space-y-3">
+            {c.rooms.slice(0, 8).map((r) => (
+              <li key={r.name} className="flex gap-2.5">
+                <span className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#eee]">
+                  <ZoomableImage src={r.image} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} sizes="96px" />
                 </span>
-                <span className="shrink-0 font-medium text-[#717171]">{formatCurrency(r.nightly, r.currency)}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-[13px] font-medium leading-snug text-[#222]">{r.name}</span>
+                    <span className="shrink-0 text-xs font-semibold text-[#717171]">{formatCurrency(r.nightly, r.currency)}</span>
+                  </div>
+                  {r.bedType && <p className="text-[11px] text-[#9a9a9a]">{r.bedType}</p>}
+                  {r.description && (
+                    <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-[#717171]">{r.description}</p>
+                  )}
+                </div>
               </li>
             ))}
-            {c.rooms.length > 6 && <li className="text-xs text-[#9a9a9a]">+ {c.rooms.length - 6} more categories</li>}
+            {c.rooms.length > 8 && <li className="text-xs text-[#9a9a9a]">+ {c.rooms.length - 8} more room categories</li>}
           </ul>
         ) : (
           <span className="text-sm text-[#9a9a9a]">Room categories shown at booking</span>
@@ -414,15 +426,30 @@ export async function ComparisonView({
           }}
         >
           <div />
-          {cols.map((c) => (
-            <div key={c.hotel.id} className="px-4 pb-4">
-              <div className="relative mb-3 h-28 w-full overflow-hidden rounded-xl">
-                <ImageWithFallback src={c.hotel.image} seed={c.hotel.id} alt={c.hotel.name} fill sizes="320px" className="object-cover" />
+          {cols.map((c) => {
+            const photos = [...new Set([c.hotel.image, ...(c.hotel.gallery ?? [])].filter(Boolean))].slice(0, 12);
+            return (
+              <div key={c.hotel.id} className="px-4 pb-4">
+                {/* Swipeable photo gallery — all real hotel images, tap to zoom */}
+                <div className="no-scrollbar mb-1.5 flex snap-x snap-mandatory gap-2 overflow-x-auto">
+                  {(photos.length ? photos : [c.hotel.image]).map((src, i) => (
+                    <span
+                      key={i}
+                      className="relative aspect-[4/3] shrink-0 snap-start overflow-hidden rounded-xl bg-[#eee]"
+                      style={{ width: "100%" }}
+                    >
+                      <ZoomableImage src={src} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-g${i}`} alt={`${c.hotel.name} photo ${i + 1}`} sizes="(max-width:768px) 90vw, 300px" />
+                    </span>
+                  ))}
+                </div>
+                {photos.length > 1 && (
+                  <p className="mb-2 text-[10px] text-[#9a9a9a]">{photos.length} photos · swipe & tap to zoom</p>
+                )}
+                {c.hotel.brand && <p className="text-[10px] uppercase tracking-wider text-[#FF385C]">{c.hotel.brand}</p>}
+                <p className="text-base font-semibold leading-tight">{c.hotel.name}</p>
               </div>
-              {c.hotel.brand && <p className="text-[10px] uppercase tracking-wider text-[#FF385C]">{c.hotel.brand}</p>}
-              <p className="text-base font-semibold leading-tight">{c.hotel.name}</p>
-            </div>
-          ))}
+            );
+          })}
 
           {visibleRows.map((row) => (
             <div key={row.key} className="contents">

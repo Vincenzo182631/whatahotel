@@ -30,6 +30,8 @@ export interface LiveRoom {
   total: number;
   currency: string;
   image?: string;
+  /** All real photos of this room type (first is `image`). */
+  images?: string[];
   /** Deep link to the WhataHotel booking form, prefilled with this exact room,
    *  rate, dates and guests. Present only for live dated fetches. */
   bookingURL?: string;
@@ -162,6 +164,7 @@ export async function getLiveRates(params: {
         total: num(r.rateTotal) || nightly * nights,
         currency: (r.currency || "USD").toUpperCase(),
         image: (r.images ?? []).map((i) => i.imgFile?.trim()).find(Boolean) || undefined,
+        images: [...new Set((r.images ?? []).map((i) => i.imgFile?.trim()).filter((u): u is string => Boolean(u)))],
         // Prefilled booking-form deep link (room + rate + dates + guests).
         bookingURL: r.bookingURL?.trim() || undefined,
       };
