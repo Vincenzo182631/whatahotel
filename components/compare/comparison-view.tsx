@@ -4,7 +4,6 @@ import { Star, MapPin, Check, Sparkles, ArrowUpRight, UtensilsCrossed } from "lu
 import { hotelDetailsService } from "@/lib/services";
 import { getLiveRates, getHotelInfo, getLiveHotel, type HotelInfo } from "@/lib/services/live-rates";
 import { usdPerUnit } from "@/lib/services/fx";
-import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { HotelGallery } from "@/components/ui/hotel-gallery";
 import { CompareAdvisor } from "@/components/compare/compare-advisor";
 import { formatCurrency, cn, formatDate } from "@/lib/utils";
@@ -312,36 +311,6 @@ export async function ComparisonView({
       ),
     },
     {
-      key: "amenities",
-      label: "Amenities",
-      visible: cols.some((c) => c.hotel.amenities.length || c.info?.amenities.length),
-      cell: (c) => {
-        const real = c.info?.amenities ?? [];
-        if (real.length) {
-          return (
-            <div className="flex flex-wrap gap-1.5">
-              {real.slice(0, 12).map((a) => (
-                <span key={a} className="inline-flex items-center gap-1 rounded-full bg-black/[0.04] px-2 py-0.5 text-[11px] text-[#555]">
-                  <Check className="size-3 text-[#FF385C]/80" strokeWidth={2} /> {a}
-                </span>
-              ))}
-              {real.length > 12 && <span className="text-[11px] text-[#9a9a9a]">+{real.length - 12} more</span>}
-            </div>
-          );
-        }
-        return (
-          <div className="flex flex-wrap gap-1.5">
-            {c.hotel.amenities.map((k) => AMENITY_META[k]).filter(Boolean).slice(0, 8).map((m) => (
-              <span key={m.label} className="inline-flex items-center gap-1 rounded-full bg-black/[0.04] px-2 py-0.5 text-[11px] text-[#555]">
-                <m.icon className="size-3 text-[#FF385C]/80" strokeWidth={1.5} /> {m.label}
-              </span>
-            ))}
-            {!c.hotel.amenities.length && <span className="text-sm text-[#9a9a9a]">—</span>}
-          </div>
-        );
-      },
-    },
-    {
       key: "dining",
       label: "Dining",
       visible: cols.some((c) => c.info?.restaurants.length),
@@ -371,23 +340,6 @@ export async function ComparisonView({
               </span>
             ))}
           </div>
-        ) : (
-          <span className="text-sm text-[#9a9a9a]">—</span>
-        ),
-    },
-    {
-      key: "roomtypes",
-      label: "Room types & sizes",
-      visible: cols.some((c) => c.info?.roomTypes.length),
-      cell: (c) =>
-        c.info?.roomTypes.length ? (
-          <ul className="space-y-1 text-xs leading-snug text-[#555]">
-            {c.info.roomTypes.map((r) => (
-              <li key={r.desc} className="flex gap-1.5">
-                <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#FF385C]" /> {r.desc}
-              </li>
-            ))}
-          </ul>
         ) : (
           <span className="text-sm text-[#9a9a9a]">—</span>
         ),
