@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BedDouble, CalendarDays, Check, Loader2 } from "lucide-react";
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { RoomGallery } from "@/components/ui/room-gallery";
 import { useAuth } from "@/hooks/use-auth";
 import { cn, formatCurrency } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ interface Room {
   nightly: number;
   currency: string;
   image?: string;
+  images?: string[];
   bookingURL?: string;
 }
 
@@ -149,39 +150,46 @@ export function StayBooking({
       <ul className="no-scrollbar max-h-[440px] space-y-2 overflow-y-auto pr-1">
         {rooms.map((r) => {
           const sel = r.name === roomName;
+          const photos = r.images?.length ? r.images : r.image ? [r.image] : [];
           return (
             <li key={r.name}>
-              <button
-                type="button"
-                onClick={() => setRoomName(r.name)}
-                aria-pressed={sel}
+              <div
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-xl border p-2 text-left text-sm transition-colors",
+                  "flex w-full items-center gap-3 rounded-xl border p-2 text-sm transition-colors",
                   sel
                     ? "border-[#FF385C] bg-[#FF385C]/[0.05]"
                     : "border-transparent bg-[#f7f7f7] hover:border-[#DDDDDD]",
                 )}
               >
-                {r.image ? (
+                {/* Thumbnail — tap to zoom / browse the room's photos. */}
+                {photos.length > 0 ? (
                   <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-[#eee]">
-                    <ImageWithFallback src={r.image} seed={r.name} alt={r.name} fill sizes="56px" className="object-cover" />
+                    <RoomGallery images={photos} fallbackSrc={image} seed={r.name} alt={r.name} />
                   </div>
                 ) : (
                   <span className="grid size-14 shrink-0 place-items-center rounded-lg bg-[#eee] text-[#FF385C]/70">
                     <BedDouble className="size-5" strokeWidth={1.5} />
                   </span>
                 )}
-                <span className="min-w-0 flex-1 truncate">{r.name}</span>
-                <span className="shrink-0 font-semibold">{formatCurrency(r.nightly, r.currency)}</span>
-                <span
-                  className={cn(
-                    "grid size-5 shrink-0 place-items-center rounded-full border",
-                    sel ? "border-[#FF385C] bg-[#FF385C] text-white" : "border-[#DDDDDD]",
-                  )}
+                {/* Text + price — tap to select this room. */}
+                <button
+                  type="button"
+                  onClick={() => setRoomName(r.name)}
+                  aria-pressed={sel}
+                  className="flex min-w-0 flex-1 items-center gap-3 text-left"
                 >
-                  {sel && <Check className="size-3.5" strokeWidth={3} />}
-                </span>
-              </button>
+                  <span className="min-w-0 flex-1 truncate">{r.name}</span>
+                  <span className="shrink-0 font-semibold">{formatCurrency(r.nightly, r.currency)}</span>
+                  <span
+                    className={cn(
+                      "grid size-5 shrink-0 place-items-center rounded-full border",
+                      sel ? "border-[#FF385C] bg-[#FF385C] text-white" : "border-[#DDDDDD]",
+                    )}
+                  >
+                    {sel && <Check className="size-3.5" strokeWidth={3} />}
+                  </span>
+                </button>
+              </div>
             </li>
           );
         })}
