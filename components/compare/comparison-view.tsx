@@ -123,6 +123,17 @@ async function buildCol(hotel: Hotel, checkIn: string, checkOut: string, nights:
     if (r.perks.length) col.perks = r.perks;
   }
   col.info = info;
+  // De-redundant the room photos: the source repeats the hotel's generic images
+  // in every room set and reuses the same room-type shots across rooms. Drop any
+  // photo that's in the hotel gallery, and never let an image appear on two rooms
+  // — so each room shows only its own distinct pictures (or none → hotel photo).
+  const hotelPhotos = new Set([hotel.image, ...(hotel.gallery ?? [])].filter(Boolean));
+  const seenRoomPhotos = new Set<string>();
+  col.rooms = col.rooms.map((rm) => {
+    const unique = [...new Set((rm.images ?? []).filter((u) => u && !hotelPhotos.has(u) && !seenRoomPhotos.has(u)))];
+    unique.forEach((u) => seenRoomPhotos.add(u));
+    return { ...rm, images: unique, image: unique[0] || undefined };
+  });
   if (col.currency && col.currency.toUpperCase() !== "USD") {
     const rate = await usdPerUnit(col.currency).catch(() => null);
     if (rate) col.usdRate = rate;
@@ -136,13 +147,19 @@ function usdApprox(c: Col, amount: number): string | null {
   return `≈ ${formatCurrency(Math.round(amount * c.usdRate), "USD")}`;
 }
 
-/** One room row (image + name + price + USD + bed type + description). */
+/** One room row (its own photos when distinct + name + price + USD + bed + description). */
 function roomLi(c: Col, r: Col["rooms"][number]) {
+  // The source reuses the same shots across every room, so we only keep a photo
+  // when it's genuinely this room's own (deduped in buildCol). No distinct photo
+  // → text-only row, rather than repeating the generic hotel picture 20×.
+  const photos = r.images ?? [];
   return (
     <li key={r.name} className="flex gap-2.5">
-      <span className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#eee]">
-        <RoomGallery images={r.images ?? (r.image ? [r.image] : [])} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} />
-      </span>
+      {photos.length > 0 && (
+        <span className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#eee]">
+          <RoomGallery images={photos} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-${r.name}`} alt={r.name} />
+        </span>
+      )}
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <span className="text-[13px] font-medium leading-snug text-[#222]">{r.name}</span>
