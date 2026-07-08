@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Star, MapPin, Check, Sparkles, ArrowUpRight, UtensilsCrossed } from "lucide-react";
 import { hotelDetailsService } from "@/lib/services";
 import { getLiveRates, getHotelInfo, getLiveHotel, type HotelInfo } from "@/lib/services/live-rates";
+import { usdPerUnit } from "@/lib/services/fx";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { ZoomableImage } from "@/components/ui/zoomable-image";
 import { CompareAdvisor } from "@/components/compare/compare-advisor";
@@ -73,6 +74,8 @@ interface Col {
   hotel: Hotel;
   live: boolean;
   currency: string;
+  /** USD per 1 unit of `currency`, when it isn't USD — for an approx conversion. */
+  usdRate?: number;
   entryNightly: number;
   total: number;
   rooms: {
@@ -118,7 +121,17 @@ async function buildCol(hotel: Hotel, checkIn: string, checkOut: string, nights:
     if (r.perks.length) col.perks = r.perks;
   }
   col.info = info;
+  if (col.currency && col.currency.toUpperCase() !== "USD") {
+    const rate = await usdPerUnit(col.currency).catch(() => null);
+    if (rate) col.usdRate = rate;
+  }
   return col;
+}
+
+/** "≈ $1,234" when the column's currency isn't USD (approximate conversion). */
+function usdApprox(c: Col, amount: number): string | null {
+  if (!c.usdRate || !amount) return null;
+  return `≈ ${formatCurrency(Math.round(amount * c.usdRate), "USD")}`;
 }
 
 /** Resolve an id to a Hotel — local slug via the catalogue, else a live id. */
@@ -216,9 +229,12 @@ export async function ComparisonView({
               {formatCurrency(c.entryNightly, c.currency)}
               <span className="ml-1 text-xs font-normal text-[#717171]">/night</span>
             </div>
+            {usdApprox(c, c.entryNightly) && (
+              <div className="text-xs text-[#717171]">{usdApprox(c, c.entryNightly)} / night</div>
+            )}
             {nights > 0 && (
               <div className="mt-1 text-xs text-[#717171]">
-                {formatCurrency(c.total, c.currency)} total · {nights} night{nights > 1 ? "s" : ""}
+                {formatCurrency(c.total, c.currency)} total{usdApprox(c, c.total) ? ` (${usdApprox(c, c.total)})` : ""} · {nights} night{nights > 1 ? "s" : ""}
               </div>
             )}
             <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-[#FF385C]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FF385C]">
@@ -245,7 +261,10 @@ export async function ComparisonView({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-[13px] font-medium leading-snug text-[#222]">{r.name}</span>
-                    <span className="shrink-0 text-xs font-semibold text-[#717171]">{formatCurrency(r.nightly, r.currency)}</span>
+                    <span className="shrink-0 text-right">
+                      <span className="block text-xs font-semibold text-[#717171]">{formatCurrency(r.nightly, r.currency)}</span>
+                      {usdApprox(c, r.nightly) && <span className="block text-[10px] text-[#9a9a9a]">{usdApprox(c, r.nightly)}</span>}
+                    </span>
                   </div>
                   {r.bedType && <p className="text-[11px] text-[#9a9a9a]">{r.bedType}</p>}
                   {r.description && (
