@@ -37,7 +37,8 @@ export function stopSpeaking(): void {
   releaseUrl();
 }
 
-async function playOpenAI(
+async function playRemote(
+  provider: "openai" | "elevenlabs",
   text: string,
   voice: string,
   onEnd?: () => void,
@@ -50,7 +51,7 @@ async function playOpenAI(
     const res = await fetch("/api/tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: clean, voice }),
+      body: JSON.stringify({ text: clean, voice, provider }),
     });
     if (!res.ok) return false;
     const blob = await res.blob();
@@ -71,7 +72,7 @@ async function playOpenAI(
 
 interface SpeakOpts {
   provider?: VoiceProvider;
-  voice?: string; // openai voice id
+  voice?: string; // openai / elevenlabs voice id
   voiceURI?: string; // browser voice uri
   onStart?: () => void;
   onEnd?: () => void;
@@ -86,10 +87,11 @@ export async function speakText(text: string, opts: SpeakOpts = {}): Promise<voi
   const provider = opts.provider ?? st.provider;
   stopSpeaking();
 
-  if (provider === "openai") {
-    const ok = await playOpenAI(text, opts.voice ?? st.openaiVoice, opts.onEnd, opts.onStart);
+  if (provider === "openai" || provider === "elevenlabs") {
+    const voice = opts.voice ?? (provider === "elevenlabs" ? st.elevenVoice : st.openaiVoice);
+    const ok = await playRemote(provider, text, voice, opts.onEnd, opts.onStart);
     if (ok) return;
-    // fall through to browser voice on any OpenAI failure
+    // fall through to the free browser voice on any remote failure
   }
 
   if (ttsSupported()) {

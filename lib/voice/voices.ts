@@ -24,6 +24,30 @@ export const OPENAI_VOICES: OpenAiVoice[] = [
 
 export const DEFAULT_OPENAI_VOICE = "nova";
 
+/**
+ * ElevenLabs premium voices (their built-in "premade" library — available on
+ * any paid ElevenLabs plan). ids are ElevenLabs voice_ids. Curated for a luxury
+ * travel advisor; add your own cloned voice here later by dropping in its id.
+ */
+export interface ElevenVoice {
+  id: string;
+  label: string;
+  blurb: string;
+}
+
+export const ELEVEN_VOICES: ElevenVoice[] = [
+  { id: "XB0fDUnXU5powFXDhCwa", label: "Charlotte", blurb: "Elegant, warm (default)" },
+  { id: "Xb7hH8MSUJpSbSDYk0k2", label: "Alice", blurb: "Clear, professional (British)" },
+  { id: "pFZP5JQG7iQjIQuC4Bku", label: "Lily", blurb: "Warm, gentle (British)" },
+  { id: "XrExE9yKIg1WjnnlVkGX", label: "Matilda", blurb: "Friendly, approachable" },
+  { id: "21m00Tcm4TlvDq8ikWAM", label: "Rachel", blurb: "Calm, refined narration" },
+  { id: "EXAVITQu4vr4xnSDxMaL", label: "Sarah", blurb: "Soft, poised" },
+  { id: "JBFqnCBsd6RMkjVDRzzb", label: "George", blurb: "Warm, gracious (British male)" },
+  { id: "onwK4e9ZLuTAKqWW03F9", label: "Daniel", blurb: "Authoritative (British male)" },
+];
+
+export const DEFAULT_ELEVEN_VOICE = "XB0fDUnXU5powFXDhCwa"; // Charlotte
+
 /** A short line used to preview a voice in the picker. */
 export const VOICE_SAMPLE =
   "Hi, I'm your WhataHotel travel advisor. I can help you compare hotels and plan the perfect stay.";
