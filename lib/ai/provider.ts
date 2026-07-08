@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { parseMessage } from "@/lib/services/conversation-memory";
-import { DESTINATIONS } from "@/lib/services/mock-data";
+import { DESTINATIONS, resolveDestination } from "@/lib/services/mock-data";
 import type { SearchCriteria } from "@/lib/services/types";
 import { ADVISOR_SYSTEM_PROMPT, summarizeCriteria } from "./system-prompt";
 import { composeReply } from "./advisor-voice";
@@ -113,15 +113,17 @@ export async function extractCriteriaPatch(
     const merged = { ...base, ...pruneUndefined(object) } as Partial<SearchCriteria>;
 
     // Normalize the LLM's destination. Known cities → canonical key + label.
-    // Unknown cities are kept as a label only (no key) so the advisor can search
-    // them live via the WhataHotel API instead of giving up.
+    // Match by exact key first, then by alias (so "New York City", "Manhattan",
+    // "NYC" all resolve to the "newyork" key). Unknown cities are kept as a label
+    // only (no key) so the advisor searches them live via the WhataHotel API.
     if (merged.destination) {
-      const key = merged.destination.toLowerCase();
-      if (DESTINATIONS[key]) {
-        merged.destination = key;
-        merged.destinationLabel = DESTINATIONS[key].label;
+      const raw = merged.destination.trim();
+      const key = raw.toLowerCase();
+      const resolved = DESTINATIONS[key] ? key : resolveDestination(raw);
+      if (resolved && DESTINATIONS[resolved]) {
+        merged.destination = resolved;
+        merged.destinationLabel = DESTINATIONS[resolved].label;
       } else if (!base.destination) {
-        const raw = merged.destination.trim();
         merged.destination = undefined;
         merged.destinationLabel = raw
           .split(/\s+/)
