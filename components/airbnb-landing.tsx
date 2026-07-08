@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart, Menu, Scale, Sparkles } from "lucide-react";
@@ -86,41 +86,43 @@ export function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
   );
 }
 
-// Rotating example prompts — 5 batches that cycle so the homepage feels alive.
-const SUGGESTION_BATCHES: string[][] = [
+// Rotating example prompts. Each of the 5 pill slots cycles through its OWN list
+// (a column), and only one pill changes at a time — so they flip individually,
+// not all together, for a livelier feel.
+const PILL_COLUMNS: string[][] = [
   [
     "Best 5-star hotels in Tokyo for a honeymoon",
-    "Family-friendly beach resorts in Dubai",
-    "Compare the top hotels in Bali",
-    "Boutique hotels in Paris near the Louvre",
-    "Overwater villas in the Maldives",
-  ],
-  [
     "Ski-in ski-out lodges in Aspen",
-    "Rooftop-pool hotels in Bangkok",
-    "Compare luxury riads in Marrakech",
-    "Beachfront resorts in Phuket for a family",
-    "Design hotels in Copenhagen",
-  ],
-  [
     "Safari lodges near the Serengeti",
-    "Best-value 5-star hotels in Lisbon",
-    "Compare oceanfront resorts in Maui",
-    "Grand palace hotels in Rome",
-    "All-inclusive resorts in Cancún",
-  ],
-  [
     "Honeymoon suites in Santorini",
-    "Wellness & spa hotels in Bali",
-    "Compare the top hotels in New York City",
-    "Boutique stays on the Amalfi Coast",
-    "Private-pool villas in Phuket",
+    "Luxury tented camps in Jaisalmer",
   ],
   [
-    "Luxury tented camps in Jaisalmer",
+    "Family-friendly beach resorts in Dubai",
+    "Rooftop-pool hotels in Bangkok",
+    "Best-value 5-star hotels in Lisbon",
+    "Wellness & spa hotels in Bali",
     "Best business hotels in Singapore",
+  ],
+  [
+    "Compare the top hotels in Bali",
+    "Compare luxury riads in Marrakech",
+    "Compare oceanfront resorts in Maui",
+    "Compare the top hotels in New York City",
     "Compare beach resorts in the Maldives",
+  ],
+  [
+    "Boutique hotels in Paris near the Louvre",
+    "Beachfront resorts in Phuket for a family",
+    "Grand palace hotels in Rome",
+    "Boutique stays on the Amalfi Coast",
     "Charming hotels in Kyoto near the temples",
+  ],
+  [
+    "Overwater villas in the Maldives",
+    "Design hotels in Copenhagen",
+    "All-inclusive resorts in Cancún",
+    "Private-pool villas in Phuket",
     "Ocean-view suites in Cape Town",
   ],
 ];
@@ -131,11 +133,22 @@ export function AirbnbLanding() {
   const send = useConversation((s) => s.send);
   const isStreaming = useConversation((s) => s.isStreaming);
   const [compareOpen, setCompareOpen] = useState(false);
-  const [batch, setBatch] = useState(0);
+  // Each pill slot's current index into its column. Start staggered so the row
+  // looks varied from the first paint.
+  const [pillIdx, setPillIdx] = useState<number[]>([0, 1, 2, 3, 4]);
+  const tick = useRef(0);
 
-  // Cycle the example prompts through the 5 batches.
+  // Every ~1.8s, advance ONE pill (round-robin) so they change one at a time.
   useEffect(() => {
-    const iv = setInterval(() => setBatch((b) => (b + 1) % SUGGESTION_BATCHES.length), 5000);
+    const iv = setInterval(() => {
+      setPillIdx((cur) => {
+        const slot = tick.current % PILL_COLUMNS.length;
+        tick.current += 1;
+        const next = [...cur];
+        next[slot] = (next[slot] + 1) % PILL_COLUMNS[slot].length;
+        return next;
+      });
+    }, 1800);
     return () => clearInterval(iv);
   }, []);
 
@@ -216,29 +229,29 @@ export function AirbnbLanding() {
             />
           </div>
 
-          {/* Example prompts — rotate through the batches */}
-          <div className="mt-5 min-h-[3.5rem]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={batch}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.35 }}
-                className="flex flex-wrap justify-center gap-2"
-              >
-                {SUGGESTION_BATCHES[batch].map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => !isStreaming && send(s)}
+          {/* Example prompts — each pill flips on its own; height is reserved so
+              the page below never shifts when a pill changes. */}
+          <div className="mx-auto mt-5 flex min-h-[4.5rem] max-w-xl flex-wrap content-center items-center justify-center gap-2">
+            {PILL_COLUMNS.map((col, i) => {
+              const text = col[pillIdx[i]];
+              return (
+                <AnimatePresence key={i} mode="popLayout" initial={false}>
+                  <motion.button
+                    key={text}
+                    layout
+                    initial={{ opacity: 0, y: 8, scale: 0.94 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.94 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    onClick={() => !isStreaming && send(text)}
                     disabled={isStreaming}
                     className="rounded-full border border-[#EBEBEB] bg-white px-3.5 py-1.5 text-xs text-[#555] transition-colors hover:border-[#DDDDDD] hover:text-[#222] disabled:opacity-50"
                   >
-                    {s}
-                  </button>
-                ))}
-              </motion.div>
-            </AnimatePresence>
+                    {text}
+                  </motion.button>
+                </AnimatePresence>
+              );
+            })}
           </div>
 
           {/* Secondary: side-by-side compare wizard */}
