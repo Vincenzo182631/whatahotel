@@ -45,17 +45,16 @@ export default async function StayPage({ params, searchParams }: Params) {
   const perks = hotel.perks.length ? hotel.perks : info ? [] : [];
   const gallery = hotel.gallery.filter((g) => g !== hotel.image).slice(0, 6);
 
-  // Each room category shows only ITS OWN photos (2–5 per room, as the source
-  // provides) — not a pooled hotel-wide gallery. Tapping a room zooms just that
-  // category's photos.
+  // One real photo per room category (its own primary image) — tap it to zoom.
   const roomsForBooking = (rates?.rooms ?? []).map((r) => {
     const own = [...new Set((r.images ?? (r.image ? [r.image] : [])).filter(Boolean))];
+    const primary = own[0] ?? r.image;
     return {
       name: r.name,
       nightly: r.nightly,
       currency: r.currency,
-      image: own[0] ?? r.image,
-      images: own,
+      image: primary,
+      images: primary ? [primary] : [],
       bookingURL: r.bookingURL,
     };
   });
