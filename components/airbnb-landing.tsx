@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import { Heart, Menu, Scale, Sparkles } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { ChatComposer } from "@/components/chat/chat-composer";
@@ -85,12 +86,43 @@ export function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
   );
 }
 
-const SUGGESTIONS = [
-  "Best 5-star hotels in Tokyo for a honeymoon",
-  "Family-friendly beach resorts in Dubai",
-  "Compare the top hotels in Bali",
-  "Boutique hotels in Paris near the Louvre",
-  "Overwater villas in the Maldives",
+// Rotating example prompts — 5 batches that cycle so the homepage feels alive.
+const SUGGESTION_BATCHES: string[][] = [
+  [
+    "Best 5-star hotels in Tokyo for a honeymoon",
+    "Family-friendly beach resorts in Dubai",
+    "Compare the top hotels in Bali",
+    "Boutique hotels in Paris near the Louvre",
+    "Overwater villas in the Maldives",
+  ],
+  [
+    "Ski-in ski-out lodges in Aspen",
+    "Rooftop-pool hotels in Bangkok",
+    "Compare luxury riads in Marrakech",
+    "Beachfront resorts in Phuket for a family",
+    "Design hotels in Copenhagen",
+  ],
+  [
+    "Safari lodges near the Serengeti",
+    "Best-value 5-star hotels in Lisbon",
+    "Compare oceanfront resorts in Maui",
+    "Grand palace hotels in Rome",
+    "All-inclusive resorts in Cancún",
+  ],
+  [
+    "Honeymoon suites in Santorini",
+    "Wellness & spa hotels in Bali",
+    "Compare the top hotels in New York City",
+    "Boutique stays on the Amalfi Coast",
+    "Private-pool villas in Phuket",
+  ],
+  [
+    "Luxury tented camps in Jaisalmer",
+    "Best business hotels in Singapore",
+    "Compare beach resorts in the Maldives",
+    "Charming hotels in Kyoto near the temples",
+    "Ocean-view suites in Cape Town",
+  ],
 ];
 
 export function AirbnbLanding() {
@@ -99,6 +131,13 @@ export function AirbnbLanding() {
   const send = useConversation((s) => s.send);
   const isStreaming = useConversation((s) => s.isStreaming);
   const [compareOpen, setCompareOpen] = useState(false);
+  const [batch, setBatch] = useState(0);
+
+  // Cycle the example prompts through the 5 batches.
+  useEffect(() => {
+    const iv = setInterval(() => setBatch((b) => (b + 1) % SUGGESTION_BATCHES.length), 5000);
+    return () => clearInterval(iv);
+  }, []);
 
   return (
     <div className="flex min-h-dvh flex-col bg-white text-[#222]">
@@ -177,18 +216,29 @@ export function AirbnbLanding() {
             />
           </div>
 
-          {/* Example prompts */}
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
-            {SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                onClick={() => !isStreaming && send(s)}
-                disabled={isStreaming}
-                className="rounded-full border border-[#EBEBEB] bg-white px-3.5 py-1.5 text-xs text-[#555] transition-colors hover:border-[#DDDDDD] hover:text-[#222] disabled:opacity-50"
+          {/* Example prompts — rotate through the batches */}
+          <div className="mt-5 min-h-[3.5rem]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={batch}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.35 }}
+                className="flex flex-wrap justify-center gap-2"
               >
-                {s}
-              </button>
-            ))}
+                {SUGGESTION_BATCHES[batch].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => !isStreaming && send(s)}
+                    disabled={isStreaming}
+                    className="rounded-full border border-[#EBEBEB] bg-white px-3.5 py-1.5 text-xs text-[#555] transition-colors hover:border-[#DDDDDD] hover:text-[#222] disabled:opacity-50"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           {/* Secondary: side-by-side compare wizard */}
