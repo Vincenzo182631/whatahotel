@@ -288,6 +288,41 @@ export async function ComparisonView({
         ),
     },
     {
+      key: "nearby",
+      label: "Nearby",
+      visible: cols.some((c) => c.info?.attractions.length),
+      cell: (c) =>
+        c.info?.attractions.length ? (
+          <div className="flex flex-wrap gap-1.5">
+            {c.info.attractions.slice(0, 6).map((a) => (
+              <span key={a} className="inline-flex items-center gap-1 rounded-full bg-black/[0.04] px-2 py-0.5 text-[11px] text-[#555]">
+                <MapPin className="size-3 text-[#FF385C]/80" strokeWidth={2} /> {a}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <span className="text-sm text-[#9a9a9a]">—</span>
+        ),
+    },
+    {
+      key: "roomtypes",
+      label: "Room types & sizes",
+      visible: cols.some((c) => c.info?.roomTypes.length),
+      cell: (c) =>
+        c.info?.roomTypes.length ? (
+          <ul className="space-y-1 text-xs leading-snug text-[#555]">
+            {c.info.roomTypes.slice(0, 6).map((r) => (
+              <li key={r.desc} className="flex gap-1.5">
+                <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#FF385C]" /> {r.desc}
+              </li>
+            ))}
+            {c.info.roomTypes.length > 6 && <li className="text-[#9a9a9a]">+{c.info.roomTypes.length - 6} more</li>}
+          </ul>
+        ) : (
+          <span className="text-sm text-[#9a9a9a]">—</span>
+        ),
+    },
+    {
       key: "perks",
       label: "Perks & inclusions",
       cell: (c) =>
@@ -325,6 +360,9 @@ export async function ComparisonView({
         <ul className="space-y-1 text-xs text-[#555]">
           <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-[#FF385C]" /> Advisor-exclusive rate & perks</li>
           <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-[#FF385C]" /> Best available rate for your dates</li>
+          {(c.info?.policies ?? []).slice(0, 2).map((p) => (
+            <li key={p} className="text-[#9a9a9a]">{p.length > 150 ? p.slice(0, 150) + "…" : p}</li>
+          ))}
           {c.info?.tax && (
             <li className="text-[#9a9a9a]">{c.info.tax.length > 140 ? c.info.tax.slice(0, 140) + "…" : c.info.tax}</li>
           )}

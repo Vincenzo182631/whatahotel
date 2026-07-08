@@ -526,9 +526,18 @@ export interface HotelInfo {
   amenities: string[];
   restaurants: string[];
   tax?: string;
+  /** Nearby attractions (ATTRACTIONINFO). */
+  attractions: string[];
+  /** Room/suite types with size + in-room features (GUESTROOMS). */
+  roomTypes: { desc: string; features: string[] }[];
+  /** Good-to-know policies (POLICYINFO), boilerplate filtered out. */
+  policies: string[];
 }
 
 interface WahInfoSection { HOTELTITLE?: string; HOTELDESC?: string }
+interface WahGuestRoom { ROOMDESC?: string; ROOMTYPE?: string; ROOMRMA?: { RMAVAL?: string }[] }
+interface WahAttraction { ATTNAME?: string; ATTTYPE?: string }
+interface WahPolicy { POLICYDESC?: string }
 const infoCache = new Map<string, { ts: number; data: HotelInfo | null }>();
 
 const AMENITY_SECTIONS = /amenit|facilit|service|recreational/i;
@@ -547,7 +556,13 @@ export async function getHotelInfo(hotelName: string, city: string): Promise<Hot
     const json = parseWahJson<{
       wahData?: {
         status?: { code?: string };
-        hotel?: { HOTELINFO?: WahInfoSection[]; RESTAURANTS?: { RESTAURANTNAME?: string }[] };
+        hotel?: {
+          HOTELINFO?: WahInfoSection[];
+          RESTAURANTS?: { RESTAURANTNAME?: string }[];
+          GUESTROOMS?: WahGuestRoom[];
+          ATTRACTIONINFO?: WahAttraction[];
+          POLICYINFO?: WahPolicy[];
+        };
       };
     }>(await fetchJson(url));
     const hotel = json.wahData?.hotel;
@@ -570,7 +585,28 @@ export async function getHotelInfo(hotelName: string, city: string): Promise<Hot
     const restaurants = (hotel.RESTAURANTS ?? [])
       .map((r) => r.RESTAURANTNAME?.trim() || "")
       .filter(Boolean);
-    const data: HotelInfo = { description, amenities, restaurants, tax };
+    const attractions = [
+      ...new Set(
+        (hotel.ATTRACTIONINFO ?? [])
+          .map((a) => (a.ATTNAME || "").trim())
+          .filter((n) => n.length > 1),
+      ),
+    ];
+    const roomTypes = (hotel.GUESTROOMS ?? [])
+      .map((r) => ({
+        desc: (r.ROOMDESC || "").trim(),
+        features: [...new Set((r.ROOMRMA ?? []).map((x) => (x.RMAVAL || "").trim()).filter(Boolean))],
+      }))
+      .filter((r) => r.desc);
+    const policies = [
+      ...new Set(
+        (hotel.POLICYINFO ?? [])
+          .map((p) => (p.POLICYDESC || "").replace(/\s+/g, " ").trim())
+          // Drop pure boilerplate ("contact property for directions/policy…").
+          .filter((d) => d.length > 15 && !/contact (?:the )?(?:property|hotel) (?:directly )?for (?:directions|family)/i.test(d)),
+      ),
+    ];
+    const data: HotelInfo = { description, amenities, restaurants, tax, attractions, roomTypes, policies };
     infoCache.set(key, { ts: Date.now(), data });
     return data;
   } catch {
