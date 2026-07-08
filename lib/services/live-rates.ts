@@ -359,26 +359,45 @@ export async function getCityHotels(params: {
       await fetchJson(url),
     );
     const wah = json.wahData;
-    if (!wah || wah.status?.code !== "200" || !Array.isArray(wah.hotels)) return [];
-    // Rank by the reliable all-in rateTotal (rateDaily is broken — see toLiveHotel).
-    const nights = nightsBetween(checkIn, checkOut);
-    const data = wah.hotels
-      .slice()
-      .sort((a, b) => (num(a.rateTotal) || Infinity) - (num(b.rateTotal) || Infinity))
-      .map((h) => {
-        const lh = toLiveHotel(h);
-        if (lh) {
-          const rt = num(h.rateTotal);
-          if (rt && nights > 0) lh.approxNightly = Math.round(rt / nights);
-        }
-        return lh;
-      })
-      .filter((h): h is LiveHotel => Boolean(h));
+    if (wah && wah.status?.code === "200" && Array.isArray(wah.hotels) && wah.hotels.length) {
+      // Rank by the reliable all-in rateTotal (rateDaily is broken — see toLiveHotel).
+      const nights = nightsBetween(checkIn, checkOut);
+      const data = wah.hotels
+        .slice()
+        .sort((a, b) => (num(a.rateTotal) || Infinity) - (num(b.rateTotal) || Infinity))
+        .map((h) => {
+          const lh = toLiveHotel(h);
+          if (lh) {
+            const rt = num(h.rateTotal);
+            if (rt && nights > 0) lh.approxNightly = Math.round(rt / nights);
+          }
+          return lh;
+        })
+        .filter((h): h is LiveHotel => Boolean(h));
+      cityHotelsCache.set(key, { ts: Date.now(), data });
+      return data;
+    }
+    // cityrates couldn't match the city (e.g. Phuket → "Unable to match city").
+    // Many directory cities aren't in the cityrates match list but ARE
+    // searchable. Fall back to the directory search, filtered to that city. No
+    // rateTotal here, so no approxNightly — the cards fetch each live rate.
+    const data = await cityHotelsViaSearch(city);
     cityHotelsCache.set(key, { ts: Date.now(), data });
     return data;
   } catch {
     return [];
   }
+}
+
+/** Fallback for cities the cityrates endpoint can't match: search the directory
+ *  by the city term and keep only hotels whose city matches. */
+async function cityHotelsViaSearch(city: string): Promise<LiveHotel[]> {
+  const results = await searchHotelsByName(city);
+  const c = city.trim().toLowerCase();
+  return results.filter((h) => {
+    const hc = (h.city || "").toLowerCase();
+    return hc && (hc.includes(c) || c.includes(hc));
+  });
 }
 
 const searchCache = new Map<string, { ts: number; data: LiveHotel[] }>();
