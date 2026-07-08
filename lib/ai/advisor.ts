@@ -512,16 +512,12 @@ export async function runTurn(
     }
   }
 
-  // ---- 4c. Live search — any city beyond the local set, via the API -------
-  const liveCity = !criteria.destination
-    ? criteria.destinationLabel || heuristicCity(lastUserMessage)
-    : undefined;
+  // ---- 4c. Live search — EVERY city goes through live rates via the API, not the
+  // local catalogue. Use the bare city name (strip the country) so getCityHotels
+  // can match it. This is now the single path for any "show me hotels in <city>".
+  const liveCity =
+    (criteria.destinationLabel?.split(",")[0].trim() || heuristicCity(lastUserMessage)) || undefined;
   if (liveCity) {
-    // Remember the named city so a follow-up ("here are my dates") still has it.
-    if (criteria.destinationLabel !== liveCity) {
-      criteria.destinationLabel = liveCity;
-      await sessionStorageService.save(sessionId, { criteria });
-    }
     if (criteria.checkIn && criteria.checkOut) {
       let live = await getCityHotels({
         city: liveCity,
