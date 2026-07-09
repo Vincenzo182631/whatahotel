@@ -210,21 +210,7 @@ export default function AboutPage() {
           <p className="mt-6 leading-relaxed text-foreground/75">
             We champion travelling well over travelling fast — staying longer,
             choosing properties with a real sense of place, and leaving room for
-            the unplanned. You can read more of how we think in{" "}
-            <Link
-              href="/journal/art-of-slow-travel"
-              className="font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary"
-            >
-              The Art of Slow Travel
-            </Link>{" "}
-            and across{" "}
-            <Link
-              href="/journal"
-              className="font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary"
-            >
-              our Journal
-            </Link>
-            .
+            the unplanned.
           </p>
         </div>
       </section>

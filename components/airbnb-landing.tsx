@@ -166,9 +166,6 @@ export function AirbnbLanding() {
           </Link>
 
           <div className="flex shrink-0 items-center gap-1.5">
-            <Link href="/journal" className="hidden rounded-full px-3.5 py-2.5 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7] lg:block">
-              Journal
-            </Link>
             {isAuthenticated ? (
               <Link
                 href="/dashboard"
@@ -283,7 +280,6 @@ export function AirbnbLanding() {
           <span>© 2026 WhataHotel · Lorraine Travel</span>
           <span className="flex gap-5">
             <Link href="/about" className="hover:underline">About</Link>
-            <Link href="/journal" className="hover:underline">Journal</Link>
             <Link href="/saved" className="hover:underline">Saved</Link>
           </span>
         </div>
