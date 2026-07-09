@@ -269,6 +269,36 @@ export async function runTurn(
     return continueBooking(sessionId, session.booking, lastUserMessage);
   }
 
+  // ---- 1b. Conversation ending — the traveller is wrapping up -------------
+  // Recognise a message that is JUST a sign-off (thanks / that's all / bye /
+  // I'll think about it / maybe later), including compound ones ("Thanks,
+  // that's all!"). We strip every closing phrase and, if no meaningful words
+  // remain, treat it as a farewell — but a closing that also carries a request
+  // ("thanks, now show me Tokyo") leaves a residue and flows on normally.
+  // Close warmly, ask nothing further, never pressure.
+  const closing = lastUserMessage.trim();
+  const CLOSING_PHRASES =
+    /\b(?:thanks?|thank you(?: so much| very much)?|thx|ty|cheers|much appreciated|appreciate it|that'?s (?:all|it|everything|great|perfect|lovely|wonderful)|i'?m (?:good|all set|all done|done|ok(?:ay)?)|all (?:good|set)|nope|no thanks?|no thank you|i found what i needed|i'?ll (?:think about it|book (?:it )?later|do (?:it|that) later|decide later|be in touch)|maybe later|not (?:right )?now|bye+|goodbye|good ?bye|farewell|see (?:you|ya)(?: (?:later|soon|around))?|talk (?:to you)?(?: soon| later)?|ttyl|catch you later|have a (?:good|great|nice|lovely|wonderful) (?:day|one|night|evening|trip|stay)|good ?night|take care|cheerio)\b/gi;
+  const closingResidue = closing
+    ? closing.toLowerCase().replace(CLOSING_PHRASES, " ").replace(/[^a-z]+/gi, " ").trim()
+    : "x";
+  const hasAlpha = /[a-z]/i.test(closing);
+  if (hasAlpha && closingResidue.length === 0) {
+    const fu = await buildAdvisorUser(false);
+    const ctx: ReplyContext = {
+      action: "chat",
+      criteria: session.criteria,
+      missing: [],
+      recommendations: session.lastRecommendations,
+      totalFound: session.lastRecommendations.length,
+      farewell: session.booking?.hotelName ? "chosen" : "open",
+      learned: [],
+      lastUserMessage,
+      user: fu,
+    };
+    return { ctx, payload: { action: "chat", criteria: session.criteria } };
+  }
+
   // ---- 2. Update conversation memory + classify intent (in parallel) ------
   const user = await buildAdvisorUser(!messages.some((m) => m.role === "assistant"));
   const [patch, route] = await Promise.all([

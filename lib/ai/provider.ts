@@ -301,7 +301,7 @@ function buildSituation(ctx: ReplyContext): string {
     case "live": {
       const hotels = ctx.liveHotels ?? [];
       if (!hotels.length) {
-        return `SITUATION: You searched WhataHotel's live availability for ${ctx.liveCity}, but it returned no hotels — that destination isn't in WhataHotel's collection right now (some places simply aren't covered). Warmly tell the traveller you couldn't find any WhataHotel properties in ${ctx.liveCity} at the moment — do NOT blame the dates. If a well-known nearby destination is likely covered, you may gently suggest trying it. Then invite them to email info@lorrainetravel.com so the team can help arrange ${ctx.liveCity} directly. 1–2 warm sentences.`;
+        return `SITUATION: You searched WhataHotel's live availability for ${ctx.liveCity}, but it returned no hotels — that destination isn't in WhataHotel's collection right now (some places simply aren't covered). Warmly tell the traveller you couldn't find any WhataHotel properties in ${ctx.liveCity} at the moment — do NOT blame the dates, and do NOT invent hotel names. NEVER dead-end with just "no results": immediately offer a genuine next step and ask ONE simple follow-up — e.g. suggest a well-known nearby destination that's likely covered and offer to search it, offer to broaden to the surrounding area, or invite them to email info@lorrainetravel.com so the team can arrange ${ctx.liveCity} directly. 1–2 warm sentences, ending with that single helpful question.`;
       }
       const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
       const facts = hotels
@@ -374,6 +374,10 @@ In 1–2 sentences, introduce the shortlist for ${ctx.liveCity}${
       return `SITUATION: You still need a few details${next ? `; the most important right now is: ${next}${rest.length ? ` (later, unprompted: ${rest.join(", ")})` : ""}` : ""}. Ask for just ONE thing at a time (at most two if they're closely related, like check-in/check-out) — phrased as a warm, natural follow-up that builds on what they just told you, NOT a checklist. Ask only what genuinely improves the match; once you have enough to recommend well, stop asking and move on.`;
     }
     case "chat":
+      if (ctx.farewell === "chosen")
+        return `SITUATION: The traveller is wrapping up and has already been looking at a specific hotel. Give ONE warm, brief closing — it sounds like they've found the right hotel; gently note they can complete the booking whenever they're ready right from the hotel's page, and wish them a wonderful stay. Ask NO further questions. Do not pressure them or restart the conversation.`;
+      if (ctx.farewell === "open")
+        return `SITUATION: The traveller is ending the conversation (a thank-you or sign-off). Reply with ONE warm, gracious, concise closing that leaves them feeling appreciated and welcome to return anytime to compare hotels or plan another trip. Vary the wording; don't be overly effusive. Ask NO questions, suggest nothing new, and never pressure them to book.`;
       return `SITUATION: Respond warmly and helpfully to the traveller's message: "${ctx.lastUserMessage}". If it's a general question about how WhataHotel works (advisor rates, complimentary perks, in-app booking, comparing hotels), answer it briefly and accurately. Then, in one line, invite them to share their destination, dates and the vibe they're after so you can find the perfect stay.`;
     default:
       return `SITUATION: Open the conversation and invite them to describe the trip.`;

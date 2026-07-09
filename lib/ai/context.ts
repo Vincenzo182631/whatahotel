@@ -56,4 +56,7 @@ export interface ReplyContext {
    *  the traveller — ask ONE natural preference question (topic hint) before
    *  showing a shortlist. */
   discovery?: "purpose" | "priorities" | "dates";
+  /** The traveller is wrapping up — close warmly, ask nothing further. "chosen"
+   *  when they've already settled on a hotel, "open" otherwise. */
+  farewell?: "open" | "chosen";
 }
