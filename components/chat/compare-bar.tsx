@@ -42,7 +42,9 @@ export function CompareBar() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
-        className="fixed bottom-5 left-1/2 z-50 w-[min(92vw,44rem)] -translate-x-1/2 rounded-2xl border border-border/70 bg-background/95 p-3 shadow-[0_12px_40px_-12px_rgba(16,33,58,0.4)] backdrop-blur"
+        /* Center with auto-margins (inset-x-0 + mx-auto) — NOT -translate-x-1/2,
+           which framer-motion's y-transform would override, pushing it off-screen. */
+        className="fixed inset-x-0 bottom-5 z-50 mx-auto w-[min(92vw,44rem)] rounded-2xl border border-border/70 bg-background/95 p-3 shadow-[0_12px_40px_-12px_rgba(16,33,58,0.4)] backdrop-blur"
       >
         {notice && (
           <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-primary">
@@ -69,17 +71,17 @@ export function CompareBar() {
             </span>
           ))}
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
             <button
               onClick={clear}
-              className="rounded-full px-3 py-1.5 text-xs font-medium text-foreground/60 hover:text-foreground"
+              className="shrink-0 rounded-full px-3 py-2 text-xs font-medium text-foreground/60 hover:text-foreground"
             >
               Clear
             </button>
             <button
               onClick={compare}
               disabled={!canCompare}
-              className="inline-flex items-center gap-1.5 rounded-full bg-gold-sheen px-4 py-1.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-gold-sheen px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40 sm:min-h-0 sm:flex-none sm:py-1.5"
             >
               <Scale className="size-4" />
               {selected.length >= 2 ? `Compare ${selected.length} hotels` : "Select 2+ to compare"}
