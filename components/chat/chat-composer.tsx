@@ -15,6 +15,8 @@ interface Props {
   placeholder?: string;
   size?: "hero" | "bar";
   autoFocus?: boolean;
+  /** When set, the placeholder types through these examples until the user taps in. */
+  typewriter?: string[];
 }
 
 export function ChatComposer({
@@ -23,8 +25,11 @@ export function ChatComposer({
   placeholder = "Which hotels would you like to compare?",
   size = "bar",
   autoFocus,
+  typewriter,
 }: Props) {
   const [value, setValue] = useState("");
+  const [focused, setFocused] = useState(false);
+  const [typed, setTyped] = useState("");
   const ref = useRef<HTMLTextAreaElement>(null);
 
   // Voice: dictation (speech-to-text) + a toggle for spoken replies (TTS).
@@ -63,8 +68,41 @@ export function ChatComposer({
     if (autoFocus) ref.current?.focus();
   }, [autoFocus]);
 
+  // Typewriter placeholder — types through the examples, then deletes and moves
+  // on. Runs only while the field is untouched (empty, not focused, not dictating).
+  const animate = Boolean(typewriter?.length) && !focused && !value && !listening;
+  useEffect(() => {
+    if (!animate || !typewriter?.length) return;
+    let phrase = 0;
+    let char = 0;
+    let deleting = false;
+    let t: ReturnType<typeof setTimeout>;
+    const step = () => {
+      const full = typewriter[phrase];
+      char += deleting ? -1 : 1;
+      setTyped(full.slice(0, char));
+      if (!deleting && char === full.length) {
+        deleting = true;
+        t = setTimeout(step, 1800); // hold the finished phrase
+        return;
+      }
+      if (deleting && char === 0) {
+        deleting = false;
+        phrase = (phrase + 1) % typewriter.length;
+      }
+      t = setTimeout(step, deleting ? 30 : 55);
+    };
+    t = setTimeout(step, 500);
+    return () => clearTimeout(t);
+  }, [animate, typewriter]);
+
   const submit = () => submitText(value);
   const isHero = size === "hero";
+  const shownPlaceholder = listening
+    ? "Listening…"
+    : animate
+      ? `${typed} |`
+      : placeholder;
 
   return (
     <div
@@ -78,7 +116,9 @@ export function ChatComposer({
         value={value}
         rows={1}
         disabled={disabled}
-        placeholder={listening ? "Listening…" : placeholder}
+        placeholder={shownPlaceholder}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         onChange={(e) => {
           setValue(e.target.value);
           grow();

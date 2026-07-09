@@ -138,6 +138,7 @@ export function AirbnbLanding() {
   const isStreaming = useConversation((s) => s.isStreaming);
   const [compareOpen, setCompareOpen] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   // Each pill slot's current index into its column. Start staggered so the row
   // looks varied from the first paint.
   const [pillIdx, setPillIdx] = useState<number[]>([0, 1, 2, 3, 4]);
@@ -182,41 +183,88 @@ export function AirbnbLanding() {
           </Link>
 
           <div className="flex shrink-0 items-center gap-1.5">
-            {isAuthenticated ? (
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2 rounded-full border border-[#EBEBEB] py-1 pl-1 pr-3.5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
-              >
-                <span className="grid size-7 place-items-center rounded-full text-xs font-bold text-white" style={{ background: CORAL }}>
-                  {(user?.name?.[0] ?? "U").toUpperCase()}
-                </span>
-                <span className="text-sm font-semibold text-[#222]">Dashboard</span>
-              </Link>
-            ) : (
-              <>
-                <Link href="/login" className="hidden rounded-full px-3.5 py-2.5 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7] sm:block">
-                  Log in
-                </Link>
-                <Link href="/signup" className="rounded-full px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ background: CORAL }}>
-                  Sign up
-                </Link>
-              </>
-            )}
-            <Link
-              href="/saved"
-              aria-label="Saved hotels"
-              className="flex items-center gap-2 rounded-full border border-[#EBEBEB] py-1.5 pl-3.5 pr-1.5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
-            >
-              <Menu className="size-4 text-[#222]" />
-              <span className="relative grid size-7 place-items-center rounded-full bg-[#717171] text-white">
-                <Heart className="size-3.5 fill-white" />
-                {savedCount > 0 && (
-                  <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full text-[10px] font-bold text-white" style={{ background: CORAL }}>
-                    {savedCount}
+            {/* DESKTOP cluster — standalone buttons (unchanged) */}
+            <div className="hidden items-center gap-1.5 sm:flex">
+              {isAuthenticated ? (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 rounded-full border border-[#EBEBEB] py-1 pl-1 pr-3.5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
+                >
+                  <span className="grid size-7 place-items-center rounded-full text-xs font-bold text-white" style={{ background: CORAL }}>
+                    {(user?.name?.[0] ?? "U").toUpperCase()}
                   </span>
-                )}
-              </span>
-            </Link>
+                  <span className="text-sm font-semibold text-[#222]">Dashboard</span>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login" className="rounded-full px-3.5 py-2.5 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7]">
+                    Log in
+                  </Link>
+                  <Link href="/signup" className="rounded-full px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ background: CORAL }}>
+                    Sign up
+                  </Link>
+                </>
+              )}
+              <Link
+                href="/saved"
+                aria-label="Saved hotels"
+                className="flex items-center gap-2 rounded-full border border-[#EBEBEB] py-1.5 pl-3.5 pr-1.5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
+              >
+                <Menu className="size-4 text-[#222]" />
+                <span className="relative grid size-7 place-items-center rounded-full bg-[#717171] text-white">
+                  <Heart className="size-3.5 fill-white" />
+                  {savedCount > 0 && (
+                    <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full text-[10px] font-bold text-white" style={{ background: CORAL }}>
+                      {savedCount}
+                    </span>
+                  )}
+                </span>
+              </Link>
+            </div>
+
+            {/* MOBILE cluster — one hamburger that opens a menu */}
+            <div className="relative sm:hidden">
+              <button
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label="Menu"
+                aria-expanded={menuOpen}
+                className="flex items-center gap-2 rounded-full border border-[#EBEBEB] bg-white/70 py-1.5 pl-3.5 pr-1.5 shadow-[0_1px_4px_rgba(0,0,0,0.06)]"
+              >
+                <Menu className="size-4 text-[#222]" />
+                <span className="relative grid size-7 place-items-center rounded-full bg-[#717171] text-xs font-bold text-white">
+                  {isAuthenticated ? (user?.name?.[0] ?? "U").toUpperCase() : <Heart className="size-3.5 fill-white" />}
+                  {savedCount > 0 && (
+                    <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full text-[10px] font-bold text-white" style={{ background: CORAL }}>
+                      {savedCount}
+                    </span>
+                  )}
+                </span>
+              </button>
+              {menuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} aria-hidden />
+                  <div className="absolute right-0 z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-[#EBEBEB] bg-white py-1 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.35)]">
+                    {isAuthenticated ? (
+                      <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7]">
+                        <span className="grid size-6 place-items-center rounded-full text-[11px] font-bold text-white" style={{ background: CORAL }}>
+                          {(user?.name?.[0] ?? "U").toUpperCase()}
+                        </span>
+                        Dashboard
+                      </Link>
+                    ) : (
+                      <>
+                        <Link href="/login" onClick={() => setMenuOpen(false)} className="block px-4 py-2.5 text-sm font-semibold text-[#222] hover:bg-[#f7f7f7]">Log in</Link>
+                        <Link href="/signup" onClick={() => setMenuOpen(false)} className="block px-4 py-2.5 text-sm font-semibold text-[#FF385C] hover:bg-[#f7f7f7]">Sign up</Link>
+                      </>
+                    )}
+                    <Link href="/saved" onClick={() => setMenuOpen(false)} className="flex items-center justify-between px-4 py-2.5 text-sm text-[#222] hover:bg-[#f7f7f7]">
+                      Saved{savedCount > 0 && <span className="text-xs text-[#717171]">{savedCount}</span>}
+                    </Link>
+                    <Link href="/about" onClick={() => setMenuOpen(false)} className="block px-4 py-2.5 text-sm text-[#222] hover:bg-[#f7f7f7]">About</Link>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -238,10 +286,16 @@ export function AirbnbLanding() {
           <div className="mt-7 text-left">
             <ChatComposer
               size="hero"
-              autoFocus
               onSend={(t) => send(t)}
               disabled={isStreaming}
-              placeholder="e.g. Compare the best 5-star hotels in Bali for a honeymoon"
+              placeholder="Ask me anything about hotels…"
+              typewriter={[
+                "Compare the best 5-star hotels in Bali for a honeymoon",
+                "Family-friendly beach resorts in Dubai",
+                "Overwater villas in the Maldives",
+                "Boutique hotels in Paris near the Louvre",
+                "Rooftop-pool hotels in Bangkok",
+              ]}
             />
           </div>
 
@@ -292,7 +346,16 @@ export function AirbnbLanding() {
 
       {/* FOOTER */}
       <footer className="border-t border-white/30 bg-white/55 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1360px] flex-col items-start justify-between gap-2 px-6 py-6 text-sm text-[#555] sm:flex-row sm:items-center">
+        {/* Mobile: everything on one line */}
+        <div className="mx-auto flex max-w-[1360px] flex-wrap items-center justify-center gap-x-2 gap-y-1 px-4 py-4 text-xs text-[#555] sm:hidden">
+          <span>© 2026 WhataHotel · Lorraine Travel</span>
+          <span className="text-[#aaa]">|</span>
+          <Link href="/about" className="hover:underline">About</Link>
+          <span className="text-[#aaa]">|</span>
+          <Link href="/saved" className="hover:underline">Saved</Link>
+        </div>
+        {/* Desktop (unchanged) */}
+        <div className="mx-auto hidden max-w-[1360px] flex-col items-start justify-between gap-2 px-6 py-6 text-sm text-[#555] sm:flex sm:flex-row sm:items-center">
           <span>© 2026 WhataHotel · Lorraine Travel</span>
           <span className="flex gap-5">
             <Link href="/about" className="hover:underline">About</Link>
