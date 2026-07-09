@@ -73,7 +73,7 @@ export function ShareOfferButton({
         onClick={() => setOpen((v) => !v)}
         className="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full border border-[#FF385C]/40 bg-[#FF385C]/[0.06] px-3.5 py-2 text-sm font-semibold text-[#FF385C] transition-colors hover:bg-[#FF385C]/10 sm:min-h-0 sm:w-auto"
       >
-        <Share2 className="size-4" /> Share this comparison
+        <Share2 className="size-4" /> Share This Hotel Comparison
       </button>
 
       {open && (

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { BackButton } from "@/components/ui/back-button";
 import { ComparisonView, resolveComparisonHotel } from "@/components/compare/comparison-view";
 import { ShareOfferButton } from "@/components/compare/share-offer-button";
+import { ShareComparisonButton } from "@/components/compare/share-comparison-button";
 import { CompareDateBar } from "@/components/compare/compare-date-bar";
 import { getCurrentUser } from "@/lib/auth/session";
 
@@ -44,8 +45,11 @@ export default async function ComparePage({ searchParams }: Params) {
       <main className="mx-auto max-w-[1100px] px-6 py-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
           <h1 className="text-2xl font-semibold tracking-tight">Side-by-side comparison</h1>
-          {isAdmin && (
+          {/* Everyone can share; advisors get the richer "create a branded offer" flow. */}
+          {isAdmin ? (
             <ShareOfferButton hotelIds={ids} city={city} checkIn={checkIn} checkOut={checkOut} />
+          ) : (
+            <ShareComparisonButton hotelIds={ids} checkIn={checkIn} checkOut={checkOut} />
           )}
         </div>
         <CompareDateBar hotelIds={ids} checkIn={checkIn} checkOut={checkOut} />
