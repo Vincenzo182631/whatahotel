@@ -1,5 +1,6 @@
 import type { AdvisorPerk, Hotel } from "./types";
 import type { HotelComparison, ComparisonRow } from "./recommendation-engine";
+import { hiResImage } from "./images";
 
 /**
  * Live rates service.
@@ -163,8 +164,8 @@ export async function getLiveRates(params: {
         nightly,
         total: num(r.rateTotal) || nightly * nights,
         currency: (r.currency || "USD").toUpperCase(),
-        image: (r.images ?? []).map((i) => i.imgFile?.trim()).find(Boolean) || undefined,
-        images: [...new Set((r.images ?? []).map((i) => i.imgFile?.trim()).filter((u): u is string => Boolean(u)))],
+        image: (r.images ?? []).map((i) => hiResImage(i.imgFile?.trim())).find(Boolean) || undefined,
+        images: [...new Set((r.images ?? []).map((i) => hiResImage(i.imgFile?.trim())).filter((u): u is string => Boolean(u)))],
         // Prefilled booking-form deep link (room + rate + dates + guests).
         bookingURL: r.bookingURL?.trim() || undefined,
       };
@@ -325,7 +326,7 @@ function toLiveHotel(h: WahListHotel): LiveHotel | null {
     name: h.name.trim(),
     city: (h.city ?? "").trim(),
     country: (h.country ?? "").trim(),
-    image: (h.images ?? "").trim(),
+    image: hiResImage((h.images ?? "").trim()),
     bookingUrl: (h.url || h["rates-url"] || h["checkout-url"] || "").trim(),
     perks: (h.perks ?? []).map((p) => (p.perk ?? "").trim()).filter(Boolean).slice(0, 6),
     // The cityrates/search endpoints' `rateDaily` is unreliable (e.g. returns
@@ -500,16 +501,22 @@ export async function getLiveHotel(sourceHotelId: string): Promise<LiveHotelFull
     }
     const lat = Number(h["loc-lat"]);
     const lng = Number(h["loc-long"]);
-    const gallery = (wah.images ?? [])
-      .map((i) => (i.imgThumb || i.imgFile || "").trim())
-      .filter(Boolean);
+    // Prefer the full-size field, fall back to the thumb, and request the
+    // largest CDN variant for crisp hero + gallery images.
+    const gallery = [
+      ...new Set(
+        (wah.images ?? [])
+          .map((i) => hiResImage((i.imgFile || i.imgThumb || "").trim()))
+          .filter(Boolean),
+      ),
+    ];
     const data: LiveHotelFull = {
       sourceHotelId: String(h.hotelID),
       name: h.name.trim(),
       city: (h.city ?? "").trim(),
       country: (h.country ?? "").trim(),
       address: h.address?.trim() || undefined,
-      image: (h.images ?? gallery[0] ?? "").trim(),
+      image: hiResImage((h.images ?? gallery[0] ?? "").trim()),
       gallery,
       perks: (h.perks ?? []).map((p) => (p.perk ?? "").trim()).filter(Boolean),
       bookingUrl: (h.url || h["checkout-url"] || "").trim(),
