@@ -18,6 +18,8 @@ import { useHotelLiveRate, useInView } from "@/hooks/use-hotel-live-rate";
 import { formatCurrency } from "@/lib/utils";
 
 const CORAL = "#FF385C";
+const BG_MOBILE = "https://assets.cdn.filesafe.space/fBHK0xDUEFQL6rOoyKnY/media/6a4f140e9c9b37b5fdaa0aa1.webp";
+const BG_DESKTOP = "https://assets.cdn.filesafe.space/fBHK0xDUEFQL6rOoyKnY/media/6a4f140eeada8c1f457a48a3.webp";
 
 // A hotel card used by the /city pages (kept here so those pages keep working).
 export function HotelGridCard({ hotel }: { hotel: FeaturedHotel }) {
@@ -156,9 +158,23 @@ export function AirbnbLanding() {
   }, []);
 
   return (
-    <div className="flex min-h-dvh flex-col bg-white text-[#222]">
-      {/* HEADER — minimal */}
-      <header className="border-b border-[#EBEBEB] bg-white">
+    <div className="relative isolate flex min-h-dvh flex-col text-[#222]">
+      {/* Background image — different art for mobile vs desktop */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-white bg-cover bg-center bg-no-repeat md:hidden"
+        style={{ backgroundImage: `url("${BG_MOBILE}")` }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 hidden bg-white bg-cover bg-center bg-no-repeat md:block"
+        style={{ backgroundImage: `url("${BG_DESKTOP}")` }}
+      />
+      {/* Soft scrim so the headline + chat box stay readable over any image */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-white/35" />
+
+      {/* HEADER — minimal, glassy over the image */}
+      <header className="border-b border-white/30 bg-white/55 backdrop-blur-md">
         <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-4 px-6 py-3.5">
           <Link href="/" aria-label="What a Hotel — home" className="shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -275,8 +291,8 @@ export function AirbnbLanding() {
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-[#EBEBEB] bg-[#F7F7F7]">
-        <div className="mx-auto flex max-w-[1360px] flex-col items-start justify-between gap-2 px-6 py-6 text-sm text-[#717171] sm:flex-row sm:items-center">
+      <footer className="border-t border-white/30 bg-white/55 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[1360px] flex-col items-start justify-between gap-2 px-6 py-6 text-sm text-[#555] sm:flex-row sm:items-center">
           <span>© 2026 WhataHotel · Lorraine Travel</span>
           <span className="flex gap-5">
             <Link href="/about" className="hover:underline">About</Link>
