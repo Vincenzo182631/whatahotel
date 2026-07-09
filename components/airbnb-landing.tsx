@@ -289,13 +289,7 @@ export function AirbnbLanding() {
               onSend={(t) => send(t)}
               disabled={isStreaming}
               placeholder="Ask me anything about hotels…"
-              typewriter={[
-                "Compare the best 5-star hotels in Bali for a honeymoon",
-                "Family-friendly beach resorts in Dubai",
-                "Overwater villas in the Maldives",
-                "Boutique hotels in Paris near the Louvre",
-                "Rooftop-pool hotels in Bangkok",
-              ]}
+              typewriter={["Compare the best hotels in Paris near the Eiffel Tower."]}
             />
           </div>
 
