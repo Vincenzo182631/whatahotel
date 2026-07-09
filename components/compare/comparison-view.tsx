@@ -442,67 +442,24 @@ export async function ComparisonView({
         checkOut={checkOut}
       />
 
-      {/* MOBILE: each hotel becomes its own stacked comparison card (no
-          horizontal scrolling). Same data as the desktop table. */}
-      <div className="mt-6 space-y-5 md:hidden">
-        {cols.map((c) => {
-          const photos = [...new Set([c.hotel.image, ...(c.hotel.gallery ?? [])].filter(Boolean))];
-          const brand = c.hotel.brand || detectBrand(c.hotel.name);
-          const href = c.hotel.destinationKey
-            ? `/hotel/${c.hotel.id}`
-            : `/stay/${c.hotel.id}${nights > 0 ? `?checkIn=${checkIn}&checkOut=${checkOut}` : ""}`;
-          return (
-            <div key={c.hotel.id} className="overflow-hidden rounded-2xl border border-[#EBEBEB] bg-white shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
-              <div className="p-4">
-                <HotelGallery images={photos} seed={`${c.hotel.id}-m`} alt={c.hotel.name} />
-                {brand && <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wider text-[#FF385C]">{brand}</p>}
-                <h3 className="text-lg font-semibold leading-snug text-[#1a1a1a]">{c.hotel.name}</h3>
-              </div>
-              <dl className="border-t border-[#EBEBEB]">
-                {visibleRows
-                  .filter((row) => row.key !== "cta")
-                  .map((row) => (
-                    <div
-                      key={row.key}
-                      className={cn(
-                        "border-t border-[#EBEBEB] px-4 py-3.5 first:border-t-0",
-                        row.highlight && "bg-[#FF385C]/[0.05]",
-                      )}
-                    >
-                      {row.label && (
-                        <dt className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#717171]">{row.label}</dt>
-                      )}
-                      <dd className="text-[#222]">{row.cell(c)}</dd>
-                    </div>
-                  ))}
-              </dl>
-              <div className="border-t border-[#EBEBEB] p-4">
-                <Link
-                  href={href}
-                  className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-[#FF385C] px-4 text-[15px] font-semibold text-white transition-opacity hover:opacity-90"
-                >
-                  View &amp; book <ArrowUpRight className="size-4" />
-                </Link>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* DESKTOP: the side-by-side comparison table (unchanged). */}
-      <div className="no-scrollbar mt-6 hidden overflow-x-auto md:block">
+      {/* Swipeable side-by-side comparison: slide hotels horizontally while the
+          label column stays pinned. On desktop the columns fit, so nothing
+          scrolls and the sticky/snap become no-ops — desktop is unchanged. */}
+      <div
+        className="no-scrollbar mt-6 overflow-x-auto snap-x snap-proximity"
+        style={{ scrollPaddingLeft: "clamp(112px, 30vw, 150px)" }}
+      >
         <div
           className="grid"
           style={{
-            gridTemplateColumns: `150px repeat(${cols.length}, minmax(0, 1fr))`,
-            minWidth: 150 + cols.length * 240,
+            gridTemplateColumns: `clamp(112px, 30vw, 150px) repeat(${cols.length}, minmax(240px, 1fr))`,
           }}
         >
-          <div />
+          <div className="sticky left-0 z-10 bg-white" />
           {cols.map((c) => {
             const photos = [...new Set([c.hotel.image, ...(c.hotel.gallery ?? [])].filter(Boolean))];
             return (
-              <div key={c.hotel.id} className="px-4 pb-4">
+              <div key={c.hotel.id} className="snap-start px-3 pb-4 sm:px-4">
                 {/* Hero + thumbnail grid — tap any (incl. "+N") to browse ALL photos */}
                 <HotelGallery images={photos} seed={`${c.hotel.id}-g`} alt={c.hotel.name} />
                 {c.hotel.brand && <p className="text-[10px] uppercase tracking-wider text-[#FF385C]">{c.hotel.brand}</p>}
@@ -513,11 +470,16 @@ export async function ComparisonView({
 
           {visibleRows.map((row) => (
             <div key={row.key} className="contents">
-              <div className={cn("border-t border-[#EBEBEB] px-4 py-4 text-[11px] font-semibold uppercase tracking-wide text-[#717171]", row.highlight && "bg-[#FF385C]/[0.05]")}>
+              <div
+                className={cn(
+                  "sticky left-0 z-10 border-t border-[#EBEBEB] px-3 py-4 text-[11px] font-semibold uppercase tracking-wide text-[#717171] sm:px-4",
+                  row.highlight ? "bg-[#fdecef]" : "bg-white",
+                )}
+              >
                 {row.label}
               </div>
               {cols.map((c) => (
-                <div key={c.hotel.id} className={cn("border-t border-[#EBEBEB] px-4 py-4 align-top", row.highlight && "bg-[#FF385C]/[0.05]")}>
+                <div key={c.hotel.id} className={cn("snap-start border-t border-[#EBEBEB] px-3 py-4 align-top sm:px-4", row.highlight && "bg-[#FF385C]/[0.05]")}>
                   {row.cell(c)}
                 </div>
               ))}
