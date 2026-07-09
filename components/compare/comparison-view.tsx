@@ -442,7 +442,55 @@ export async function ComparisonView({
         checkOut={checkOut}
       />
 
-      <div className="no-scrollbar mt-6 overflow-x-auto">
+      {/* MOBILE: each hotel becomes its own stacked comparison card (no
+          horizontal scrolling). Same data as the desktop table. */}
+      <div className="mt-6 space-y-5 md:hidden">
+        {cols.map((c) => {
+          const photos = [...new Set([c.hotel.image, ...(c.hotel.gallery ?? [])].filter(Boolean))];
+          const brand = c.hotel.brand || detectBrand(c.hotel.name);
+          const href = c.hotel.destinationKey
+            ? `/hotel/${c.hotel.id}`
+            : `/stay/${c.hotel.id}${nights > 0 ? `?checkIn=${checkIn}&checkOut=${checkOut}` : ""}`;
+          return (
+            <div key={c.hotel.id} className="overflow-hidden rounded-2xl border border-[#EBEBEB] bg-white shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
+              <div className="p-4">
+                <HotelGallery images={photos} seed={`${c.hotel.id}-m`} alt={c.hotel.name} />
+                {brand && <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wider text-[#FF385C]">{brand}</p>}
+                <h3 className="text-lg font-semibold leading-snug text-[#1a1a1a]">{c.hotel.name}</h3>
+              </div>
+              <dl className="border-t border-[#EBEBEB]">
+                {visibleRows
+                  .filter((row) => row.key !== "cta")
+                  .map((row) => (
+                    <div
+                      key={row.key}
+                      className={cn(
+                        "border-t border-[#EBEBEB] px-4 py-3.5 first:border-t-0",
+                        row.highlight && "bg-[#FF385C]/[0.05]",
+                      )}
+                    >
+                      {row.label && (
+                        <dt className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#717171]">{row.label}</dt>
+                      )}
+                      <dd className="text-[#222]">{row.cell(c)}</dd>
+                    </div>
+                  ))}
+              </dl>
+              <div className="border-t border-[#EBEBEB] p-4">
+                <Link
+                  href={href}
+                  className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-[#FF385C] px-4 text-[15px] font-semibold text-white transition-opacity hover:opacity-90"
+                >
+                  View &amp; book <ArrowUpRight className="size-4" />
+                </Link>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* DESKTOP: the side-by-side comparison table (unchanged). */}
+      <div className="no-scrollbar mt-6 hidden overflow-x-auto md:block">
         <div
           className="grid"
           style={{
