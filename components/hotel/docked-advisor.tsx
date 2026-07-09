@@ -213,7 +213,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
   };
 
   return (
-    <div className="flex h-[520px] flex-col overflow-hidden rounded-2xl border border-black/[0.08] bg-white shadow-[0_1px_3px_rgba(16,24,40,0.06)] lg:h-[640px]">
+    <div className="flex h-[520px] min-w-0 flex-col overflow-hidden rounded-2xl border border-black/[0.08] bg-white shadow-[0_1px_3px_rgba(16,24,40,0.06)] lg:h-[640px]">
       {/* Header */}
       <div className="flex items-center gap-2.5 border-b border-black/[0.06] px-4 py-3.5">
         <span className="grid size-8 place-items-center rounded-full bg-[#f7f7f7] ring-1 ring-black/[0.05]">
@@ -233,7 +233,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
         {messages.map((m) =>
           m.role === "user" ? (
             <div key={m.id} className="flex justify-end">
-              <div className="max-w-[85%] rounded-2xl rounded-br-md bg-[#1c1c1e] px-3.5 py-2 text-sm font-medium leading-relaxed text-white">
+              <div className="max-w-[85%] break-words rounded-2xl rounded-br-md bg-[#1c1c1e] px-3.5 py-2 text-sm font-medium leading-relaxed text-white">
                 {m.content}
               </div>
             </div>
@@ -242,7 +242,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
               key={m.id}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              className="max-w-[92%] rounded-2xl rounded-tl-md bg-black/[0.035] px-3.5 py-2.5 text-sm leading-[1.6] text-[#2a2a2a]"
+              className="max-w-[92%] break-words rounded-2xl rounded-tl-md bg-black/[0.035] px-3.5 py-2.5 text-sm leading-[1.6] text-[#2a2a2a]"
             >
               {m.streaming && !m.content ? (
                 <TypingIndicator />

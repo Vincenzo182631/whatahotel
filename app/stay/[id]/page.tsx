@@ -123,9 +123,10 @@ export default async function StayPage({ params, searchParams }: Params) {
           ))}
         </div>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
-          {/* Main */}
-          <div className="space-y-8">
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+          {/* Main — on mobile this comes AFTER the booking card (order-last) so
+              rooms + rates are reachable right away; desktop keeps it on the left. */}
+          <div className="order-last min-w-0 space-y-8 lg:order-none">
             {/* Luxury travel advisor — knows this hotel + destination inside out */}
             <section>
               <h2 className="mb-2 text-lg font-semibold">Ask your travel advisor</h2>
@@ -217,8 +218,8 @@ export default async function StayPage({ params, searchParams }: Params) {
             )}
           </div>
 
-          {/* Sidebar */}
-          <aside className="lg:sticky lg:top-20 lg:self-start">
+          {/* Sidebar — booking card. First on mobile, right column on desktop. */}
+          <aside className="order-first min-w-0 lg:order-none lg:sticky lg:top-20 lg:self-start">
             <div className="rounded-2xl border border-[#EBEBEB] bg-white p-5">
               <StayDatePicker checkIn={checkIn} checkOut={checkOut} />
 
