@@ -512,6 +512,52 @@ export async function runTurn(
     }
   }
 
+  // ---- 4b-5. Consultative discovery — understand the traveller BEFORE listing.
+  // A luxury advisor doesn't dump a shortlist the instant a city is named; they
+  // first learn what the trip is FOR. When we know WHERE but nothing about the
+  // WHY (no occasion, vibe, budget, amenity, landmark, proximity or traveller
+  // type), ask ONE warm preference question first. Guardrails so we never nag:
+  // skip when they're following up on shown hotels, when they clearly want to
+  // see options now, or once we've already asked (cap at two discovery turns).
+  const knownPlace = Boolean(criteria.destination || criteria.destinationLabel);
+  const hasPreferenceSignal =
+    Boolean(criteria.occasion) ||
+    (criteria.vibes?.length ?? 0) > 0 ||
+    (criteria.amenities?.length ?? 0) > 0 ||
+    criteria.budgetMin != null ||
+    criteria.budgetMax != null ||
+    Boolean(criteria.nearby) ||
+    turnIntent.proximity != null ||
+    turnIntent.travelerTypes.length > 0 ||
+    turnIntent.priceSort != null;
+  const SHOW_NOW_RE =
+    /\b(just show|show me|see (?:the |your )?(?:options|list|choices)|list (?:them|hotels|options)|any(?:thing)?(?: hotel)?|whatever|surprise me|don'?t care|doesn'?t matter|no preference|browse|go ahead)\b/i;
+  const assistantTurns = messages.filter((m) => m.role === "assistant").length;
+  const wantDiscovery =
+    knownPlace &&
+    !hasPreferenceSignal &&
+    !refersToShown &&
+    explicitIntent !== "book" &&
+    session.lastRecommendations.length === 0 &&
+    assistantTurns < 2 &&
+    !SHOW_NOW_RE.test(lastUserMessage);
+
+  if (wantDiscovery) {
+    const ctx: ReplyContext = {
+      action: "ask",
+      criteria,
+      missing: [],
+      recommendations: [],
+      totalFound: 0,
+      // First learn the purpose of the trip — it shapes every recommendation.
+      discovery: "purpose",
+      learned,
+      lastUserMessage,
+      user,
+    };
+    return { ctx, payload: { action: "ask", criteria } };
+  }
+
   // ---- 4c. Live search — EVERY city goes through live rates via the API, not the
   // local catalogue. Use the bare city name (strip the country) so getCityHotels
   // can match it. This is now the single path for any "show me hotels in <city>".

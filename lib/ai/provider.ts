@@ -358,14 +358,21 @@ In 1–2 sentences, introduce the shortlist for ${ctx.liveCity}${
       const name = ctx.booking?.hotelName ?? ctx.focus?.[0]?.name ?? "that hotel";
       return `SITUATION: The traveller wants to book ${name}. Booking happens on the hotel's own page — do NOT ask for their name, email, phone or any personal details. In ONE warm sentence, tell them to open ${name} (its "Book now" / "View details" button on the card, or ask you to open it), choose their room in the Rooms section, and hit Reserve — that opens the secure WhataHotel booking form with their dates and advisor perks already filled in.`;
     }
-    case "ask":
+    case "ask": {
       if (ctx.askCityCountry)
         return `SITUATION: The traveller named a whole country (${ctx.askCityCountry}), but hotel searches are city-based, so you need the city to get it right. In ONE warm, natural sentence, ask which city in ${ctx.askCityCountry} they'd like to stay in — you may name a couple of well-known cities there as examples. Do NOT search or list hotels yet.`;
-      return ctx.missing.includes("destination") && ctx.destinationSuggestions?.length
-        ? `SITUATION: They're undecided on a destination but you know the vibe. Suggest these and ask which appeals: ${ctx.destinationSuggestions
-            .map((d) => d.label)
-            .join(", ")}.`
-        : `SITUATION: Ask only for these missing details, grouped naturally: ${ctx.missing.join(", ") || "none"}.`;
+      if (ctx.discovery) {
+        const place = ctx.criteria.destinationLabel?.split(",")[0] || "there";
+        return `SITUATION: The traveller wants ${place} but hasn't told you what the trip is FOR — and that shapes everything you'd recommend. Like a warm luxury consultant, ask ONE natural, open question to understand them before you show anything: what's the occasion or kind of trip (a romantic escape, family time, a work stay, a big celebration, a relaxed getaway?). Make it feel like genuine curiosity, not a form. Acknowledge ${place} briefly first if it feels natural. Ask exactly ONE question. Do NOT list or search hotels yet, and do NOT ask for dates in this message.`;
+      }
+      if (ctx.missing.includes("destination") && ctx.destinationSuggestions?.length)
+        return `SITUATION: They're undecided on a destination but you know the vibe. Suggest these and ask which appeals: ${ctx.destinationSuggestions
+          .map((d) => d.label)
+          .join(", ")}.`;
+      const next = ctx.missing[0];
+      const rest = ctx.missing.slice(1);
+      return `SITUATION: You still need a few details${next ? `; the most important right now is: ${next}${rest.length ? ` (later, unprompted: ${rest.join(", ")})` : ""}` : ""}. Ask for just ONE thing at a time (at most two if they're closely related, like check-in/check-out) — phrased as a warm, natural follow-up that builds on what they just told you, NOT a checklist. Ask only what genuinely improves the match; once you have enough to recommend well, stop asking and move on.`;
+    }
     case "chat":
       return `SITUATION: Respond warmly and helpfully to the traveller's message: "${ctx.lastUserMessage}". If it's a general question about how WhataHotel works (advisor rates, complimentary perks, in-app booking, comparing hotels), answer it briefly and accurately. Then, in one line, invite them to share their destination, dates and the vibe they're after so you can find the perfect stay.`;
     default:

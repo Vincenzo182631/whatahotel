@@ -52,4 +52,8 @@ export interface ReplyContext {
   greet?: boolean;
   /** Set when they named a whole country — ask which city they'll stay in. */
   askCityCountry?: string;
+  /** Consultative discovery: a place is known but we still want to understand
+   *  the traveller — ask ONE natural preference question (topic hint) before
+   *  showing a shortlist. */
+  discovery?: "purpose" | "priorities" | "dates";
 }
