@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useVoiceStore } from "@/store/voice-store";
 import { enqueueSpeech, stopSpeaking } from "./tts";
+import { VOICE_FEATURES } from "@/lib/flags";
 
 interface SpeakableMsg {
   id: string;
@@ -55,7 +56,7 @@ export function useSpeakReplies(messages: SpeakableMsg[]): void {
   }, []);
 
   useEffect(() => {
-    if (!speakReplies) return;
+    if (!VOICE_FEATURES || !speakReplies) return;
     for (const m of messages) {
       if (m.role !== "assistant") continue;
       const off = offsets.current.get(m.id) ?? 0;

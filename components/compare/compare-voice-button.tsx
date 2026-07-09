@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Mic } from "lucide-react";
 import { RealtimeVoice } from "@/components/voice/realtime-voice";
+import { VOICE_FEATURES } from "@/lib/flags";
 
 /**
  * "Talk it through live" on the comparison/offer pages — opens a real-time voice
@@ -18,7 +19,7 @@ export function CompareVoiceButton({
   checkOut: string;
 }) {
   const [open, setOpen] = useState(false);
-  if (hotelIds.length < 2) return null;
+  if (!VOICE_FEATURES || hotelIds.length < 2) return null;
   return (
     <>
       <button

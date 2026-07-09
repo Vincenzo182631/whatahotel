@@ -7,6 +7,7 @@ import { Heart, Menu, Scale, Sparkles, Mic } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { ChatComposer } from "@/components/chat/chat-composer";
 import { RealtimeVoice } from "@/components/voice/realtime-voice";
+import { VOICE_FEATURES } from "@/lib/flags";
 import { useConversation } from "@/store/conversation-store";
 import { usePreferences } from "@/store/preferences-store";
 import { type FeaturedHotel } from "@/hooks/use-hotels";
@@ -256,14 +257,16 @@ export function AirbnbLanding() {
             })}
           </div>
 
-          {/* Secondary actions: live voice + side-by-side compare */}
+          {/* Secondary actions: live voice (behind VOICE_FEATURES) + compare */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-            <button
-              onClick={() => setVoiceOpen(true)}
-              className="inline-flex items-center gap-2 rounded-full bg-[#FF385C] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_20px_-6px_rgba(255,56,92,0.6)] transition-transform hover:scale-[1.03]"
-            >
-              <Mic className="size-4" strokeWidth={2.5} /> Talk to the advisor live
-            </button>
+            {VOICE_FEATURES && (
+              <button
+                onClick={() => setVoiceOpen(true)}
+                className="inline-flex items-center gap-2 rounded-full bg-[#FF385C] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_20px_-6px_rgba(255,56,92,0.6)] transition-transform hover:scale-[1.03]"
+              >
+                <Mic className="size-4" strokeWidth={2.5} /> Talk to the advisor live
+              </button>
+            )}
             <button
               onClick={() => setCompareOpen(true)}
               className="inline-flex items-center gap-2 text-sm font-semibold text-[#717171] transition-colors hover:text-[#FF385C]"
@@ -287,7 +290,7 @@ export function AirbnbLanding() {
       </footer>
 
       <CompareWizard open={compareOpen} onClose={() => setCompareOpen(false)} cities={[]} />
-      {voiceOpen && <RealtimeVoice onClose={() => setVoiceOpen(false)} />}
+      {VOICE_FEATURES && voiceOpen && <RealtimeVoice onClose={() => setVoiceOpen(false)} />}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { useDictation } from "@/lib/voice/use-dictation";
 import { stopSpeaking } from "@/lib/voice/tts";
 import { useVoiceStore } from "@/store/voice-store";
 import { VoiceMenu } from "./voice-menu";
+import { VOICE_FEATURES } from "@/lib/flags";
 
 interface Props {
   onSend: (text: string) => void;
@@ -94,7 +95,9 @@ export function ChatComposer({
         )}
       />
 
-      {/* Speaker toggle + voice picker — read the advisor's replies aloud. */}
+      {/* Speaker toggle + voice picker — read the advisor's replies aloud.
+          Hidden while VOICE_FEATURES is off; flip the flag to bring it back. */}
+      {VOICE_FEATURES && (
       <div className="relative flex shrink-0 items-center">
         <button
           type="button"
@@ -129,9 +132,10 @@ export function ChatComposer({
         </button>
         {voiceMenu && <VoiceMenu onClose={() => setVoiceMenu(false)} />}
       </div>
+      )}
 
       {/* Microphone — dictate instead of typing. */}
-      {micSupported && (
+      {VOICE_FEATURES && micSupported && (
         <button
           type="button"
           onClick={toggleMic}
