@@ -6,6 +6,7 @@ import { getLiveRates, getHotelInfo, getLiveHotel, type HotelInfo } from "@/lib/
 import { usdPerUnit } from "@/lib/services/fx";
 import { HotelGallery } from "@/components/ui/hotel-gallery";
 import { CompareAdvisor } from "@/components/compare/compare-advisor";
+import { CompareVoiceButton } from "@/components/compare/compare-voice-button";
 import { formatCurrency, cn, formatDate } from "@/lib/utils";
 import { splitPerks } from "@/lib/perks";
 import type { AdvisorPerk, Hotel } from "@/lib/services/types";
@@ -424,12 +425,16 @@ export async function ComparisonView({
 
   return (
     <div>
-      <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#717171]">
-        <span className="flex items-center gap-1.5"><MapPin className="size-4 text-[#FF385C]" /> {ha.city} · {dateLabel}</span>
-        {dist != null && <span>· {dist} km apart</span>}
-        {anyLive && nights > 0 && <span className="text-[#9a9a9a]">· live rates as of today</span>}
-        {!anyLive && nights > 0 && <span className="text-[#E61E4D]">· live rates unavailable for these dates — shown as rate on request</span>}
-      </p>
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#717171]">
+          <span className="flex items-center gap-1.5"><MapPin className="size-4 text-[#FF385C]" /> {ha.city} · {dateLabel}</span>
+          {dist != null && <span>· {dist} km apart</span>}
+          {anyLive && nights > 0 && <span className="text-[#9a9a9a]">· live rates as of today</span>}
+          {!anyLive && nights > 0 && <span className="text-[#E61E4D]">· live rates unavailable for these dates — shown as rate on request</span>}
+        </p>
+        {/* Live voice call, grounded in THIS comparison */}
+        <CompareVoiceButton hotelIds={hotelIds.slice(0, 3)} checkIn={checkIn} checkOut={checkOut} />
+      </div>
 
       <CompareAdvisor
         hotels={cols.map((c) => ({ id: c.hotel.id, name: c.hotel.name }))}

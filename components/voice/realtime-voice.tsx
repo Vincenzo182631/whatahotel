@@ -7,12 +7,27 @@ import { cn } from "@/lib/utils";
 
 type Phase = "connecting" | "live" | "error";
 
+export interface RealtimeSessionParams {
+  /** "compare" grounds the advisor in a specific comparison page. */
+  mode?: "compare";
+  ids?: string[];
+  checkIn?: string;
+  checkOut?: string;
+}
+
 /**
  * Real-time voice advisor over OpenAI's Realtime API (WebRTC). The guest talks
  * and the advisor listens + replies in real time, calling our live hotel search
  * as a tool so answers are grounded. Renders as a full-screen call overlay.
+ * Pass `session` to ground it in a specific comparison page instead.
  */
-export function RealtimeVoice({ onClose }: { onClose: () => void }) {
+export function RealtimeVoice({
+  onClose,
+  session,
+}: {
+  onClose: () => void;
+  session?: RealtimeSessionParams;
+}) {
   const [phase, setPhase] = useState<Phase>("connecting");
   const [speaking, setSpeaking] = useState(false); // advisor is talking
   const [error, setError] = useState<string | null>(null);
@@ -94,7 +109,11 @@ export function RealtimeVoice({ onClose }: { onClose: () => void }) {
 
     async function connect() {
       try {
-        const sess = await fetch("/api/realtime/session", { method: "POST" }).then((r) => r.json());
+        const sess = await fetch("/api/realtime/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(session ?? {}),
+        }).then((r) => r.json());
         if (cancelled) return;
         if (!sess?.value) throw new Error(sess?.error || "no session");
 
