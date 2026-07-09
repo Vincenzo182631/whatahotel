@@ -563,8 +563,12 @@ export async function runTurn(
   const SHOW_NOW_RE =
     /\b(just show|show me|see (?:the |your )?(?:options|list|choices)|list (?:them|hotels|options)|any(?:thing)?(?: hotel)?|whatever|surprise me|don'?t care|doesn'?t matter|no preference|browse|go ahead)\b/i;
   const assistantTurns = messages.filter((m) => m.role === "assistant").length;
+  // If they've already given a city AND dates, we have enough to search — call
+  // the live API right away rather than asking a discovery question first.
+  const hasCityAndDates = knownPlace && Boolean(criteria.checkIn && criteria.checkOut);
   const wantDiscovery =
     knownPlace &&
+    !hasCityAndDates &&
     !hasPreferenceSignal &&
     !refersToShown &&
     explicitIntent !== "book" &&
