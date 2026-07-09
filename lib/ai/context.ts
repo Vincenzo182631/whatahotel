@@ -48,6 +48,9 @@ export interface ReplyContext {
   user?: AdvisorUser;
   /** The traveller's local time of day (morning/afternoon/evening/night). */
   timeOfDay?: string;
+  /** Current sargassum/beach conditions for the destination, when relevant
+   *  (coastal destination or the traveller asked). From Beach Intelligence. */
+  beach?: import("@/lib/services/beach-intelligence").BeachCondition;
   /** True on the first assistant turn — cue for a warm, time-appropriate hello. */
   greet?: boolean;
   /** Set when they named a whole country — ask which city they'll stay in. */
