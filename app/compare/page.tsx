@@ -42,7 +42,7 @@ export default async function ComparePage({ searchParams }: Params) {
       </header>
 
       <main className="mx-auto max-w-[1100px] px-6 py-8">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
           <h1 className="text-2xl font-semibold tracking-tight">Side-by-side comparison</h1>
           {isAdmin && (
             <ShareOfferButton hotelIds={ids} city={city} checkIn={checkIn} checkOut={checkOut} />

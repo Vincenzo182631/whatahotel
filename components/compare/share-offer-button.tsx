@@ -68,10 +68,10 @@ export function ShareOfferButton({
   };
 
   return (
-    <div className="relative">
+    <div className="relative w-full sm:w-auto">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1.5 rounded-full border border-[#FF385C]/40 bg-[#FF385C]/[0.06] px-3.5 py-2 text-sm font-semibold text-[#FF385C] transition-colors hover:bg-[#FF385C]/10"
+        className="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full border border-[#FF385C]/40 bg-[#FF385C]/[0.06] px-3.5 py-2 text-sm font-semibold text-[#FF385C] transition-colors hover:bg-[#FF385C]/10 sm:min-h-0 sm:w-auto"
       >
         <Share2 className="size-4" /> Share this comparison
       </button>

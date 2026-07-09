@@ -5,6 +5,7 @@ import { hotelDetailsService } from "@/lib/services";
 import { getLiveRates, getHotelInfo, getLiveHotel, type HotelInfo } from "@/lib/services/live-rates";
 import { usdPerUnit } from "@/lib/services/fx";
 import { HotelGallery } from "@/components/ui/hotel-gallery";
+import { ZoomableImage } from "@/components/ui/zoomable-image";
 import { CompareAdvisor } from "@/components/compare/compare-advisor";
 import { CompareVoiceButton } from "@/components/compare/compare-voice-button";
 import { formatCurrency, cn, formatDate } from "@/lib/utils";
@@ -442,24 +443,84 @@ export async function ComparisonView({
         checkOut={checkOut}
       />
 
-      {/* Swipeable side-by-side comparison: slide hotels horizontally while the
-          label column stays pinned. On desktop the columns fit, so nothing
-          scrolls and the sticky/snap become no-ops — desktop is unchanged. */}
-      <div
-        className="no-scrollbar mt-6 overflow-x-auto snap-x snap-proximity"
-        style={{ scrollPaddingLeft: "clamp(112px, 30vw, 150px)" }}
-      >
+      {/* MOBILE: all hotels side by side (no frozen column). Each attribute is a
+          labelled row; the hotels' values sit in equal columns beneath it, so you
+          compare all of them at once and only scroll vertically. */}
+      <div className="mt-6 md:hidden">
+        {/* Which column is which */}
+        <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols.length}, minmax(0, 1fr))` }}>
+          {cols.map((c) => {
+            const photos = [...new Set([c.hotel.image, ...(c.hotel.gallery ?? [])].filter(Boolean))];
+            const brand = c.hotel.brand || detectBrand(c.hotel.name);
+            return (
+              <div key={c.hotel.id} className="min-w-0">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-[#eee]">
+                  <ZoomableImage src={photos[0] || c.hotel.image} fallbackSrc={c.hotel.image} seed={`${c.hotel.id}-m`} alt={c.hotel.name} sizes="120px" hint={false} />
+                </div>
+                {brand && <p className="mt-1 truncate text-[9px] font-medium uppercase tracking-wide text-[#FF385C]">{brand}</p>}
+                <p className="mt-0.5 line-clamp-2 text-[12px] font-semibold leading-tight text-[#1a1a1a]">{c.hotel.name}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {visibleRows
+          .filter((row) => row.key !== "cta")
+          .map((row) => (
+            <div
+              key={row.key}
+              className={cn(
+                "mt-2.5 rounded-xl border border-[#EBEBEB] p-2.5",
+                row.highlight && "border-[#FF385C]/25 bg-[#FF385C]/[0.04]",
+              )}
+            >
+              {row.label && <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-[#717171]">{row.label}</p>}
+              <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols.length}, minmax(0, 1fr))` }}>
+                {cols.map((c) => (
+                  <div
+                    key={c.hotel.id}
+                    className="min-w-0 break-words text-[11px] leading-snug text-[#333] [&_.text-2xl]:text-[15px] [&_.text-2xl]:leading-tight"
+                  >
+                    {row.cell(c)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+        {/* Book per hotel */}
+        <div className="mt-3 grid gap-2" style={{ gridTemplateColumns: `repeat(${cols.length}, minmax(0, 1fr))` }}>
+          {cols.map((c) => {
+            const href = c.hotel.destinationKey
+              ? `/hotel/${c.hotel.id}`
+              : `/stay/${c.hotel.id}${nights > 0 ? `?checkIn=${checkIn}&checkOut=${checkOut}` : ""}`;
+            return (
+              <Link
+                key={c.hotel.id}
+                href={href}
+                className="flex min-h-11 items-center justify-center rounded-xl bg-[#FF385C] px-1 text-center text-[12px] font-semibold leading-tight text-white transition-opacity hover:opacity-90"
+              >
+                View &amp; book
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* DESKTOP: the side-by-side comparison table (unchanged). */}
+      <div className="no-scrollbar mt-6 hidden overflow-x-auto md:block">
         <div
           className="grid"
           style={{
-            gridTemplateColumns: `clamp(112px, 30vw, 150px) repeat(${cols.length}, minmax(240px, 1fr))`,
+            gridTemplateColumns: `150px repeat(${cols.length}, minmax(0, 1fr))`,
+            minWidth: 150 + cols.length * 240,
           }}
         >
-          <div className="sticky left-0 z-10 bg-white" />
+          <div />
           {cols.map((c) => {
             const photos = [...new Set([c.hotel.image, ...(c.hotel.gallery ?? [])].filter(Boolean))];
             return (
-              <div key={c.hotel.id} className="snap-start px-3 pb-4 sm:px-4">
+              <div key={c.hotel.id} className="px-4 pb-4">
                 {/* Hero + thumbnail grid — tap any (incl. "+N") to browse ALL photos */}
                 <HotelGallery images={photos} seed={`${c.hotel.id}-g`} alt={c.hotel.name} />
                 {c.hotel.brand && <p className="text-[10px] uppercase tracking-wider text-[#FF385C]">{c.hotel.brand}</p>}
@@ -470,16 +531,11 @@ export async function ComparisonView({
 
           {visibleRows.map((row) => (
             <div key={row.key} className="contents">
-              <div
-                className={cn(
-                  "sticky left-0 z-10 border-t border-[#EBEBEB] px-3 py-4 text-[11px] font-semibold uppercase tracking-wide text-[#717171] sm:px-4",
-                  row.highlight ? "bg-[#fdecef]" : "bg-white",
-                )}
-              >
+              <div className={cn("border-t border-[#EBEBEB] px-4 py-4 text-[11px] font-semibold uppercase tracking-wide text-[#717171]", row.highlight && "bg-[#FF385C]/[0.05]")}>
                 {row.label}
               </div>
               {cols.map((c) => (
-                <div key={c.hotel.id} className={cn("snap-start border-t border-[#EBEBEB] px-3 py-4 align-top sm:px-4", row.highlight && "bg-[#FF385C]/[0.05]")}>
+                <div key={c.hotel.id} className={cn("border-t border-[#EBEBEB] px-4 py-4 align-top", row.highlight && "bg-[#FF385C]/[0.05]")}>
                   {row.cell(c)}
                 </div>
               ))}
