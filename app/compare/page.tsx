@@ -6,6 +6,7 @@ import { ComparisonView, resolveComparisonHotel } from "@/components/compare/com
 import { ShareOfferButton } from "@/components/compare/share-offer-button";
 import { ShareComparisonButton } from "@/components/compare/share-comparison-button";
 import { CompareDateBar } from "@/components/compare/compare-date-bar";
+import { BeachAlertFor } from "@/components/chat/beach-alert-for";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +29,14 @@ export default async function ComparePage({ searchParams }: Params) {
   // Only the advisor gets the "share as an offer" shortcut.
   const me = await getCurrentUser();
   const isAdmin = Boolean(me && me.email.toLowerCase() === ADMIN_EMAIL);
-  const city = isAdmin ? (await resolveComparisonHotel(ids[0]))?.city ?? "" : "";
+
+  // Cities of the compared hotels — used for the "share as offer" flow and to
+  // surface a sargassum warning for each coastal destination being compared.
+  const resolved = await Promise.all(ids.map((id) => resolveComparisonHotel(id)));
+  const cities = Array.from(
+    new Set(resolved.map((h) => h?.city).filter((c): c is string => Boolean(c))),
+  );
+  const city = isAdmin ? cities[0] ?? "" : "";
 
   return (
     <div className="min-h-dvh bg-white text-[#222]">
@@ -53,6 +61,13 @@ export default async function ComparePage({ searchParams }: Params) {
           )}
         </div>
         <CompareDateBar hotelIds={ids} checkIn={checkIn} checkOut={checkOut} />
+        {cities.length > 0 && (
+          <div className="mt-4 space-y-2">
+            {cities.map((c) => (
+              <BeachAlertFor key={c} destination={c} />
+            ))}
+          </div>
+        )}
         <ComparisonView hotelIds={ids} checkIn={checkIn} checkOut={checkOut} />
       </main>
     </div>

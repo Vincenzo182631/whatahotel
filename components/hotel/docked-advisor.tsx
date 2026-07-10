@@ -6,6 +6,7 @@ import { Sparkles } from "lucide-react";
 import { ChatComposer } from "@/components/chat/chat-composer";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { ChatMarkdown, type ChatImage, type ChatBooking, type ChatHotelCard } from "@/components/chat/chat-markdown";
+import { BeachAlertFor } from "@/components/chat/beach-alert-for";
 import { answerHotelQuestion, DOCKED_SUGGESTIONS } from "@/lib/chat/hotel-qa";
 import { useSpeakReplies } from "@/lib/voice/use-speak-replies";
 import { useTravelDates } from "@/store/travel-dates-store";
@@ -227,6 +228,9 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
           </p>
         </div>
       </div>
+
+      {/* Sargassum warning for this hotel's destination, when risky/worsening. */}
+      <BeachAlertFor destination={hotel.city} className="border-b border-black/[0.06] px-4 py-3" />
 
       {/* Messages */}
       <div ref={scrollRef} className="no-scrollbar flex-1 space-y-3.5 overflow-y-auto px-4 py-4">
