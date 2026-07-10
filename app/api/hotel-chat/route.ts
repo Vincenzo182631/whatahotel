@@ -1,6 +1,7 @@
 import { hotelDetailsService } from "@/lib/services";
 import { getLiveHotel, getHotelInfo } from "@/lib/services/live-rates";
 import { streamGrounded } from "@/lib/ai/provider";
+import { beachBriefFor } from "@/lib/ai/beach";
 import { answerHotelQuestion } from "@/lib/chat/hotel-qa";
 import { buildHotelDossier } from "@/lib/ai/hotel-knowledge";
 import { buildHotelImageManifest } from "@/lib/services/hotel-images";
@@ -78,10 +79,11 @@ export async function POST(req: Request) {
 
   // Load the complete knowledge base + the real photo manifest for THIS hotel,
   // and (when dates are known) the prefilled booking links for those dates.
-  const [dossier, images, bookings] = await Promise.all([
+  const [dossier, images, bookings, beachBlock] = await Promise.all([
     buildHotelDossier(h, { liveAmenities, liveDining, liveAttractions, liveRoomTypes, livePolicies }),
     buildHotelImageManifest(h).catch(() => []),
     buildBookingManifest(h, checkIn, checkOut).catch(() => []),
+    beachBriefFor([h.city], question).catch(() => ""),
   ]);
 
   const bookingLibrary = bookings.length
@@ -151,7 +153,7 @@ Remember everything the guest has said this session (occasion, dates, party, pre
       : ""
   }
 
-${dossier.brief}${imageLibrary}${bookingLibrary}`;
+${dossier.brief}${imageLibrary}${bookingLibrary}${beachBlock}`;
 
   const convo = history.length
     ? history.map((m) => `${m.role === "user" ? "Guest" : "You"}: ${m.content}`).join("\n") + "\n"

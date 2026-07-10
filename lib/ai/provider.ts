@@ -4,6 +4,7 @@ import { DESTINATIONS, resolveDestination } from "@/lib/services/mock-data";
 import type { SearchCriteria } from "@/lib/services/types";
 import { ADVISOR_SYSTEM_PROMPT, summarizeCriteria } from "./system-prompt";
 import { composeReply } from "./advisor-voice";
+import { formatBeachFacts } from "@/lib/services/beach-intelligence";
 import type { ReplyContext } from "./context";
 
 /**
@@ -246,6 +247,9 @@ async function* streamFromClaude(
   const { streamText } = await import("ai");
 
   const situation = buildSituation(ctx);
+  const beach = ctx.beach
+    ? `\n\nBEACH INTELLIGENCE (current sargassum conditions from USF/NOAA satellite data — these ARE verified facts you may state; surface them only when the traveller asks about beaches/seaweed/sargassum, or when a beach is part of why they're going; otherwise ignore. Frame as current conditions, informational. If risk is moderate/high and they care about swimming, mention the clearer nearby zones. Never quote it as a guarantee.):\n${formatBeachFacts(ctx.beach)}`
+    : "";
   const u = ctx.user;
   const persona = u
     ? `TRAVELLER: ${u.firstName}${u.membership === "premium" ? " (Premium member)" : ""}${u.travelerType ? `, travelling as a ${u.travelerType}` : ""}.` +
@@ -261,7 +265,7 @@ async function* streamFromClaude(
     messages: [
       {
         role: "user",
-        content: `${persona}${greetLine}Known preferences: ${summarizeCriteria(ctx.criteria)}\n\nThe traveller just said: "${ctx.lastUserMessage}"\n\n${situation}\n\nReply now, in your advisor voice.`,
+        content: `${persona}${greetLine}Known preferences: ${summarizeCriteria(ctx.criteria)}\n\nThe traveller just said: "${ctx.lastUserMessage}"\n\n${situation}${beach}\n\nReply now, in your advisor voice.`,
       },
     ],
   });

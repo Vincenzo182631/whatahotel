@@ -1,6 +1,7 @@
 import { hotelDetailsService } from "@/lib/services";
 import { getLiveHotel } from "@/lib/services/live-rates";
 import { streamGrounded } from "@/lib/ai/provider";
+import { beachBriefFor } from "@/lib/ai/beach";
 import { buildComparisonBrief } from "@/lib/ai/comparison-knowledge";
 import { rateLimitExceeded, tooManyText } from "@/lib/security/rate-limit";
 import type { Hotel } from "@/lib/services/types";
@@ -68,6 +69,10 @@ export async function POST(req: Request) {
   if (hotels.length < 2) return new Response("I couldn't load those hotels to compare.", { status: 404 });
 
   const { brief, anyLive, nights } = await buildComparisonBrief(hotels, checkIn, checkOut);
+  const beachBlock = await beachBriefFor(
+    hotels.map((h) => h.city),
+    question,
+  ).catch(() => "");
   const priorityLabel = priority && PRIORITY_LABELS[priority] ? PRIORITY_LABELS[priority] : "";
   const names = hotels.map((h) => h.name).join(", ");
 
@@ -110,7 +115,7 @@ ${
       ? `\nTRAVELLER MEMORY — things this guest has told us across their conversations. Treat as known; never re-ask, and weight your pick toward these:\n${memory.map((m) => `- ${m}`).join("\n")}\n`
       : ""
   }
-${brief}${!anyLive && nights > 0 ? "\n\nNOTE: live rates came back unavailable for these dates — compare on inclusions, rooms and location, and suggest trying nearby dates for live pricing." : ""}`;
+${brief}${!anyLive && nights > 0 ? "\n\nNOTE: live rates came back unavailable for these dates — compare on inclusions, rooms and location, and suggest trying nearby dates for live pricing." : ""}${beachBlock}`;
 
   const convo = history.length
     ? history.map((m) => `${m.role === "user" ? "Traveller" : "You"}: ${m.content}`).join("\n") + "\n"

@@ -1,6 +1,7 @@
 import { runTurn } from "@/lib/ai/advisor";
 import { streamReply } from "@/lib/ai/provider";
 import { rateLimitExceeded, tooManyText } from "@/lib/security/rate-limit";
+import { attachBeachIntelligence } from "@/lib/ai/beach";
 import type { ChatRequestBody } from "@/lib/chat/types";
 
 // In-memory session storage requires the Node runtime (not edge).
@@ -33,6 +34,10 @@ export async function POST(req: Request) {
   const tod = String(body.timeOfDay ?? "");
   ctx.timeOfDay = /^(morning|afternoon|evening|night)$/.test(tod) ? tod : undefined;
   ctx.greet = !body.messages.some((m) => m.role === "assistant");
+
+  // Overlay current sargassum/beach conditions when the destination is coastal
+  // or the traveller asked. No-op unless BEACH_INTELLIGENCE_URL is configured.
+  await attachBeachIntelligence(ctx);
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
