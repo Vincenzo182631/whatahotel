@@ -37,12 +37,69 @@ export interface BeachCondition {
   summary: string;
   /** Nearby zones with clearer conditions (present when this zone is not LOW). */
   alternatives: BeachAlternative[];
+  /** 7-day wind-driven outlook: "improving" | "steady" | "worsening" | null. */
+  forecastTrend: string | null;
   /** Early-warning flag: recent news indicates worse conditions than satellite. */
   newsFlag: boolean;
   /** One-line reason for the flag (headline + source), when flagged. */
   newsSummary: string | null;
   /** Most recent relevant news item, if any. */
   latestReport: BeachReport | null;
+}
+
+/**
+ * A traveller-facing beach warning: shown with a red icon when a mentioned
+ * destination has meaningfully risky sargassum conditions.
+ */
+export interface BeachAlert {
+  zone: string;
+  score: number;
+  level: BeachRiskLevel;
+  /** Score at/below this threshold is considered a warning-worthy beach. */
+  worsening: boolean;
+  /** Short bullet reasons ("Beach score 42/100 — high sargassum risk", …). */
+  reasons: string[];
+  /** News early-warning line, when present. */
+  newsSummary: string | null;
+  /** Clearer nearby zones to suggest instead. */
+  alternatives: BeachAlternative[];
+}
+
+/** Score at/below which a beach is flagged as risky (per product rule). */
+export const BEACH_ALERT_SCORE = 60;
+
+/**
+ * Decide whether a beach condition warrants a visible warning, and build it.
+ * Fires when the beach score is at/below the threshold OR conditions are
+ * forecast to worsen. Returns null when the beach is fine.
+ */
+export function beachAlertFrom(b: BeachCondition): BeachAlert | null {
+  const lowScore = b.score <= BEACH_ALERT_SCORE;
+  const worsening = b.forecastTrend === "worsening";
+  if (!lowScore && !worsening) return null;
+
+  const levelWord =
+    b.level === "HIGH" ? "high" : b.level === "MODERATE" ? "moderate" : "low";
+  const reasons: string[] = [];
+  if (lowScore) {
+    reasons.push(`Beach score ${b.score}/100 — ${levelWord} sargassum risk`);
+  }
+  if (worsening) {
+    reasons.push("Sargassum forecast to worsen over the next 7 days");
+  }
+  if (b.newsFlag && b.newsSummary) {
+    reasons.push(b.newsSummary);
+  }
+
+  return {
+    zone: b.zone,
+    score: b.score,
+    level: b.level,
+    worsening,
+    reasons,
+    newsSummary: b.newsFlag ? b.newsSummary : null,
+    alternatives: b.alternatives,
+  };
 }
 
 // Destinations worth checking — the service only covers coastal zones, so we
@@ -117,6 +174,7 @@ async function fetchCondition(
         riskLevel?: BeachRiskLevel;
         summary?: string;
         alternatives?: { destination: string; riskScore: number; riskLevel: BeachRiskLevel }[];
+        forecastTrend?: string | null;
         newsFlag?: boolean;
         newsSummary?: string | null;
         latestReport?: BeachReport | null;
@@ -135,6 +193,7 @@ async function fetchCondition(
         score: a.riskScore,
         level: a.riskLevel,
       })),
+      forecastTrend: c.forecastTrend ?? null,
       newsFlag: Boolean(c.newsFlag),
       newsSummary: c.newsSummary ?? null,
       latestReport: c.latestReport ?? null,

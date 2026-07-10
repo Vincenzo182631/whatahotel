@@ -2,6 +2,7 @@ import type { CriteriaField } from "@/lib/services/conversation-memory";
 import type { HotelComparison } from "@/lib/services/recommendation-engine";
 import type { LiveHotel } from "@/lib/services/live-rates";
 import type { Recommendation, SearchCriteria } from "@/lib/services/types";
+import type { BeachAlert } from "@/lib/services/beach-intelligence";
 
 /** What the advisor decided to do this turn. */
 export type AdvisorAction =
@@ -41,6 +42,8 @@ export interface AdvisorPayload {
   /** Live results for a city outside the local set (link out to WhataHotel). */
   liveHotels?: LiveHotel[];
   liveCity?: string;
+  /** Sargassum warning for a mentioned destination (score ≤ 60 or worsening). */
+  beachAlert?: BeachAlert;
 }
 
 export interface ChatMessage {

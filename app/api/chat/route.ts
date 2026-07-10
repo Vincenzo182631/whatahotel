@@ -2,6 +2,7 @@ import { runTurn } from "@/lib/ai/advisor";
 import { streamReply } from "@/lib/ai/provider";
 import { rateLimitExceeded, tooManyText } from "@/lib/security/rate-limit";
 import { attachBeachIntelligence } from "@/lib/ai/beach";
+import { beachAlertFrom } from "@/lib/services/beach-intelligence";
 import type { ChatRequestBody } from "@/lib/chat/types";
 
 // In-memory session storage requires the Node runtime (not edge).
@@ -38,6 +39,12 @@ export async function POST(req: Request) {
   // Overlay current sargassum/beach conditions when the destination is coastal
   // or the traveller asked. No-op unless BEACH_INTELLIGENCE_URL is configured.
   await attachBeachIntelligence(ctx);
+  // Surface a visible red warning when the mentioned destination has risky
+  // sargassum conditions (score ≤ 60 or worsening) — rendered by the UI.
+  if (ctx.beach) {
+    const alert = beachAlertFrom(ctx.beach);
+    if (alert) payload.beachAlert = alert;
+  }
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
