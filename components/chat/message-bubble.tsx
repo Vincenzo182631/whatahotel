@@ -8,6 +8,7 @@ import { HotelCard } from "@/components/hotel/hotel-card";
 import { ComparisonTable } from "@/components/hotel/comparison-table";
 import { BookingSummary } from "@/components/hotel/booking-summary";
 import { LiveHotelCards } from "./live-hotel-cards";
+import { BeachAlertBanner } from "./beach-alert";
 
 function AdvisorMark() {
   return (
@@ -72,6 +73,9 @@ export function MessageBubble({
             </p>
           )}
         </div>
+
+        {/* Sargassum warning — always visible (never hoisted to the canvas). */}
+        {payload?.beachAlert && <BeachAlertBanner alert={payload.beachAlert} />}
 
         {/* Attachments — inline on mobile; hoisted to the results canvas on desktop */}
         <div className={cn("space-y-4", canvasActive && "lg:hidden")}>
