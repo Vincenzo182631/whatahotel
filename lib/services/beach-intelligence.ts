@@ -19,6 +19,14 @@ export interface BeachAlternative {
   level: BeachRiskLevel;
 }
 
+export interface BeachReport {
+  headline: string;
+  source: string;
+  publishedAt: string;
+  severity: BeachRiskLevel | null;
+  summary: string | null;
+}
+
 export interface BeachCondition {
   /** The matched monitoring zone, e.g. "Cancun Hotel Zone". */
   zone: string;
@@ -29,6 +37,12 @@ export interface BeachCondition {
   summary: string;
   /** Nearby zones with clearer conditions (present when this zone is not LOW). */
   alternatives: BeachAlternative[];
+  /** Early-warning flag: recent news indicates worse conditions than satellite. */
+  newsFlag: boolean;
+  /** One-line reason for the flag (headline + source), when flagged. */
+  newsSummary: string | null;
+  /** Most recent relevant news item, if any. */
+  latestReport: BeachReport | null;
 }
 
 // Destinations worth checking — the service only covers coastal zones, so we
@@ -103,6 +117,9 @@ async function fetchCondition(
         riskLevel?: BeachRiskLevel;
         summary?: string;
         alternatives?: { destination: string; riskScore: number; riskLevel: BeachRiskLevel }[];
+        newsFlag?: boolean;
+        newsSummary?: string | null;
+        latestReport?: BeachReport | null;
       };
     };
     const c = data.condition;
@@ -118,6 +135,9 @@ async function fetchCondition(
         score: a.riskScore,
         level: a.riskLevel,
       })),
+      newsFlag: Boolean(c.newsFlag),
+      newsSummary: c.newsSummary ?? null,
+      latestReport: c.latestReport ?? null,
     };
   } finally {
     clearTimeout(timer);
@@ -138,5 +158,24 @@ export function formatBeachFacts(b: BeachCondition): string {
       .join(", ");
     lines.push(`Nearby zones with clearer conditions: ${alts}.`);
   }
+  // News / announcements (context — the satellite score above is the number).
+  if (b.newsFlag && b.newsSummary) {
+    lines.push(`Early-warning from recent news: ${b.newsSummary}.`);
+  } else if (b.latestReport?.summary) {
+    const when = relativeDay(b.latestReport.publishedAt);
+    lines.push(
+      `Recent report (${b.latestReport.source}${when ? `, ${when}` : ""}): ${b.latestReport.summary}.`,
+    );
+  }
   return lines.join(" ");
+}
+
+function relativeDay(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const days = Math.round((Date.now() - then) / 86400000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 14) return `${days} days ago`;
+  return `${Math.round(days / 7)} weeks ago`;
 }
