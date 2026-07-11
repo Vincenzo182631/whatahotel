@@ -109,8 +109,9 @@ const COASTAL_HINTS =
   /\b(canc[uú]n|riviera\s*maya|tulum|playa\s*del\s*carmen|costa\s*mujeres|isla\s*mujeres|punta\s*cana|montego|jamaica|nassau|bahamas|miami|florida\s*keys|key\s*west|islamorada|cozumel|caribbean|cabo|puerto\s*morelos|akumal)\b/i;
 
 // Phrases that mean the traveller is asking about beach/water conditions.
+// Plural-tolerant: "are the beaches clean?" must trigger just like the singular.
 const BEACH_QUERY =
-  /\b(sargass?um|seaweed|sea\s?weed|algae|beach\s*(condition|quality|clean|clear)|water\s*(clarity|quality)|is\s+the\s+beach|clean\s+beach|clear\s+water)\b/i;
+  /\b(sargass?um|seaweed|sea\s?weed|algae|beach(es)?\s*(condition(s)?|quality|clean|clear|look(s|ing)?)|water\s*(clarity|quality)|(is|are)\s+the\s+beach(es)?|clean\s+beach(es)?|clear\s+water)\b/i;
 
 /** Should we bother fetching beach data for this destination + message? */
 export function beachRelevant(destination: string | undefined, message: string): boolean {
@@ -125,12 +126,31 @@ interface CacheEntry {
 }
 const CACHE = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 1000 * 60 * 60 * 6; // 6 hours — conditions move slowly
+const NEGATIVE_TTL_MS = 1000 * 60 * 5; // definitive "not a coastal zone" (404)
+const ERROR_TTL_MS = 1000 * 60; // transient failure — retry soon, don't hide recoveries
+const CACHE_MAX = 500; // bound memory: destinations are attacker-controllable input
 const TIMEOUT_MS = 3000;
+
+function setCache(key: string, value: BeachCondition | null, ttl: number): void {
+  if (CACHE.size >= CACHE_MAX) {
+    const now = Date.now();
+    for (const [k, e] of CACHE) if (e.expires <= now) CACHE.delete(k);
+    // Still full after dropping expired entries → evict oldest-inserted.
+    while (CACHE.size >= CACHE_MAX) {
+      const oldest = CACHE.keys().next().value;
+      if (oldest === undefined) break;
+      CACHE.delete(oldest);
+    }
+  }
+  CACHE.set(key, { value, expires: Date.now() + ttl });
+}
 
 /**
  * Fetch the current beach condition for a destination, or null when the feature
  * is unconfigured, the destination isn't a monitored coastal zone, or the call
- * fails. Results (including negatives) are cached per destination.
+ * fails. Real conditions cache for 6h; a definitive "not monitored" caches
+ * briefly; a transient error caches for only a minute so a service blip can't
+ * hide warnings for hours.
  */
 export async function getBeachCondition(
   destination: string,
@@ -138,15 +158,21 @@ export async function getBeachCondition(
   const base = process.env.BEACH_INTELLIGENCE_URL;
   if (!base) return null;
 
-  const key = destination.trim().toLowerCase();
-  if (!key) return null;
+  const dest = destination.trim();
+  if (!dest) return null;
+  const key = dest.toLowerCase();
 
   const cached = CACHE.get(key);
   if (cached && cached.expires > Date.now()) return cached.value;
 
-  const value = await fetchCondition(base, destination).catch(() => null);
-  CACHE.set(key, { value, expires: Date.now() + CACHE_TTL_MS });
-  return value;
+  try {
+    const value = await fetchCondition(base, dest);
+    setCache(key, value, value ? CACHE_TTL_MS : NEGATIVE_TTL_MS);
+    return value;
+  } catch {
+    setCache(key, null, ERROR_TTL_MS);
+    return null;
+  }
 }
 
 async function fetchCondition(
@@ -165,7 +191,8 @@ async function fetchCondition(
       headers: { Accept: "application/json" },
       cache: "no-store",
     });
-    if (!res.ok) return null; // 404 = not a monitored coastal zone
+    if (res.status === 404) return null; // definitive: not a monitored coastal zone
+    if (!res.ok) throw new Error(`beach-intelligence ${res.status}`); // transient (5xx etc.)
 
     const data = (await res.json()) as {
       condition?: {

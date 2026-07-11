@@ -20,13 +20,16 @@ export function BeachAlertFor({
   const [alert, setAlert] = useState<BeachAlert | null>(null);
 
   useEffect(() => {
+    // Clear any previous destination's alert immediately so a stale warning
+    // never lingers while (or after) the new destination is looked up.
+    setAlert(null);
     const dest = destination?.trim();
     if (!dest) return;
     let active = true;
     fetch(`/api/beach-alert?destination=${encodeURIComponent(dest)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (active && d?.alert) setAlert(d.alert as BeachAlert);
+        if (active) setAlert((d?.alert as BeachAlert | undefined) ?? null);
       })
       .catch(() => {});
     return () => {
