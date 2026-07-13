@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { BackButton } from "@/components/ui/back-button";
 import { ComparisonView, resolveComparisonHotel } from "@/components/compare/comparison-view";
 import { ShareOfferButton } from "@/components/compare/share-offer-button";
 import { ShareComparisonButton } from "@/components/compare/share-comparison-button";
@@ -46,7 +45,6 @@ export default async function ComparePage({ searchParams }: Params) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="What a Hotel" className="h-8 w-auto" />
           </Link>
-          <BackButton fallback="/" />
         </div>
       </header>
 
