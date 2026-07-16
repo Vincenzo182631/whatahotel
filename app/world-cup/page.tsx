@@ -6,17 +6,28 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "FIFA World Cup 2026 Final — Where to Stay | WhataHotel",
+  title: "FIFA World Cup 2026 — The Last Two Matches & Where to Stay | WhataHotel",
   description:
-    "The 2026 FIFA World Cup final — Argentina vs Spain at MetLife Stadium on July 19 — plus where to stay for the final and across the host cities, curated by the WhataHotel advisory team.",
+    "The final two matches of the 2026 FIFA World Cup — France vs England for third place (Jul 18, Miami) and Argentina vs Spain in the final (Jul 19, MetLife Stadium) — plus where to stay, curated by the WhataHotel advisory team.",
 };
 
 /**
  * The tournament state, hand-updated after each match day.
- * As of 16 July 2026 both semi-finals are played; the final (Argentina vs
- * Spain) kicks off 19 July at MetLife Stadium. Update FINAL with the score
- * once it is played.
+ * As of 16 July 2026 both semi-finals are played and two matches remain:
+ * the third-place play-off on 18 July and the final on 19 July. Add the
+ * score to THIRD_PLACE / FINAL once each is played.
  */
+
+const THIRD_PLACE = {
+  stage: "Third-place play-off",
+  date: "Saturday, July 18, 2026",
+  kickoff: "5:00 PM ET",
+  venue: "Hard Rock Stadium",
+  location: "Miami, Florida",
+  a: { team: "France", flag: "🇫🇷" },
+  b: { team: "England", flag: "🏴" },
+  note: "The beaten semi-finalists meet in Miami for the bronze medal.",
+};
 
 const FINAL = {
   stage: "The Final",
@@ -83,16 +94,17 @@ export default function WorldCupPage() {
       {/* Hero */}
       <section className="container pt-16 pb-8 text-center">
         <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-primary/80">
-          <Trophy className="size-3.5" strokeWidth={1.5} /> FIFA World Cup 2026 · The Final
+          <Trophy className="size-3.5" strokeWidth={1.5} /> FIFA World Cup 2026 · Two matches left
         </p>
         <h1 className="mx-auto mt-4 max-w-3xl font-display text-4xl font-light leading-[1.08] tracking-tight md:text-6xl">
           It comes down to{" "}
-          <span className="text-gradient-gold italic">one match</span>
+          <span className="text-gradient-gold italic">two matches</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-foreground/75">
-          Argentina and Spain meet at MetLife Stadium on July 19 for the 2026
-          World Cup. Here&apos;s the final — and the finest places to stay for it,
-          curated by your WhataHotel advisor.
+          France meet England for third place in Miami on July 18, then Argentina
+          face Spain at MetLife Stadium on July 19 for the title. Here are the last
+          two — and the finest places to stay for them, curated by your WhataHotel
+          advisor.
         </p>
       </section>
 
@@ -137,6 +149,45 @@ export default function WorldCupPage() {
           <Button asChild size="lg" className="mt-8">
             <Link href="/">Find a stay for the final</Link>
           </Button>
+        </div>
+      </section>
+
+      {/* Third-place play-off */}
+      <section className="container py-8">
+        <div className="mx-auto max-w-3xl rounded-3xl glass-strong p-7 shadow-card md:p-9">
+          <div className="flex items-center justify-center gap-3 text-xs text-foreground/60">
+            <span className="rounded-full bg-primary/10 px-3 py-1 font-medium uppercase tracking-wider text-primary">
+              {THIRD_PLACE.stage}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <CalendarDays className="size-3.5" strokeWidth={1.5} /> {THIRD_PLACE.date}
+            </span>
+          </div>
+          <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl">{THIRD_PLACE.a.flag}</div>
+              <div className="mt-2 font-display text-base font-medium md:text-lg">
+                {THIRD_PLACE.a.team}
+              </div>
+            </div>
+            <span className="text-center font-display text-lg font-light italic text-foreground/50">
+              vs
+            </span>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl">{THIRD_PLACE.b.flag}</div>
+              <div className="mt-2 font-display text-base font-medium md:text-lg">
+                {THIRD_PLACE.b.team}
+              </div>
+            </div>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-foreground/60">
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="size-3.5 text-primary" strokeWidth={1.5} /> {THIRD_PLACE.kickoff}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="size-3.5 text-primary" strokeWidth={1.5} /> {THIRD_PLACE.venue} · {THIRD_PLACE.location}
+            </span>
+          </div>
         </div>
       </section>
 
