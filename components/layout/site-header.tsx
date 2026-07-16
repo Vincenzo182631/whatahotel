@@ -53,6 +53,7 @@ export function SiteHeader({ heroMode = false }: { heroMode?: boolean }) {
           <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 md:flex">
             {[
               { label: "Home", href: "/", home: true },
+              { label: "World Cup", href: "/world-cup" },
               { label: "About", href: "/about" },
             ].map((l) => (
               <Link
