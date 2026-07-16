@@ -1,57 +1,78 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Trophy, MapPin, CalendarDays, Sparkles, Clock } from "lucide-react";
+import { Trophy, MapPin, CalendarDays, Sparkles, Clock, Train } from "lucide-react";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "FIFA World Cup 2026 — Latest Match & Where to Stay | WhataHotel",
+  title: "FIFA World Cup 2026 Final — Where to Stay | WhataHotel",
   description:
-    "The latest FIFA World Cup 2026 results, the final matchup, and where to stay across the host cities — curated by the WhataHotel advisory team.",
+    "The 2026 FIFA World Cup final — Argentina vs Spain at MetLife Stadium on July 19 — plus where to stay for the final and across the host cities, curated by the WhataHotel advisory team.",
 };
 
 /**
  * The tournament state, hand-updated after each match day.
- * As of 16 July 2026 both semi-finals are played; the final is set for 19 July.
+ * As of 16 July 2026 both semi-finals are played; the final (Argentina vs
+ * Spain) kicks off 19 July at MetLife Stadium. Update FINAL with the score
+ * once it is played.
  */
 
-const LATEST_MATCH = {
-  stage: "Semi-final",
-  date: "July 15, 2026",
-  venue: "AT&T Stadium · Dallas",
-  home: { team: "Argentina", flag: "🇦🇷", score: 2 },
-  away: { team: "England", flag: "🏴", score: 1 },
-  note: "Argentina reach a second consecutive final, edging England in a tense knockout.",
-};
-
 const FINAL = {
-  date: "Sunday, July 19, 2026 · 3:00 PM ET",
-  venue: "MetLife Stadium · New York / New Jersey",
+  stage: "The Final",
+  date: "Sunday, July 19, 2026",
+  kickoff: "3:00 PM ET",
+  venue: "MetLife Stadium",
+  location: "East Rutherford, New Jersey",
   a: { team: "Argentina", flag: "🇦🇷" },
   b: { team: "Spain", flag: "🇪🇸" },
+  note: "Reigning champions Argentina meet 2010 winners Spain — a first World Cup final between the two.",
 };
 
-const RECENT_RESULTS = [
+const SEMI_FINALS = [
   {
     stage: "Semi-final",
-    date: "Jul 15",
+    date: "Jul 15 · Dallas",
     home: { team: "Argentina", flag: "🇦🇷", score: 2 },
     away: { team: "England", flag: "🏴", score: 1 },
   },
   {
     stage: "Semi-final",
-    date: "Jul 14",
+    date: "Jul 14 · New York/NJ",
     home: { team: "Spain", flag: "🇪🇸", score: 2 },
     away: { team: "France", flag: "🇫🇷", score: 0 },
   },
 ];
 
+// Where to stay for the final — bases around MetLife Stadium (East Rutherford, NJ).
+const FINAL_BASES = [
+  {
+    area: "Midtown Manhattan",
+    note: "The classic base — grand hotels, then a direct NJ Transit line to the Meadowlands on match day.",
+    transit: "≈ 35 min to the stadium",
+  },
+  {
+    area: "Hoboken & Jersey City",
+    note: "Waterfront rooms with a Manhattan skyline, closest of the polished bases to MetLife.",
+    transit: "≈ 20 min to the stadium",
+  },
+  {
+    area: "The Meadowlands",
+    note: "Stay within sight of the stadium — walk-in convenience for kickoff and the celebrations after.",
+    transit: "Walking distance",
+  },
+];
+
+// Broader 2026 host cities across the three nations.
 const HOST_CITIES = [
-  { city: "New York / New Jersey", note: "Hosts the final at MetLife Stadium" },
-  { city: "Dallas", note: "Semi-final host at AT&T Stadium" },
-  { city: "Los Angeles", note: "West-coast group & knockout matches" },
-  { city: "Mexico City", note: "Iconic Estadio Azteca fixtures" },
+  { city: "New York / New Jersey", note: "Hosts the final at MetLife Stadium", country: "🇺🇸" },
+  { city: "Dallas", note: "Semi-final host at AT&T Stadium", country: "🇺🇸" },
+  { city: "Los Angeles", note: "Marquee matches at SoFi Stadium", country: "🇺🇸" },
+  { city: "Miami", note: "Third-place play-off host", country: "🇺🇸" },
+  { city: "Mexico City", note: "Opening match at the historic Estadio Azteca", country: "🇲🇽" },
+  { city: "Guadalajara", note: "Estadio Akron group-stage fixtures", country: "🇲🇽" },
+  { city: "Toronto", note: "BMO Field, Canada's opening host", country: "🇨🇦" },
+  { city: "Vancouver", note: "BC Place knockout-round matches", country: "🇨🇦" },
 ];
 
 export default function WorldCupPage() {
@@ -60,65 +81,19 @@ export default function WorldCupPage() {
       <SiteHeader />
 
       {/* Hero */}
-      <section className="container pt-16 pb-10 text-center">
+      <section className="container pt-16 pb-8 text-center">
         <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-primary/80">
-          <Trophy className="size-3.5" strokeWidth={1.5} /> FIFA World Cup 2026
+          <Trophy className="size-3.5" strokeWidth={1.5} /> FIFA World Cup 2026 · The Final
         </p>
         <h1 className="mx-auto mt-4 max-w-3xl font-display text-4xl font-light leading-[1.08] tracking-tight md:text-6xl">
-          The world&apos;s game, and{" "}
-          <span className="text-gradient-gold italic">where to stay</span> for it
+          It comes down to{" "}
+          <span className="text-gradient-gold italic">one match</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-foreground/75">
-          Canada, Mexico &amp; the USA are hosting the largest World Cup ever. Here&apos;s
-          the latest from the pitch — and the finest places to stay in every host
-          city, curated by your WhataHotel advisor.
+          Argentina and Spain meet at MetLife Stadium on July 19 for the 2026
+          World Cup. Here&apos;s the final — and the finest places to stay for it,
+          curated by your WhataHotel advisor.
         </p>
-      </section>
-
-      {/* Latest match */}
-      <section className="container py-8">
-        <div className="mb-5 text-center">
-          <p className="text-xs uppercase tracking-[0.25em] text-primary/80">
-            Latest result
-          </p>
-        </div>
-        <div className="mx-auto max-w-3xl rounded-3xl glass-strong p-8 shadow-card md:p-10">
-          <div className="flex items-center justify-center gap-3 text-xs text-foreground/60">
-            <span className="rounded-full bg-primary/10 px-3 py-1 font-medium uppercase tracking-wider text-primary">
-              {LATEST_MATCH.stage}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarDays className="size-3.5" strokeWidth={1.5} /> {LATEST_MATCH.date}
-            </span>
-          </div>
-
-          <div className="mt-7 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl">{LATEST_MATCH.home.flag}</div>
-              <div className="mt-2 font-display text-lg font-medium md:text-xl">
-                {LATEST_MATCH.home.team}
-              </div>
-            </div>
-            <div className="text-center font-display text-4xl font-light tracking-tight md:text-6xl">
-              {LATEST_MATCH.home.score}
-              <span className="mx-2 text-foreground/40">–</span>
-              {LATEST_MATCH.away.score}
-            </div>
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl">{LATEST_MATCH.away.flag}</div>
-              <div className="mt-2 font-display text-lg font-medium md:text-xl">
-                {LATEST_MATCH.away.team}
-              </div>
-            </div>
-          </div>
-
-          <p className="mt-7 text-center text-sm leading-relaxed text-foreground/70">
-            {LATEST_MATCH.note}
-          </p>
-          <p className="mt-3 inline-flex w-full items-center justify-center gap-1.5 text-xs text-foreground/55">
-            <MapPin className="size-3.5" strokeWidth={1.5} /> {LATEST_MATCH.venue}
-          </p>
-        </div>
       </section>
 
       {/* The final */}
@@ -126,7 +101,7 @@ export default function WorldCupPage() {
         <div className="mx-auto max-w-4xl rounded-3xl border border-primary/20 bg-secondary/60 p-8 text-center shadow-card md:p-12">
           <Sparkles className="mx-auto size-6 text-primary" strokeWidth={1.5} />
           <p className="mt-3 text-xs uppercase tracking-[0.25em] text-primary/80">
-            The Final
+            {FINAL.stage}
           </p>
           <div className="mt-6 flex items-center justify-center gap-6 md:gap-12">
             <div className="text-center">
@@ -145,12 +120,18 @@ export default function WorldCupPage() {
               </div>
             </div>
           </div>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-foreground/70">
+          <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-foreground/70">
+            {FINAL.note}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-foreground/70">
             <span className="inline-flex items-center gap-1.5">
-              <Clock className="size-4 text-primary" strokeWidth={1.5} /> {FINAL.date}
+              <CalendarDays className="size-4 text-primary" strokeWidth={1.5} /> {FINAL.date}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <MapPin className="size-4 text-primary" strokeWidth={1.5} /> {FINAL.venue}
+              <Clock className="size-4 text-primary" strokeWidth={1.5} /> {FINAL.kickoff}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="size-4 text-primary" strokeWidth={1.5} /> {FINAL.venue} · {FINAL.location}
             </span>
           </div>
           <Button asChild size="lg" className="mt-8">
@@ -159,7 +140,46 @@ export default function WorldCupPage() {
         </div>
       </section>
 
-      {/* Recent results */}
+      {/* Where to stay for the final */}
+      <section className="container py-10">
+        <div className="mb-8 text-center">
+          <p className="text-xs uppercase tracking-[0.25em] text-primary/80">
+            Final weekend
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-light md:text-4xl">
+            Where to <span className="text-gradient-gold italic">stay</span> for the final
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-foreground/72">
+            Three bases for MetLife Stadium in East Rutherford — from grand
+            Manhattan hotels to a room within sight of the pitch.
+          </p>
+        </div>
+        <div className="mx-auto grid max-w-5xl gap-5 md:grid-cols-3">
+          {FINAL_BASES.map((b) => (
+            <Link
+              key={b.area}
+              href="/"
+              className="group flex flex-col rounded-3xl glass-strong p-6 shadow-card transition-transform hover:-translate-y-0.5"
+            >
+              <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
+                <MapPin className="size-5" strokeWidth={1.5} />
+              </span>
+              <h3 className="mt-5 font-display text-lg font-medium">{b.area}</h3>
+              <p className="mt-2 flex-1 text-sm leading-relaxed text-foreground/72">
+                {b.note}
+              </p>
+              <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-foreground/55">
+                <Train className="size-3.5 text-primary" strokeWidth={1.5} /> {b.transit}
+              </span>
+              <span className="mt-3 text-sm font-medium text-primary">
+                Find a stay →
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Semi-finals */}
       <section className="container py-8">
         <div className="mb-6 text-center">
           <p className="text-xs uppercase tracking-[0.25em] text-primary/80">
@@ -170,7 +190,7 @@ export default function WorldCupPage() {
           </h2>
         </div>
         <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-2">
-          {RECENT_RESULTS.map((m) => (
+          {SEMI_FINALS.map((m) => (
             <div
               key={`${m.home.team}-${m.away.team}`}
               className="rounded-2xl glass-strong p-5 shadow-sm"
@@ -200,18 +220,18 @@ export default function WorldCupPage() {
         </div>
       </section>
 
-      {/* Where to stay */}
+      {/* Host cities */}
       <section className="container py-10">
         <div className="mb-8 text-center">
           <p className="text-xs uppercase tracking-[0.25em] text-primary/80">
-            Host cities
+            Across the tournament
           </p>
           <h2 className="mt-3 font-display text-3xl font-light md:text-4xl">
-            Where to <span className="text-gradient-gold italic">stay</span>
+            The <span className="text-gradient-gold italic">host cities</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-foreground/72">
-            Tell our advisor the match you&apos;re chasing — we&apos;ll find the right
-            hotel nearby, with advisor-exclusive perks included.
+            Wherever the football takes you across Canada, Mexico and the USA,
+            tell our advisor — we&apos;ll find the right hotel nearby.
           </p>
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -221,10 +241,8 @@ export default function WorldCupPage() {
               href="/"
               className="group flex flex-col rounded-3xl glass-strong p-6 shadow-card transition-transform hover:-translate-y-0.5"
             >
-              <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
-                <MapPin className="size-5" strokeWidth={1.5} />
-              </span>
-              <h3 className="mt-5 font-display text-lg font-medium">{h.city}</h3>
+              <span className="text-2xl">{h.country}</span>
+              <h3 className="mt-4 font-display text-lg font-medium">{h.city}</h3>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-foreground/72">
                 {h.note}
               </p>
