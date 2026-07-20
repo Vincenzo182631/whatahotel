@@ -13,7 +13,15 @@ export const maxDuration = 30;
 
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "info@lorrainetravel.com").toLowerCase();
 
-type Search = { a?: string; b?: string; c?: string; checkIn?: string; checkOut?: string };
+type Search = {
+  a?: string;
+  b?: string;
+  c?: string;
+  checkIn?: string;
+  checkOut?: string;
+  to?: string;
+  note?: string;
+};
 type Params = { searchParams: Promise<Search> };
 
 export const metadata: Metadata = {
@@ -21,8 +29,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ComparePage({ searchParams }: Params) {
-  const { a, b, c, checkIn = "", checkOut = "" } = await searchParams;
+  const { a, b, c, checkIn = "", checkOut = "", to = "", note = "" } = await searchParams;
   if (!a || !b) notFound();
+  const toName = to.trim().slice(0, 80);
+  const noteText = note.trim().slice(0, 400);
   const ids = [a, b, c].filter((x): x is string => Boolean(x));
 
   // Only the advisor gets the "share as an offer" shortcut.
@@ -58,6 +68,18 @@ export default async function ComparePage({ searchParams }: Params) {
             <ShareComparisonButton hotelIds={ids} checkIn={checkIn} checkOut={checkOut} />
           )}
         </div>
+        {(toName || noteText) && (
+          <div className="mt-4 rounded-2xl border border-[#FF385C]/25 bg-[#FF385C]/[0.05] px-4 py-3.5">
+            {toName && (
+              <p className="text-sm font-semibold text-[#1a1a1a]">Prepared for {toName}</p>
+            )}
+            {noteText && (
+              <p className={`${toName ? "mt-1 " : ""}whitespace-pre-line text-sm text-[#3a3a3a]`}>
+                {noteText}
+              </p>
+            )}
+          </div>
+        )}
         <CompareDateBar hotelIds={ids} checkIn={checkIn} checkOut={checkOut} />
         {cities.length > 0 && (
           <div className="mt-4 space-y-2">
