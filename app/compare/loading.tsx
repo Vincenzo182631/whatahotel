@@ -1,5 +1,4 @@
-import { ArrowLeft, Scale } from "lucide-react";
-import Link from "next/link";
+import { Scale } from "lucide-react";
 
 /**
  * Instant loading state for /compare. With this Suspense boundary the URL flips
@@ -14,9 +13,6 @@ export default function CompareLoading() {
         <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-6 py-3.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="What a Hotel" className="h-8 w-auto" />
-          <Link href="/" className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold hover:bg-[#f7f7f7]">
-            <ArrowLeft className="size-4" /> Home
-          </Link>
         </div>
       </header>
 
