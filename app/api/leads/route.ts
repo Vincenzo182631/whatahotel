@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { store } from "@/lib/data/store";
 import { hashPassword } from "@/lib/auth/password";
@@ -6,6 +7,7 @@ import { signSession } from "@/lib/auth/jwt";
 import { sessionCookieOptions, SESSION_COOKIE, getCurrentUser } from "@/lib/auth/session";
 import { toPublicUser, type Lead, type User } from "@/lib/data/types";
 import { rateLimitExceeded } from "@/lib/security/rate-limit";
+import { ANON_VID_COOKIE, attachAnonComparisons } from "@/lib/leads/anon-comparisons";
 
 export const runtime = "nodejs";
 
@@ -66,9 +68,14 @@ export async function POST(req: Request) {
     user = await store.createUser(newUser);
   }
 
+  // Fold any comparisons made on this browser before the gate onto the lead.
+  const vid = (await cookies()).get(ANON_VID_COOKIE)?.value;
+  await attachAnonComparisons(vid, user.email);
+
   const token = await signSession({ sub: user.id, email: user.email, name: user.name });
   const res = NextResponse.json({ user: toPublicUser(user) });
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions());
+  if (vid) res.cookies.set(ANON_VID_COOKIE, "", { path: "/", maxAge: 0 });
   return res;
 }
 

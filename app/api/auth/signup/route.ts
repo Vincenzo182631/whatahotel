@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { registerUser } from "@/lib/auth/accounts";
 import { signSession } from "@/lib/auth/jwt";
@@ -6,6 +7,7 @@ import { sessionCookieOptions, SESSION_COOKIE } from "@/lib/auth/session";
 import { toPublicUser } from "@/lib/data/types";
 import { store } from "@/lib/data/store";
 import { rateLimitExceeded } from "@/lib/security/rate-limit";
+import { ANON_VID_COOKIE, attachAnonComparisons } from "@/lib/leads/anon-comparisons";
 
 export const runtime = "nodejs";
 
@@ -40,6 +42,12 @@ export async function POST(req: Request) {
       createdAt: new Date().toISOString(),
     })
     .catch(() => {});
+
+  // Fold any comparisons they made on this browser BEFORE signing up onto their
+  // new lead, then clear the anonymous stash cookie.
+  const vid = (await cookies()).get(ANON_VID_COOKIE)?.value;
+  await attachAnonComparisons(vid, result.user.email);
+
   const token = await signSession({
     sub: result.user.id,
     email: result.user.email,
@@ -47,5 +55,6 @@ export async function POST(req: Request) {
   });
   const res = NextResponse.json({ user: toPublicUser(result.user) });
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions());
+  if (vid) res.cookies.set(ANON_VID_COOKIE, "", { path: "/", maxAge: 0 });
   return res;
 }

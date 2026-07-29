@@ -165,6 +165,19 @@ export class RedisStore implements DataStore {
     return lead;
   }
 
+  async addAnonComparison(vid: string, comparison: LeadComparison) {
+    const list = (await getJson<LeadComparison[]>(`anoncompare:${vid}`)) ?? [];
+    const merged = mergeComparison(list, comparison);
+    // Expire the stash after 30 days so we don't keep guest data indefinitely.
+    await redis(["SET", `anoncompare:${vid}`, JSON.stringify(merged), "EX", 60 * 60 * 24 * 30]);
+  }
+
+  async takeAnonComparisons(vid: string) {
+    const list = (await getJson<LeadComparison[]>(`anoncompare:${vid}`)) ?? [];
+    if (list.length) await redis(["DEL", `anoncompare:${vid}`]);
+    return list;
+  }
+
   async getLeadByEmail(email: string) {
     const id = await redis<string | null>(["GET", `leademail:${norm(email)}`]);
     return id ? getJson<Lead>(`lead:${id}`) : null;

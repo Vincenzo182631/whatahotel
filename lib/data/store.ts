@@ -30,6 +30,10 @@ export interface DataStore {
   getLeadByEmail(email: string): Promise<Lead | null>;
   updateLead(id: string, patch: Partial<Pick<Lead, "stage" | "notes">>): Promise<Lead | null>;
   addLeadComparison(email: string, comparison: LeadComparison): Promise<Lead | null>;
+  /** Stash a comparison for an anonymous visitor (by browser id) until sign-up. */
+  addAnonComparison(vid: string, comparison: LeadComparison): Promise<void>;
+  /** Return and clear the anonymous visitor's stashed comparisons (on sign-up). */
+  takeAnonComparisons(vid: string): Promise<LeadComparison[]>;
 }
 
 interface Db {
@@ -37,6 +41,9 @@ interface Db {
   trips: Trip[];
   resets: PasswordResetToken[];
   leads: Lead[];
+  /** Comparisons made by anonymous visitors, keyed by browser id, until they
+   *  sign up and the list is moved onto their lead. */
+  anonCompare?: Record<string, LeadComparison[]>;
 }
 
 const DATA_DIR =
@@ -145,6 +152,21 @@ class FileStore implements DataStore {
     lead.comparisons = mergeComparison(lead.comparisons, comparison);
     save(db());
     return lead;
+  }
+  async addAnonComparison(vid: string, comparison: LeadComparison) {
+    const d = db();
+    d.anonCompare ??= {};
+    d.anonCompare[vid] = mergeComparison(d.anonCompare[vid], comparison);
+    save(d);
+  }
+  async takeAnonComparisons(vid: string) {
+    const d = db();
+    const list = d.anonCompare?.[vid] ?? [];
+    if (d.anonCompare && vid in d.anonCompare) {
+      delete d.anonCompare[vid];
+      save(d);
+    }
+    return list;
   }
 }
 

@@ -1,8 +1,11 @@
+import { randomUUID } from "node:crypto";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { store } from "@/lib/data/store";
 import { getCurrentUser } from "@/lib/auth/session";
 import type { LeadComparison } from "@/lib/data/types";
 import { rateLimitExceeded } from "@/lib/security/rate-limit";
+import { ANON_VID_COOKIE, anonCookieOptions, attachAnonComparisons } from "@/lib/leads/anon-comparisons";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,18 +14,19 @@ const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "info@lorrainetravel.com").toLow
 const clean = (v: unknown, max = 80) => String(v ?? "").trim().slice(0, max);
 
 /**
- * Record a comparison the current (signed-in) lead opened on /compare, so the
- * advisor can see — and click straight into — exactly what they were weighing.
- * Fire-and-forget from the compare page; no-op for guests and for the advisor.
+ * Record a comparison opened on /compare so the advisor can see — and click
+ * straight into — exactly what someone was weighing. Fire-and-forget from the
+ * compare page. Signed-in leads get it on their CRM record immediately; guests
+ * get it stashed against an anonymous browser id and folded onto their lead the
+ * moment they sign up. The advisor's own comparisons are never tracked.
  */
 export async function POST(req: Request) {
   if (await rateLimitExceeded(req, "lead-compare", 60, 60)) {
     return NextResponse.json({ ok: false });
   }
   const user = await getCurrentUser().catch(() => null);
-  // Only track a real, signed-in lead — never the advisor's own comparisons.
-  if (!user || user.email.toLowerCase() === ADMIN_EMAIL) {
-    return NextResponse.json({ ok: false });
+  if (user && user.email.toLowerCase() === ADMIN_EMAIL) {
+    return NextResponse.json({ ok: false }); // never track the advisor's curation
   }
 
   const body = await req.json().catch(() => ({}));
@@ -52,6 +56,21 @@ export async function POST(req: Request) {
     at: new Date().toISOString(),
   };
 
-  await store.addLeadComparison(user.email, comparison).catch(() => {});
-  return NextResponse.json({ ok: true });
+  const jar = await cookies();
+  const vid = jar.get(ANON_VID_COOKIE)?.value;
+
+  if (user) {
+    // Signed-in lead: record now, and fold in anything compared before they
+    // signed in on this browser.
+    await store.addLeadComparison(user.email, comparison).catch(() => {});
+    if (vid) await attachAnonComparisons(vid, user.email);
+    return NextResponse.json({ ok: true });
+  }
+
+  // Guest: stash under an anonymous browser id (create one if needed).
+  const anonId = vid || randomUUID();
+  await store.addAnonComparison(anonId, comparison).catch(() => {});
+  const res = NextResponse.json({ ok: true, anonymous: true });
+  if (!vid) res.cookies.set(ANON_VID_COOKIE, anonId, anonCookieOptions());
+  return res;
 }
