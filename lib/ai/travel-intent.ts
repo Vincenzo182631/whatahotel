@@ -384,6 +384,39 @@ const KIND_LABEL: Record<ProximityKind, string> = {
 // Cache per query (incl. negative results) so each city is geocoded at most once.
 const geoCache = new Map<string, ResolvedAnchor | null>();
 
+/**
+ * Google Geocoding — the primary geocoder. Far more reliable than Nominatim for
+ * landmarks and airports ("Eiffel Tower", "MCO airport"), which is what drives
+ * our "near X" ranking. Uses the same key as Places (both APIs are enabled on
+ * it). Server-side only — never expose this key to the browser.
+ */
+async function googleGeocode(query: string): Promise<LatLng | null> {
+  const key = process.env.GOOGLE_PLACES_API_KEY;
+  if (!key) return null; // not configured → caller falls back to Nominatim
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+    query,
+  )}&key=${key}`;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 4000);
+  try {
+    const r = await fetch(url, { signal: ctrl.signal });
+    if (!r.ok) return null;
+    const j = (await r.json()) as {
+      status?: string;
+      results?: { geometry?: { location?: { lat?: number; lng?: number } } }[];
+    };
+    // ZERO_RESULTS / OVER_QUERY_LIMIT / REQUEST_DENIED → fall back quietly.
+    if (j.status !== "OK") return null;
+    const loc = j.results?.[0]?.geometry?.location;
+    if (typeof loc?.lat !== "number" || typeof loc?.lng !== "number") return null;
+    return { lat: +loc.lat.toFixed(6), lng: +loc.lng.toFixed(6) };
+  } catch {
+    return null; // timeout / network → graceful fallback
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 async function nominatim(query: string): Promise<LatLng | null> {
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
   const ctrl = new AbortController();
@@ -420,7 +453,9 @@ async function geocodeAnchor(
   const query = reg ? `${base}, ${reg}` : base;
   const key = query.toLowerCase();
   if (geoCache.has(key)) return geoCache.get(key) ?? null;
-  const ll = await nominatim(query);
+  // Google first (much better on landmarks/airports), Nominatim as the free
+  // fallback when the key is absent or Google returns nothing.
+  const ll = (await googleGeocode(query)) ?? (await nominatim(query));
   const label = isAttraction ? target.label : KIND_LABEL[target.kind];
   const anchor = ll ? { label, lat: ll.lat, lng: ll.lng } : null;
   geoCache.set(key, anchor);
