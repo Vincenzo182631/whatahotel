@@ -17,6 +17,9 @@ import { hiResImage } from "./images";
 const API_BASE = process.env.WHATAHOTEL_API_URL || "https://whatahotel.com/data/api.cfm";
 const API_KEY = process.env.WHATAHOTEL_API_KEY || "";
 const CACHE_TTL = 30 * 60_000; // 30 min
+// Re-check an EMPTY info result far sooner than a full one — a transient miss
+// shouldn't stick for the full window when the hotel normally has info.
+const EMPTY_INFO_TTL = 2 * 60_000; // 2 min
 const FETCH_TIMEOUT = 10_000;
 
 export function liveRatesConfigured(): boolean {
@@ -579,12 +582,19 @@ export async function getHotelInfo(hotelName: string, city: string): Promise<Hot
   if (!API_KEY || !hotelName) return null;
   const key = `${hotelName}|${city}`;
   const hit = infoCache.get(key);
-  if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
+  // Cache a result WITH substance for the full window, but re-check an EMPTY one
+  // much sooner: the API occasionally returns empty transiently for a hotel that
+  // normally has info, and we don't want that miss to stick for half an hour.
+  if (hit) {
+    const ttl = infoHasSubstance(hit.data) ? CACHE_TTL : EMPTY_INFO_TTL;
+    if (Date.now() - hit.ts < ttl) return hit.data;
+  }
 
   // Circle back: the info lookup often comes back empty on the first try (a
-  // transient miss), so retry until it has substance — up to 3 attempts. Only a
-  // result that is STILL empty after all attempts is cached (and surfaces the
-  // UI's "view the hotel for details" note), so we don't re-hammer every load.
+  // transient miss), so retry until it has substance — up to 3 attempts. A
+  // result that is STILL empty is cached only briefly (above), so a genuinely
+  // info-less hotel surfaces the UI's "view the hotel for details" note without
+  // being re-hammered every load, while a transient miss self-heals on revisit.
   let data: HotelInfo | null = null;
   for (let attempt = 0; attempt < 3 && !infoHasSubstance(data); attempt++) {
     data = await fetchHotelInfoOnce(hotelName, city);
