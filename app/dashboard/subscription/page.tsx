@@ -84,13 +84,20 @@ export default function SubscriptionPage() {
                     Current plan
                   </button>
                 ) : p.id === "premium" ? (
-                  <button
-                    onClick={() => changePlan.mutate("premium")}
-                    disabled={changePlan.isPending}
-                    className="w-full rounded-xl bg-[#FF385C] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
-                  >
-                    {changePlan.isPending ? "Processing…" : "Upgrade to Premium"}
-                  </button>
+                  // Upgrades are paused for now — keep the button visible but
+                  // non-clickable, with a clear "coming soon" cue.
+                  <div>
+                    <button
+                      type="button"
+                      disabled
+                      aria-disabled="true"
+                      title="Premium upgrades are coming soon"
+                      className="w-full cursor-not-allowed rounded-xl bg-[#FF385C]/45 px-4 py-2.5 text-sm font-semibold text-white"
+                    >
+                      Upgrade to Premium
+                    </button>
+                    <p className="mt-1.5 text-center text-xs text-[#9a9a9a]">Coming soon</p>
+                  </div>
                 ) : (
                   <button
                     onClick={() => changePlan.mutate("free")}
