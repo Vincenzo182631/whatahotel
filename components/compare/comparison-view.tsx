@@ -208,8 +208,9 @@ export async function ComparisonView({
   }
   const ha = hotels[0];
   const nights = nightsBetween(checkIn, checkOut);
-  const cols: Col[] = [];
-  for (const h of hotels) cols.push(await buildCol(h, checkIn, checkOut, nights));
+  // Build all columns in parallel — each may retry its info lookup a few times,
+  // so running the 2–3 hotels concurrently keeps the page within budget.
+  const cols: Col[] = await Promise.all(hotels.map((h) => buildCol(h, checkIn, checkOut, nights)));
   const anyLive = cols.some((col) => col.live);
   const dist = hotels.length === 2 ? kmApart(hotels[0], hotels[1]) : null;
 
@@ -225,6 +226,24 @@ export async function ComparisonView({
     visible?: boolean;
     cell: (c: Col) => ReactNode;
   }
+
+  // Where "view the hotel for details" points — the hotel's own page (same
+  // target as the View & book CTA), carrying the dates for live pricing.
+  const viewHref = (h: Hotel) =>
+    h.destinationKey
+      ? `/hotel/${h.id}`
+      : `/stay/${h.id}${nights > 0 ? `?checkIn=${checkIn}&checkOut=${checkOut}` : ""}`;
+  // Shown in place of a blank cell so no attribute is ever left vacant: the data
+  // wasn't available from the API, but the traveller can still get it on the
+  // hotel's own page.
+  const detailNote = (h: Hotel) => (
+    <Link
+      href={viewHref(h)}
+      className="inline-flex items-center gap-1 text-xs font-medium text-[#FF385C] hover:underline"
+    >
+      View the hotel for details <ArrowUpRight className="size-3" />
+    </Link>
+  );
 
   const rows: Row[] = [
     {
@@ -301,7 +320,6 @@ export async function ComparisonView({
     {
       key: "dining",
       label: "Dining",
-      visible: cols.some((c) => c.info?.restaurants.length),
       cell: (c) =>
         c.info?.restaurants.length ? (
           <ul className="space-y-1">
@@ -312,13 +330,12 @@ export async function ComparisonView({
             ))}
           </ul>
         ) : (
-          <span className="text-sm text-[#9a9a9a]">—</span>
+          detailNote(c.hotel)
         ),
     },
     {
       key: "nearby",
       label: "Nearby",
-      visible: cols.some((c) => c.info?.attractions.length),
       cell: (c) =>
         c.info?.attractions.length ? (
           <div className="flex flex-wrap gap-1.5">
@@ -329,7 +346,7 @@ export async function ComparisonView({
             ))}
           </div>
         ) : (
-          <span className="text-sm text-[#9a9a9a]">—</span>
+          detailNote(c.hotel)
         ),
     },
     {
@@ -369,7 +386,7 @@ export async function ComparisonView({
               <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#FF385C]" /> {h}
             </li>
           ))}
-          {!c.hotel.highlights.length && <span className="text-sm text-[#9a9a9a]">—</span>}
+          {!c.hotel.highlights.length && detailNote(c.hotel)}
         </ul>
       ),
     },

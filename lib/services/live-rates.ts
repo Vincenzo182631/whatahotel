@@ -553,12 +553,48 @@ const infoCache = new Map<string, { ts: number; data: HotelInfo | null }>();
 const AMENITY_SECTIONS = /amenit|facilit|service|recreational/i;
 
 /** Real descriptive info: amenities, dining, description, tax policy. */
+/** True when an info result actually carries something worth showing. Used to
+ *  decide whether to circle back and retry a sparse/failed lookup. */
+function infoHasSubstance(d: HotelInfo | null): boolean {
+  return Boolean(
+    d &&
+      (d.restaurants.length ||
+        d.attractions.length ||
+        d.policies.length ||
+        d.roomTypes.length ||
+        d.amenities.length ||
+        d.description),
+  );
+}
+
+/**
+ * Real descriptive info (amenities, dining, nearby attractions, policies) for a
+ * hotel, matched by name + city. The `method=info` lookup sometimes comes back
+ * empty on the first try (a transient miss), so we CIRCLE BACK and retry a
+ * couple of times before giving up — no comparison field should be left blank
+ * for a recoverable reason. Only a genuinely empty result (cached) falls
+ * through to the UI's "view the hotel for details" note.
+ */
 export async function getHotelInfo(hotelName: string, city: string): Promise<HotelInfo | null> {
   if (!API_KEY || !hotelName) return null;
   const key = `${hotelName}|${city}`;
   const hit = infoCache.get(key);
   if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
 
+  // Circle back: the info lookup often comes back empty on the first try (a
+  // transient miss), so retry until it has substance — up to 3 attempts. Only a
+  // result that is STILL empty after all attempts is cached (and surfaces the
+  // UI's "view the hotel for details" note), so we don't re-hammer every load.
+  let data: HotelInfo | null = null;
+  for (let attempt = 0; attempt < 3 && !infoHasSubstance(data); attempt++) {
+    data = await fetchHotelInfoOnce(hotelName, city);
+  }
+  infoCache.set(key, { ts: Date.now(), data });
+  return data;
+}
+
+/** One `method=info` fetch + parse. Returns null on a miss / non-200. */
+async function fetchHotelInfoOnce(hotelName: string, city: string): Promise<HotelInfo | null> {
   const url =
     `${API_BASE}?method=info&hotelName=${encodeURIComponent(hotelName)}` +
     `&hotelCity=${encodeURIComponent(city)}&apiKey=${encodeURIComponent(API_KEY)}`;
@@ -577,7 +613,6 @@ export async function getHotelInfo(hotelName: string, city: string): Promise<Hot
     }>(await fetchJson(url));
     const hotel = json.wahData?.hotel;
     if (json.wahData?.status?.code !== "200" || !hotel) {
-      infoCache.set(key, { ts: Date.now(), data: null });
       return null;
     }
     const sections = hotel.HOTELINFO ?? [];
@@ -617,7 +652,6 @@ export async function getHotelInfo(hotelName: string, city: string): Promise<Hot
       ),
     ];
     const data: HotelInfo = { description, amenities, restaurants, tax, attractions, roomTypes, policies };
-    infoCache.set(key, { ts: Date.now(), data });
     return data;
   } catch {
     return null;
