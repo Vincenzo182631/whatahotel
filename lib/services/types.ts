@@ -36,6 +36,11 @@ export type Vibe =
 export interface SearchCriteria {
   destination?: string; // canonical city key, e.g. "paris"
   destinationLabel?: string; // human label, e.g. "Paris, France"
+  /** When the traveller names 2+ cities in one trip ("New York, Miami and
+   *  Orlando"), the ordered human labels of every city — so the advisor can
+   *  search each and show the best in each. `destination`/`destinationLabel`
+   *  hold the first city for single-city compatibility. Empty/absent = single. */
+  destinations?: string[];
   checkIn?: string;
   checkOut?: string;
   travelMonth?: string;

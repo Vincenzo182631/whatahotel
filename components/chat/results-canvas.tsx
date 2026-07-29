@@ -80,6 +80,7 @@ export function ResultsCanvas({ messages }: { messages: ChatMessage[] }) {
                 hotels={p.liveHotels}
                 checkIn={p.criteria?.checkIn}
                 checkOut={p.criteria?.checkOut}
+                cities={p.cities}
               />
             )}
             {p.booking && <BookingSummary booking={p.booking} />}

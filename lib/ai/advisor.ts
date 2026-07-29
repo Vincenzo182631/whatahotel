@@ -22,6 +22,8 @@ import {
   attachLiveCoordinates,
   attachLiveInfo,
 } from "@/lib/services/live-rates";
+import type { LiveHotel } from "@/lib/services/live-rates";
+import { DESTINATIONS, resolveDestination } from "@/lib/services/mock-data";
 import { bareCountry } from "./country-links";
 import { CITY_POIS } from "./itinerary-data";
 import {
@@ -59,6 +61,35 @@ function heuristicCity(text: string): string | undefined {
   const candidate = m[1].trim();
   if (CITY_STOPWORDS.has(candidate.toLowerCase())) return undefined;
   return candidate;
+}
+
+/**
+ * Deterministically find every KNOWN city named in a message, in the order they
+ * appear (deduped). Used to detect a multi-city trip ("New York, Miami and
+ * Orlando") reliably without depending on the LLM. Word-boundary matched so a
+ * short alias never matches inside another word.
+ */
+function scanCitiesInText(text: string): { key: string; label: string; city: string }[] {
+  const found: { idx: number; key: string; label: string }[] = [];
+  for (const [key, meta] of Object.entries(DESTINATIONS)) {
+    let best = -1;
+    for (const alias of meta.aliases) {
+      const re = new RegExp(`\\b${alias.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+      const i = text.search(re);
+      if (i >= 0 && (best < 0 || i < best)) best = i;
+    }
+    if (best >= 0) found.push({ idx: best, key, label: meta.label });
+  }
+  found.sort((a, b) => a.idx - b.idx);
+  const seen = new Set<string>();
+  const out: { key: string; label: string; city: string }[] = [];
+  for (const f of found) {
+    if (!seen.has(f.key)) {
+      seen.add(f.key);
+      out.push({ key: f.key, label: f.label, city: f.label.split(",")[0].trim() });
+    }
+  }
+  return out;
 }
 
 const ORDINALS: Record<string, number> = {
@@ -540,6 +571,154 @@ export async function runTurn(
       };
       return { ctx, payload: { action: "ask", criteria } };
     }
+  }
+
+  // ---- 4b-4b. Multi-city trip — the best hotels in EACH named city ---------
+  // Detect 2+ cities in one request ("New York, Miami and Orlando"). The
+  // deterministic scan is the source of truth for THIS message; a persisted set
+  // (criteria.destinations) carries the trip across refinement turns where no
+  // city is re-named. Naming a single city switches back to the single path.
+  // The LLM extraction (criteria.destinations) is the PRIMARY multi-city source —
+  // it handles cities outside the curated map (Miami, Orlando…). The deterministic
+  // scan only augments it (a no-LLM fallback + confirmation), and must never
+  // override a valid LLM set — most searchable cities aren't in the local map.
+  const scannedCities = scanCitiesInText(lastUserMessage);
+  let tripLabels: string[] = [];
+  if ((criteria.destinations?.length ?? 0) >= 2) {
+    tripLabels = criteria.destinations!;
+  } else if (scannedCities.length >= 2) {
+    tripLabels = scannedCities.map((c) => c.label);
+    criteria.destinations = tripLabels;
+  }
+  // Switch back to a single city: the traveller named a single new destination
+  // this turn and listed no others — drop any stale multi-city set.
+  if (tripLabels.length < 2 && learned.includes("destination") && scannedCities.length <= 1) {
+    criteria.destinations = undefined;
+    tripLabels = [];
+  }
+  const tripCities: { key?: string; label: string; city: string }[] = tripLabels.map((label) => {
+    const key = resolveDestination(label) ?? undefined;
+    return { key, label, city: label.split(",")[0].trim() };
+  });
+
+  const multiCityTurn =
+    tripCities.length >= 2 &&
+    (scannedCities.length >= 2 ||
+      tripCities.length >= 2 && learned.includes("destination") ||
+      changedSearch ||
+      searchIntentChange ||
+      explicitIntent === "recommend" ||
+      session.lastRecommendations.length === 0);
+
+  if (multiCityTurn) {
+    const MAX_CITIES = 5;
+    const cityList = tripCities.slice(0, MAX_CITIES);
+    const cityLabels = cityList.map((c) => c.label);
+    await sessionStorageService.save(sessionId, { criteria });
+
+    // No dates yet → ask once for the whole trip (same dates unless they differ).
+    if (!(criteria.checkIn && criteria.checkOut)) {
+      const ctx: ReplyContext = {
+        action: "ask",
+        criteria,
+        missing: ["dates"],
+        recommendations: [],
+        totalFound: 0,
+        cities: cityLabels,
+        learned,
+        lastUserMessage,
+        user,
+      };
+      return { ctx, payload: { action: "ask", criteria, missing: ["dates"] } };
+    }
+
+    // Have dates but no stated preference and they opened vaguely ("I'm going to
+    // NY, Miami and Orlando") → ask ONE preference question that applies to all
+    // cities. Skip when they explicitly asked to see hotels or said "just show".
+    const assistantTurns = messages.filter((m) => m.role === "assistant").length;
+    const hasPref =
+      Boolean(criteria.occasion) ||
+      (criteria.vibes?.length ?? 0) > 0 ||
+      (criteria.amenities?.length ?? 0) > 0 ||
+      criteria.budgetMin != null ||
+      criteria.budgetMax != null ||
+      Boolean(criteria.nearby) ||
+      turnIntent.proximity != null ||
+      turnIntent.travelerTypes.length > 0 ||
+      turnIntent.priceSort != null;
+    const showNow =
+      explicitIntent === "recommend" ||
+      /\b(just show|show me|see (?:the |your )?(?:options|list|choices)|best hotels?|find me|go ahead|no preference|surprise me|whatever)\b/i.test(
+        lastUserMessage,
+      );
+    if (!hasPref && !showNow && assistantTurns < 2) {
+      const ctx: ReplyContext = {
+        action: "ask",
+        criteria,
+        missing: [],
+        recommendations: [],
+        totalFound: 0,
+        cities: cityLabels,
+        discovery: "purpose",
+        learned,
+        lastUserMessage,
+        user,
+      };
+      return { ctx, payload: { action: "ask", criteria } };
+    }
+
+    // Search each city in parallel — top 3, ranked by the shared travel intent.
+    const intent = turnIntent;
+    const groups = await Promise.all(
+      cityList.map(async (c) => {
+        const fetchCity = () =>
+          getCityHotels({
+            city: c.city,
+            checkIn: criteria.checkIn!,
+            checkOut: criteria.checkOut!,
+            guests: criteria.adults,
+          });
+        // Firing several city searches at once occasionally returns empty on a
+        // cold cache; a single retry recovers it (a solo call always succeeds).
+        let live = await fetchCity();
+        if (!live.length) live = await fetchCity();
+        if (!live.length) return { city: c.city, label: c.label, hotels: [] as LiveHotel[] };
+        let anchor = intent.proximity
+          ? await getAnchor(c.city, intent.proximity, live[0]?.country)
+          : null;
+        if (anchor) {
+          live = await attachLiveCoordinates(live, 10);
+          anchor = validateAnchor(anchor, live);
+        }
+        let top: LiveHotel[] = rankLiveHotels(live, intent, anchor).slice(0, 3);
+        if (intent.proximity || intent.travelerTypes.length) {
+          top = (await attachLiveInfo(top, 3)).map((h) => {
+            const reason = buildLiveMatchReason(h, intent);
+            return reason ? { ...h, matchReason: reason } : h;
+          });
+        }
+        return { city: c.city, label: c.label, hotels: top };
+      }),
+    );
+    const liveHotels = groups.flatMap((g) => g.hotels);
+    const ctx: ReplyContext = {
+      action: "live",
+      criteria,
+      missing: [],
+      recommendations: [],
+      totalFound: liveHotels.length,
+      liveHotels,
+      cities: cityLabels,
+      cityGroups: groups,
+      liveIntent: summarizeIntent(intent),
+      learned,
+      lastUserMessage,
+      user,
+    };
+    return {
+      ctx,
+      payload: { action: "live", criteria, liveHotels, cities: cityLabels },
+    };
   }
 
   // ---- 4b-5. Consultative discovery — understand the traveller BEFORE listing.

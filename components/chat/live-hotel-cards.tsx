@@ -129,16 +129,50 @@ export function LiveHotelCards({
   hotels,
   checkIn,
   checkOut,
+  cities,
 }: {
   hotels: LiveHotel[];
   checkIn?: string;
   checkOut?: string;
+  /** For a multi-city trip: ordered city labels. When 2+ distinct cities are
+   *  present, cards are grouped under a heading per city. */
+  cities?: string[];
 }) {
   if (!hotels.length) return null;
+
+  // Flat list (single-city search) unless the advisor flagged a multi-city trip
+  // (2+ city labels). Grouping only kicks in for a genuine multi-city result.
+  const multiCity = (cities?.length ?? 0) >= 2;
+  if (!multiCity) {
+    return (
+      <div className="space-y-3">
+        {hotels.map((h) => (
+          <LiveHotelCard key={h.sourceHotelId} h={h} checkIn={checkIn} checkOut={checkOut} />
+        ))}
+      </div>
+    );
+  }
+
+  // Group by the hotel's OWN city and render groups in first-appearance order —
+  // the backend already lists hotels city-by-city in the order the traveller
+  // named them, so a Map (insertion-ordered) preserves that without having to
+  // match the API's city string ("Orlando and Disney World") to a label.
+  const groups = new Map<string, LiveHotel[]>();
+  for (const h of hotels) {
+    const key = (h.city || "").trim() || "Other";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(h);
+  }
+
   return (
-    <div className="space-y-3">
-      {hotels.map((h) => (
-        <LiveHotelCard key={h.sourceHotelId} h={h} checkIn={checkIn} checkOut={checkOut} />
+    <div className="space-y-7">
+      {[...groups.entries()].map(([city, cityHotels]) => (
+        <div key={city} className="space-y-3">
+          <h3 className="text-sm font-semibold tracking-tight text-[#222]">{city}</h3>
+          {cityHotels.map((h) => (
+            <LiveHotelCard key={h.sourceHotelId} h={h} checkIn={checkIn} checkOut={checkOut} />
+          ))}
+        </div>
       ))}
     </div>
   );

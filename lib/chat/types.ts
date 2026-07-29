@@ -42,6 +42,10 @@ export interface AdvisorPayload {
   /** Live results for a city outside the local set (link out to WhataHotel). */
   liveHotels?: LiveHotel[];
   liveCity?: string;
+  /** For a multi-city trip ("hotels in NY, Miami & Orlando"): the ordered city
+   *  labels. When present with 2+ entries the UI groups the hotel cards under a
+   *  heading per city (each hotel already carries its own `city`). */
+  cities?: string[];
   /** Sargassum warning for a mentioned destination (score ≤ 60 or worsening). */
   beachAlert?: BeachAlert;
 }

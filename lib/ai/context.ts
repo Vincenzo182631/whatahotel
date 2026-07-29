@@ -37,6 +37,14 @@ export interface ReplyContext {
   /** Live results + the city they're for, when searching beyond the local set. */
   liveCity?: string;
   liveHotels?: import("@/lib/services/live-rates").LiveHotel[];
+  /** Multi-city trip: ordered city labels the traveller named (2+). */
+  cities?: string[];
+  /** Multi-city results grouped per city, for the reply's per-city "why". */
+  cityGroups?: {
+    city: string;
+    label: string;
+    hotels: import("@/lib/services/live-rates").LiveHotel[];
+  }[];
   /** One-line summary of the traveller's travel intent, when live-ranked. */
   liveIntent?: string;
   /** How many hotels the traveller asked for — so the reply can explain a

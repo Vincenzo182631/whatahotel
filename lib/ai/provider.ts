@@ -60,6 +60,12 @@ async function chatModel(fast = false) {
 
 const criteriaPatchSchema = z.object({
   destination: z.string().optional().describe("the city the traveller names, e.g. 'paris', 'miami', 'scottsdale', 'rome' — any city, lowercased"),
+  destinations: z
+    .array(z.string())
+    .optional()
+    .describe(
+      "ONLY when the traveller names TWO OR MORE cities for one trip ('New York, Miami and Orlando'): every city in the order mentioned, each as a plain city name. Omit for a single city.",
+    ),
   checkIn: z.string().optional().describe("check-in date as YYYY-MM-DD, only if the user gives a concrete date"),
   checkOut: z.string().optional().describe("check-out date as YYYY-MM-DD, only if the user gives a concrete date"),
   travelMonth: z.string().optional(),
@@ -130,6 +136,32 @@ export async function extractCriteriaPatch(
           .split(/\s+/)
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
           .join(" ");
+      }
+    }
+    // Multi-city trip: normalise each named city to a human label (known cities
+    // → canonical label, unknown → title-cased) and keep the ordered, deduped
+    // list. When 2+ distinct cities, also seed the primary destination from the
+    // first so all single-city logic still works.
+    if (merged.destinations?.length) {
+      const seen = new Set<string>();
+      const labels: string[] = [];
+      for (const raw of merged.destinations) {
+        const label = cityLabel(String(raw));
+        const dedupeKey = label.split(",")[0].trim().toLowerCase();
+        if (label && !seen.has(dedupeKey)) {
+          seen.add(dedupeKey);
+          labels.push(label);
+        }
+      }
+      if (labels.length >= 2) {
+        merged.destinations = labels;
+        if (!merged.destinationLabel) {
+          const firstKey = resolveDestination(labels[0]);
+          merged.destination = firstKey && DESTINATIONS[firstKey] ? firstKey : undefined;
+          merged.destinationLabel = labels[0];
+        }
+      } else {
+        merged.destinations = undefined; // only one real city → single-city path
       }
     }
     // Trust the deterministic parser for canonical amenity/brand keys.
@@ -226,6 +258,20 @@ function pruneUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
   return out;
 }
 
+/** Turn a raw city name into a human label: known cities → their canonical
+ *  label ("Miami, USA"), unknown → title-cased as typed. Shared by single- and
+ *  multi-city extraction so both resolve names the same way. */
+export function cityLabel(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  const key = DESTINATIONS[trimmed.toLowerCase()] ? trimmed.toLowerCase() : resolveDestination(trimmed);
+  if (key && DESTINATIONS[key]) return DESTINATIONS[key].label;
+  return trimmed
+    .split(/\s+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 /** Stream the advisor's spoken reply for this turn. */
 export async function* streamReply(
   ctx: ReplyContext,
@@ -275,6 +321,37 @@ async function* streamFromClaude(
 }
 
 function buildSituation(ctx: ReplyContext): string {
+  // ---- Multi-city trip (2+ cities in one request) ------------------------
+  // Handled before the single-city switch so a NY+Miami+Orlando request reads
+  // like an advisor comparing destinations, not one city at a time.
+  if (ctx.cities && ctx.cities.length >= 2) {
+    const list = ctx.cities.join(", ");
+    if (ctx.action === "ask" && ctx.missing.includes("dates"))
+      return `SITUATION: The traveller wants a multi-city trip across ${list}. You need dates before pulling live rates. In ONE warm sentence, acknowledge all ${ctx.cities.length} cities and ask which dates they're travelling (the same dates apply to each city unless they say otherwise). Do NOT list hotels yet.`;
+    if (ctx.action === "ask" && ctx.discovery)
+      return `SITUATION: The traveller is considering ${list} and you'll find the best hotels in each. Before you do, ask ONE concise question about what matters most for their stay — so the picks fit them across every city. Offer a few concrete examples they can pick from: near a beach/waterfront, scenic views, a spa, a pool, luxury, family-friendly, romantic, nightlife, great restaurants, major attractions, walkability, or a budget. Warm and natural, exactly ONE question, no lists of hotels yet.`;
+    if (ctx.cityGroups && ctx.cityGroups.length) {
+      const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
+      const blocks = ctx.cityGroups
+        .map((g) => {
+          if (!g.hotels.length)
+            return `${g.city}: no WhataHotel properties came back for these dates — say so briefly and offer to adjust.`;
+          const lines = g.hotels
+            .slice(0, 3)
+            .map((h, i) => {
+              const bits = [h.distanceLabel, h.matchReason].filter(Boolean).join(" · ");
+              return `   ${i + 1}. ${h.name}${bits ? ` — ${bits}` : ""}`;
+            })
+            .join("\n");
+          return `${g.city}:\n${lines}`;
+        })
+        .join("\n");
+      return `SITUATION: You searched WhataHotel's live availability for a multi-city trip and the app is showing the top hotels grouped by city (cards on screen).${
+        intent ? ` The traveller cares about: ${intent} — the ranking in each city reflects it.` : ""
+      } Real facts you may use (use ONLY these; a distance is only real when shown; NEVER quote a nightly price — say "live rates for your dates"):\n${blocks}\n\nReply as a travel advisor comparing destinations: one short intro line naming the cities, then a brief line per city naming your top pick there and WHY it fits (one crisp reason). Keep it tight — do not repeat every hotel; the cards show the full list. End by inviting them to refine (a preference, or compare specific hotels).`;
+    }
+  }
+
   switch (ctx.action) {
     case "recommend": {
       const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;

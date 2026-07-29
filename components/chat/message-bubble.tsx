@@ -102,6 +102,7 @@ export function MessageBubble({
               hotels={payload.liveHotels}
               checkIn={payload.criteria?.checkIn}
               checkOut={payload.criteria?.checkOut}
+              cities={payload.cities}
             />
           )}
 
