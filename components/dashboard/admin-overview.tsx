@@ -17,6 +17,15 @@ import type { PublicUser } from "@/lib/data/types";
 
 const DAY = 86_400_000;
 
+// Leads pipeline stages, in order, with a colour for the funnel bar/legend.
+const PIPELINE: { key: string; label: string; color: string }[] = [
+  { key: "new", label: "New", color: "#2F6FED" },
+  { key: "contacted", label: "Contacted", color: "#C2790B" },
+  { key: "quoted", label: "Quoted", color: "#7A4FD0" },
+  { key: "booked", label: "Booked", color: "#0E8F5E" },
+  { key: "lost", label: "Lost", color: "#B0B0B0" },
+];
+
 function timeAgo(ts: number): string {
   const diff = Date.now() - ts;
   if (diff < 60_000) return "just now";
@@ -70,6 +79,13 @@ export async function AdminOverview({ user }: { user: PublicUser }) {
   const recentLeads = leads.slice(0, 5);
   const recentOffers = offers.slice(0, 5);
 
+  // Leads pipeline breakdown for the funnel (unset stage counts as "new").
+  const pipeline = PIPELINE.map((s) => ({
+    ...s,
+    count: leads.filter((l) => (l.stage ?? "new") === s.key).length,
+  }));
+  const pipelineTotal = pipeline.reduce((n, s) => n + s.count, 0);
+
   return (
     <>
       <PageHeader
@@ -96,6 +112,42 @@ export async function AdminOverview({ user }: { user: PublicUser }) {
           hint={needReply.length ? `${needReply.length} awaiting a reply` : "all handled"}
         />
       </div>
+
+      {/* Leads pipeline funnel */}
+      {pipelineTotal > 0 && (
+        <Card className="mt-5">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-[#1a1a1a]">
+              <Users className="size-4 text-[#FF385C]" /> Leads pipeline
+            </h2>
+            <Link href="/dashboard/leads" className="inline-flex items-center gap-1 text-xs font-medium text-[#FF385C] hover:underline">
+              Manage <ArrowRight className="size-3" />
+            </Link>
+          </div>
+          {/* Proportional bar */}
+          <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-[#f0f0f0]">
+            {pipeline.map((s) =>
+              s.count ? (
+                <div
+                  key={s.key}
+                  style={{ width: `${(s.count / pipelineTotal) * 100}%`, backgroundColor: s.color }}
+                  title={`${s.label}: ${s.count}`}
+                />
+              ) : null,
+            )}
+          </div>
+          {/* Legend */}
+          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5">
+            {pipeline.map((s) => (
+              <span key={s.key} className="inline-flex items-center gap-1.5 text-xs text-[#555]">
+                <span className="size-2 rounded-full" style={{ backgroundColor: s.color }} />
+                {s.label}
+                <span className="font-semibold text-[#1a1a1a]">{s.count}</span>
+              </span>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Needs attention */}
       {needReply.length > 0 && (

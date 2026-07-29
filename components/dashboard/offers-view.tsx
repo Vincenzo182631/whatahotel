@@ -160,10 +160,26 @@ export function OffersView() {
   const canCreate = selected.length >= 2 && city && checkIn && checkOut;
   const statusBadge = (s: Offer["status"]) =>
     s === "viewed"
-      ? "bg-[#FF385C] text-white"
+      ? "bg-[#1CA672]/12 text-[#0E8F5E]"
       : s === "sent"
-        ? "bg-[#FF385C]/10 text-[#FF385C]"
+        ? "bg-[#2F6FED]/10 text-[#2F6FED]"
         : "bg-black/[0.06] text-[#717171]";
+
+  // Status filter + summary for the offers list.
+  const [filter, setFilter] = useState<"all" | Offer["status"]>("all");
+  const offerCounts = useMemo(() => {
+    const c = { all: offers.length, draft: 0, sent: 0, viewed: 0 } as Record<string, number>;
+    for (const o of offers) c[o.status]++;
+    return c;
+  }, [offers]);
+  const totalViews = useMemo(() => offers.reduce((n, o) => n + (o.viewCount || 0), 0), [offers]);
+  const visibleOffers = filter === "all" ? offers : offers.filter((o) => o.status === filter);
+  const OFFER_FILTERS: { key: "all" | Offer["status"]; label: string; dot?: string }[] = [
+    { key: "all", label: "All" },
+    { key: "draft", label: "Draft", dot: "bg-[#9a9a9a]" },
+    { key: "sent", label: "Sent", dot: "bg-[#2F6FED]" },
+    { key: "viewed", label: "Viewed", dot: "bg-[#0E8F5E]" },
+  ];
 
   const dateRange = useMemo(
     () => (checkIn && checkOut ? `${fmtDate(checkIn)} → ${fmtDate(checkOut)}` : ""),
@@ -295,38 +311,74 @@ export function OffersView() {
 
       {/* Offers list */}
       <div className="mt-10">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[#9a9a9a]">Your offers</p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#9a9a9a]">Your offers</p>
+          {offers.length > 0 && (
+            <p className="text-xs text-[#717171]">
+              {offerCounts.sent + offerCounts.viewed} shared · {offerCounts.viewed} opened · {totalViews} total views
+            </p>
+          )}
+        </div>
+
         {offers.length === 0 ? (
           <p className="mt-3 text-sm text-[#717171]">No offers yet — create your first above.</p>
         ) : (
-          <div className="mt-3 space-y-2">
-            {offers.map((o) => (
-              <div key={o.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3">
-                <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase", statusBadge(o.status))}>{o.status}</span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-[#1a1a1a]">
-                    {o.guestName || "Guest"} · {o.city}
-                  </p>
-                  <p className="truncate text-xs text-[#717171]">
-                    {fmtDate(o.checkIn)} → {fmtDate(o.checkOut)} · {o.hotelIds.length} hotels · {rel(o.createdAt)}
-                    {o.viewCount > 0 && (
-                      <span className="ml-1 inline-flex items-center gap-0.5 text-[#FF385C]">
-                        · <Eye className="size-3" /> {o.viewCount}
-                      </span>
-                    )}
-                  </p>
+          <>
+            {/* Status filter chips */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {OFFER_FILTERS.map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setFilter(f.key)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+                    filter === f.key ? "border-[#222] bg-[#222] text-white" : "border-[#EBEBEB] bg-white text-[#555] hover:bg-[#f7f7f7]",
+                  )}
+                >
+                  {f.dot && <span className={cn("size-1.5 rounded-full", filter === f.key ? "bg-white" : f.dot)} />}
+                  {f.label}
+                  <span className={filter === f.key ? "text-white/70" : "text-[#9a9a9a]"}>{offerCounts[f.key]}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-3 space-y-2">
+              {visibleOffers.map((o) => (
+                <div key={o.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3">
+                  <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase", statusBadge(o.status))}>{o.status}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-[#1a1a1a]">
+                      {o.guestName || "Guest"} · {o.city}
+                    </p>
+                    <p className="truncate text-xs text-[#717171]">
+                      {fmtDate(o.checkIn)} → {fmtDate(o.checkOut)} · {o.hotelIds.length} hotels · {rel(o.createdAt)}
+                      {o.viewCount > 0 ? (
+                        <span className="ml-1 inline-flex items-center gap-0.5 font-medium text-[#0E8F5E]">
+                          · <Eye className="size-3" /> {o.viewCount} view{o.viewCount > 1 ? "s" : ""}
+                          {o.firstViewedAt ? ` · opened ${rel(o.firstViewedAt)}` : ""}
+                        </span>
+                      ) : o.status === "sent" ? (
+                        <span className="ml-1 text-[#9a9a9a]">· not opened yet</span>
+                      ) : null}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    <button onClick={() => copy(o.id)} title="Copy link" className="grid size-8 place-items-center rounded-full hover:bg-black/[0.05]">
+                      {copiedId === o.id ? <Check className="size-4 text-[#FF385C]" /> : <Link2 className="size-4 text-[#555]" />}
+                    </button>
+                    <a href={linkFor(o.id)} target="_blank" rel="noreferrer" title="Open" className="grid size-8 place-items-center rounded-full hover:bg-black/[0.05]">
+                      <ExternalLink className="size-4 text-[#555]" />
+                    </a>
+                  </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-1.5">
-                  <button onClick={() => copy(o.id)} title="Copy link" className="grid size-8 place-items-center rounded-full hover:bg-black/[0.05]">
-                    {copiedId === o.id ? <Check className="size-4 text-[#FF385C]" /> : <Link2 className="size-4 text-[#555]" />}
-                  </button>
-                  <a href={linkFor(o.id)} target="_blank" rel="noreferrer" title="Open" className="grid size-8 place-items-center rounded-full hover:bg-black/[0.05]">
-                    <ExternalLink className="size-4 text-[#555]" />
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+              {visibleOffers.length === 0 && (
+                <p className="rounded-2xl border border-[#EBEBEB] bg-white p-6 text-center text-sm text-[#717171]">
+                  No {filter} offers.
+                </p>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>
