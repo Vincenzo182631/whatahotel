@@ -1,5 +1,6 @@
 import type { DataStore } from "./store";
-import type { Lead, PasswordResetToken, Trip, User } from "./types";
+import type { Lead, LeadComparison, PasswordResetToken, Trip, User } from "./types";
+import { mergeComparison } from "./types";
 
 /**
  * Durable data store backed by Upstash Redis over its REST API — no driver, no
@@ -152,6 +153,16 @@ export class RedisStore implements DataStore {
     const merged: Lead = { ...lead, ...patch, updatedAt: new Date().toISOString() };
     await redis(["SET", `lead:${id}`, JSON.stringify(merged)]);
     return merged;
+  }
+
+  async addLeadComparison(email: string, comparison: LeadComparison) {
+    const id = await redis<string | null>(["GET", `leademail:${norm(email)}`]);
+    if (!id) return null;
+    const lead = await getJson<Lead>(`lead:${id}`);
+    if (!lead) return null;
+    lead.comparisons = mergeComparison(lead.comparisons, comparison);
+    await redis(["SET", `lead:${id}`, JSON.stringify(lead)]);
+    return lead;
   }
 
   async getLeadByEmail(email: string) {

@@ -6,6 +6,7 @@ import { ShareOfferButton } from "@/components/compare/share-offer-button";
 import { ShareComparisonButton } from "@/components/compare/share-comparison-button";
 import { CompareDateBar } from "@/components/compare/compare-date-bar";
 import { BeachAlertFor } from "@/components/chat/beach-alert-for";
+import { LogComparison } from "@/components/compare/log-comparison";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +50,9 @@ export default async function ComparePage({ searchParams }: Params) {
 
   return (
     <div className="min-h-dvh bg-white text-[#222]">
+      {/* Record this comparison against the signed-in lead's CRM record (no-op
+          for guests and the advisor). */}
+      <LogComparison a={a} b={b} c={c} checkIn={checkIn} checkOut={checkOut} city={cities[0]} />
       <header className="sticky top-0 z-30 border-b border-[#EBEBEB] bg-white">
         <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-6 py-3.5">
           <Link href="/" aria-label="What a Hotel — home" className="shrink-0">

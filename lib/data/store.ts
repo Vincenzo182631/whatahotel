@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { Lead, PasswordResetToken, Trip, User } from "./types";
+import type { Lead, LeadComparison, PasswordResetToken, Trip, User } from "./types";
+import { mergeComparison } from "./types";
 import { RedisStore, redisConfigured } from "./redis-store";
 
 /**
@@ -28,6 +29,7 @@ export interface DataStore {
   listLeads(): Promise<Lead[]>;
   getLeadByEmail(email: string): Promise<Lead | null>;
   updateLead(id: string, patch: Partial<Pick<Lead, "stage" | "notes">>): Promise<Lead | null>;
+  addLeadComparison(email: string, comparison: LeadComparison): Promise<Lead | null>;
 }
 
 interface Db {
@@ -134,6 +136,13 @@ class FileStore implements DataStore {
     if (patch.stage !== undefined) lead.stage = patch.stage;
     if (patch.notes !== undefined) lead.notes = patch.notes;
     lead.updatedAt = new Date().toISOString();
+    save(db());
+    return lead;
+  }
+  async addLeadComparison(email: string, comparison: LeadComparison) {
+    const lead = db().leads.find((l) => l.email === norm(email));
+    if (!lead) return null;
+    lead.comparisons = mergeComparison(lead.comparisons, comparison);
     save(db());
     return lead;
   }

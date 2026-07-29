@@ -77,6 +77,17 @@ export interface PasswordResetToken {
 /** CRM pipeline stage for a lead, from first capture to booked (or lost). */
 export type LeadStage = "new" | "contacted" | "quoted" | "booked" | "lost";
 
+/** A side-by-side comparison the lead opened — the link lets the advisor see
+ *  exactly which hotels (and dates) they were weighing. */
+export interface LeadComparison {
+  path: string; // e.g. /compare?a=...&b=...&checkIn=...&checkOut=...
+  hotelIds: string[];
+  city?: string;
+  checkIn?: string;
+  checkOut?: string;
+  at: string; // ISO timestamp of the most recent view
+}
+
 export interface Lead {
   id: string;
   firstName: string;
@@ -95,6 +106,19 @@ export interface Lead {
   notes?: string;
   /** Last time an advisor updated the stage or notes. */
   updatedAt?: string;
+  /** Comparisons this lead opened on /compare (most recent first, capped). */
+  comparisons?: LeadComparison[];
+}
+
+/** Prepend a comparison to a lead's list: newest first, de-duplicated by the
+ *  hotel set (a repeat view just bumps its timestamp), capped to the last few. */
+export function mergeComparison(
+  existing: LeadComparison[] | undefined,
+  next: LeadComparison,
+): LeadComparison[] {
+  const key = (c: LeadComparison) => [...c.hotelIds].sort().join(",");
+  const rest = (existing ?? []).filter((c) => key(c) !== key(next));
+  return [next, ...rest].slice(0, 8);
 }
 
 export function toPublicUser(u: User): PublicUser {

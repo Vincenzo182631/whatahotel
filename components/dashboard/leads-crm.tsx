@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MapPin, StickyNote, Loader2, Check } from "lucide-react";
+import { MapPin, StickyNote, Loader2, Check, Columns2, ExternalLink } from "lucide-react";
 import type { Lead, LeadStage } from "@/lib/data/types";
 
 const STAGES: { key: LeadStage; label: string; dot: string; chip: string }[] = [
@@ -148,6 +148,26 @@ export function LeadsCrm({ initialLeads }: { initialLeads: Lead[] }) {
                     </button>
                   </div>
                 </div>
+
+                {l.comparisons?.length ? (
+                  <a
+                    href={l.comparisons[0].path}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1.5 border-t border-[#F2F2F2] px-3.5 py-2 text-xs font-medium text-[#FF385C] hover:bg-[#FF385C]/[0.03]"
+                  >
+                    <Columns2 className="size-3.5 shrink-0" />
+                    <span className="truncate">
+                      Comparing {l.comparisons[0].hotelIds.length} hotels
+                      {l.comparisons[0].city ? ` in ${l.comparisons[0].city}` : ""}
+                      {l.comparisons[0].checkIn && l.comparisons[0].checkOut
+                        ? ` · ${fmt(l.comparisons[0].checkIn)} → ${fmt(l.comparisons[0].checkOut)}`
+                        : ""}
+                      {l.comparisons.length > 1 ? ` · +${l.comparisons.length - 1} more` : ""}
+                    </span>
+                    <ExternalLink className="ml-auto size-3.5 shrink-0" />
+                  </a>
+                ) : null}
 
                 {isOpen && (
                   <div className="border-t border-[#F2F2F2] p-3.5">
