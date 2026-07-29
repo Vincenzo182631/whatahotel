@@ -4,8 +4,11 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { store } from "@/lib/data/store";
 import { getPlan } from "@/lib/subscription/plans";
 import { Card, PageHeader, StatCard, PremiumBadge } from "@/components/dashboard/ui";
+import { AdminOverview } from "@/components/dashboard/admin-overview";
 
 export const dynamic = "force-dynamic";
+
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "info@lorrainetravel.com").toLowerCase();
 
 const QUICK_LINKS = [
   { href: "/dashboard/profile", label: "My Profile", desc: "Personal & contact details", icon: User },
@@ -17,6 +20,8 @@ const QUICK_LINKS = [
 export default async function DashboardOverview() {
   const user = await getCurrentUser();
   if (!user) return null;
+  // The advisor gets a business snapshot; travellers get their personal home.
+  if (user.email.toLowerCase() === ADMIN_EMAIL) return <AdminOverview user={user} />;
   const trips = await store.listTrips(user.id);
   const now = Date.now();
   const upcoming = trips.filter((t) => new Date(t.checkOut).getTime() >= now);
