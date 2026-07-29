@@ -81,3 +81,29 @@ export async function GET() {
   const leads = await store.listLeads();
   return NextResponse.json({ leads });
 }
+
+const STAGES = new Set(["new", "contacted", "quoted", "booked", "lost"]);
+
+/** Owner-only: update a lead's CRM stage or notes. */
+export async function PATCH(req: Request) {
+  const me = await getCurrentUser();
+  if (!me || me.email.toLowerCase() !== ADMIN_EMAIL) {
+    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+  }
+  const body = await req.json().catch(() => ({}));
+  const id = String(body.id ?? "").trim();
+  if (!id) return NextResponse.json({ error: "Missing lead id." }, { status: 400 });
+
+  const patch: { stage?: Lead["stage"]; notes?: string } = {};
+  if (body.stage !== undefined) {
+    if (!STAGES.has(String(body.stage))) {
+      return NextResponse.json({ error: "Invalid stage." }, { status: 400 });
+    }
+    patch.stage = body.stage as Lead["stage"];
+  }
+  if (body.notes !== undefined) patch.notes = String(body.notes).slice(0, 2000);
+
+  const lead = await store.updateLead(id, patch);
+  if (!lead) return NextResponse.json({ error: "Lead not found." }, { status: 404 });
+  return NextResponse.json({ lead });
+}

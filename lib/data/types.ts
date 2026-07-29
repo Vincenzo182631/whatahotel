@@ -74,6 +74,9 @@ export interface PasswordResetToken {
 }
 
 /** A captured lead (CRM) — a visitor who signed up, with their trip context. */
+/** CRM pipeline stage for a lead, from first capture to booked (or lost). */
+export type LeadStage = "new" | "contacted" | "quoted" | "booked" | "lost";
+
 export interface Lead {
   id: string;
   firstName: string;
@@ -86,6 +89,12 @@ export interface Lead {
   /** How many chat exchanges they'd had when captured. */
   exchanges?: number;
   createdAt: string; // ISO
+  /** CRM pipeline stage (defaults to "new" when unset). */
+  stage?: LeadStage;
+  /** The advisor's private notes on this lead. */
+  notes?: string;
+  /** Last time an advisor updated the stage or notes. */
+  updatedAt?: string;
 }
 
 export function toPublicUser(u: User): PublicUser {

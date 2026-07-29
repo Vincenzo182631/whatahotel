@@ -27,6 +27,7 @@ export interface DataStore {
   addLead(lead: Lead): Promise<Lead>;
   listLeads(): Promise<Lead[]>;
   getLeadByEmail(email: string): Promise<Lead | null>;
+  updateLead(id: string, patch: Partial<Pick<Lead, "stage" | "notes">>): Promise<Lead | null>;
 }
 
 interface Db {
@@ -126,6 +127,15 @@ class FileStore implements DataStore {
   }
   async getLeadByEmail(email: string) {
     return db().leads.find((l) => l.email === norm(email)) ?? null;
+  }
+  async updateLead(id: string, patch: Partial<Pick<Lead, "stage" | "notes">>) {
+    const lead = db().leads.find((l) => l.id === id);
+    if (!lead) return null;
+    if (patch.stage !== undefined) lead.stage = patch.stage;
+    if (patch.notes !== undefined) lead.notes = patch.notes;
+    lead.updatedAt = new Date().toISOString();
+    save(db());
+    return lead;
   }
 }
 

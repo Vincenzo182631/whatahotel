@@ -146,6 +146,14 @@ export class RedisStore implements DataStore {
     return leads.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
 
+  async updateLead(id: string, patch: Partial<Pick<Lead, "stage" | "notes">>) {
+    const lead = await getJson<Lead>(`lead:${id}`);
+    if (!lead) return null;
+    const merged: Lead = { ...lead, ...patch, updatedAt: new Date().toISOString() };
+    await redis(["SET", `lead:${id}`, JSON.stringify(merged)]);
+    return merged;
+  }
+
   async getLeadByEmail(email: string) {
     const id = await redis<string | null>(["GET", `leademail:${norm(email)}`]);
     return id ? getJson<Lead>(`lead:${id}`) : null;
