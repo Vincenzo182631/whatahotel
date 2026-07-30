@@ -39,6 +39,10 @@ export interface ReplyContext {
   liveHotels?: import("@/lib/services/live-rates").LiveHotel[];
   /** Multi-city trip: ordered city labels the traveller named (2+). */
   cities?: string[];
+  /** Hotel brand(s) the search is locked to, when the traveller named one. */
+  brands?: string[];
+  /** Set when a brand was named but no destination yet — ask which city. */
+  askBrandCity?: boolean;
   /** Multi-city results grouped per city, for the reply's per-city "why". */
   cityGroups?: {
     city: string;

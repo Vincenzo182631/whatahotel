@@ -24,6 +24,12 @@ import {
 } from "@/lib/services/live-rates";
 import type { LiveHotel } from "@/lib/services/live-rates";
 import { DESTINATIONS, resolveDestination } from "@/lib/services/mock-data";
+import {
+  type BrandDef,
+  parseAskedBrands,
+  parseBrandCityPairs,
+  hotelMatchesBrand,
+} from "./brands";
 import { bareCountry } from "./country-links";
 import { CITY_POIS } from "./itinerary-data";
 import {
@@ -600,6 +606,146 @@ export async function runTurn(
     const key = resolveDestination(label) ?? undefined;
     return { key, label, city: label.split(",")[0].trim() };
   });
+
+  // ---- 4b-4a. Brand-aware comparison — lock the search to the named brand(s) --
+  // When a traveller names a hotel brand ("Four Seasons in Miami and New York",
+  // "Ritz-Carlton in NY, Marriott in LA"), the search must stay on that brand —
+  // never fall back to the best hotels overall. Preferences (spa, dining,
+  // proximity…) still rank WITHIN the brand.
+  const brandPairs = parseBrandCityPairs(lastUserMessage);
+  const askedBrands = parseAskedBrands(lastUserMessage);
+  if (brandPairs.length) {
+    criteria.brands = [...new Set(brandPairs.map((p) => p.brand.label))];
+  } else if (askedBrands.length) {
+    criteria.brands = askedBrands.map((b) => b.label);
+  } else if (learned.includes("destination")) {
+    // Moved to a new destination without naming a brand — drop the brand focus.
+    criteria.brands = undefined;
+  }
+  // Resolve the persisted brand labels back to brand defs (match the label text).
+  const resolvedBrandDefs: BrandDef[] = (criteria.brands ?? [])
+    .map((label) => parseAskedBrands(label)[0])
+    .filter((b): b is BrandDef => Boolean(b));
+
+  type CityPlan = { city: string; label: string; brands: BrandDef[] };
+  let brandPlan: CityPlan[] = [];
+  if (brandPairs.length) {
+    const byCity = new Map<string, CityPlan>();
+    for (const p of brandPairs) {
+      const k = p.city.toLowerCase();
+      const cur = byCity.get(k);
+      if (cur) {
+        if (!cur.brands.some((b) => b.key === p.brand.key)) cur.brands.push(p.brand);
+      } else {
+        byCity.set(k, { city: p.city.split(",")[0].trim(), label: p.city, brands: [p.brand] });
+      }
+    }
+    brandPlan = [...byCity.values()];
+  } else if (resolvedBrandDefs.length) {
+    const cities =
+      tripCities.length >= 1
+        ? tripCities.map((c) => ({ city: c.city, label: c.label }))
+        : criteria.destinationLabel
+          ? [{ city: criteria.destinationLabel.split(",")[0].trim(), label: criteria.destinationLabel }]
+          : [];
+    brandPlan = cities.map((c) => ({ ...c, brands: resolvedBrandDefs }));
+  }
+
+  const brandTurn =
+    brandPlan.length > 0 &&
+    (brandPairs.length > 0 ||
+      askedBrands.length > 0 ||
+      changedSearch ||
+      searchIntentChange ||
+      explicitIntent === "recommend" ||
+      session.lastRecommendations.length === 0);
+
+  if (brandTurn) {
+    await sessionStorageService.save(sessionId, { criteria });
+    const brandLabels = [...new Set(brandPlan.flatMap((p) => p.brands.map((b) => b.label)))];
+    const cityLabels = brandPlan.map((p) => p.label);
+
+    if (!(criteria.checkIn && criteria.checkOut)) {
+      const ctx: ReplyContext = {
+        action: "ask",
+        criteria,
+        missing: ["dates"],
+        recommendations: [],
+        totalFound: 0,
+        cities: cityLabels,
+        brands: brandLabels,
+        learned,
+        lastUserMessage,
+        user,
+      };
+      return { ctx, payload: { action: "ask", criteria, missing: ["dates"] } };
+    }
+
+    const intent = turnIntent;
+    const single = brandPlan.length === 1 && brandPlan[0].brands.length === 1;
+    const groups = await Promise.all(
+      brandPlan.slice(0, 5).map(async (pc) => {
+        const fetchCity = () =>
+          getCityHotels({ city: pc.city, checkIn: criteria.checkIn!, checkOut: criteria.checkOut!, guests: criteria.adults });
+        let live = await fetchCity();
+        if (!live.length) live = await fetchCity();
+        if (!live.length) return { city: pc.city, label: pc.label, hotels: [] as LiveHotel[] };
+        let anchor = intent.proximity ? await getAnchor(pc.city, intent.proximity, live[0]?.country) : null;
+        if (anchor) {
+          live = await attachLiveCoordinates(live, 12);
+          anchor = validateAnchor(anchor, live);
+        }
+        const ranked = rankLiveHotels(live, intent, anchor);
+        // Per requested brand, take the best-ranked matching property in this
+        // city (up to 3 when it's a single brand in a single city).
+        let picks: LiveHotel[] = [];
+        for (const b of pc.brands) {
+          picks.push(...ranked.filter((h) => hotelMatchesBrand(h.name, [b.key])).slice(0, single ? 3 : 1));
+        }
+        if (picks.length && (intent.proximity || intent.travelerTypes.length)) {
+          picks = (await attachLiveInfo(picks, picks.length)).map((h) => {
+            const reason = buildLiveMatchReason(h, intent);
+            return reason ? { ...h, matchReason: reason } : h;
+          });
+        }
+        return { city: pc.city, label: pc.label, hotels: picks };
+      }),
+    );
+    const liveHotels = groups.flatMap((g) => g.hotels);
+    const ctx: ReplyContext = {
+      action: "live",
+      criteria,
+      missing: [],
+      recommendations: [],
+      totalFound: liveHotels.length,
+      liveHotels,
+      cities: cityLabels,
+      cityGroups: groups,
+      liveIntent: summarizeIntent(intent),
+      brands: brandLabels,
+      learned,
+      lastUserMessage,
+      user,
+    };
+    return { ctx, payload: { action: "live", criteria, liveHotels, cities: cityLabels } };
+  }
+
+  // Brand named but no destination yet → ask which city (don't guess).
+  if (resolvedBrandDefs.length && brandPlan.length === 0 && !refersToShown) {
+    const ctx: ReplyContext = {
+      action: "ask",
+      criteria,
+      missing: [],
+      recommendations: [],
+      totalFound: 0,
+      brands: resolvedBrandDefs.map((b) => b.label),
+      askBrandCity: true,
+      learned,
+      lastUserMessage,
+      user,
+    };
+    return { ctx, payload: { action: "ask", criteria } };
+  }
 
   const multiCityTurn =
     tripCities.length >= 2 &&

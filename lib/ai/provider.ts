@@ -321,6 +321,43 @@ async function* streamFromClaude(
 }
 
 function buildSituation(ctx: ReplyContext): string {
+  // ---- Brand-locked comparison (a hotel brand/chain was named) -----------
+  // The traveller asked for specific brand(s); the search stayed ON that brand.
+  // Never suggest a different brand as "better" unless they ask for alternatives.
+  if (ctx.brands && ctx.brands.length) {
+    const brandList = ctx.brands.join(", ");
+    if (ctx.action === "ask" && ctx.askBrandCity)
+      return `SITUATION: The traveller wants ${brandList} but hasn't said where. In ONE warm sentence, ask which city or destination(s) they're considering for ${brandList} — you may note ${brandList} has properties in many places. Do NOT list hotels yet, and do NOT switch brands.`;
+    if (ctx.action === "ask" && ctx.missing.includes("dates")) {
+      const where = ctx.cities?.length ? ` in ${ctx.cities.join(", ")}` : "";
+      return `SITUATION: The traveller wants to compare ${brandList}${where}. You need dates before pulling live rates. In ONE warm sentence, acknowledge the ${brandList} focus and ask which dates. Do NOT list hotels yet.`;
+    }
+    if (ctx.action === "live" && ctx.cityGroups?.length) {
+      const blocks = ctx.cityGroups
+        .map((g) => {
+          if (!g.hotels.length)
+            return `${g.city}: no ${brandList} property came back for these dates — say so plainly; do NOT substitute a different brand.`;
+          const lines = g.hotels
+            .map((h) => {
+              const bits = [h.distanceLabel, h.matchReason].filter(Boolean).join(" · ");
+              return `   - ${h.name}${bits ? ` — ${bits}` : ""}`;
+            })
+            .join("\n");
+          return `${g.city}:\n${lines}`;
+        })
+        .join("\n");
+      const pri = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
+      const multi = (ctx.cities?.length ?? 0) > 1;
+      return `SITUATION: You compared ONLY ${brandList} (the brand the traveller asked for) — the cards on screen are that brand${multi ? ", grouped by city" : ""}.${
+        pri ? ` They care about: ${pri} — rank within the brand by that.` : ""
+      } Real facts (use ONLY these; a distance is only real when shown; NEVER quote a nightly price — say "live rates for your dates"):\n${blocks}\n\nReply as a brand-focused advisor: ${
+        multi
+          ? "one short intro naming the brand + cities, then a line per city naming the pick there and WHY it fits their priorities"
+          : "name the strongest matching property and WHY, then the key trade-off"
+      }. Stay on ${brandList} — do NOT recommend a different brand as better. If a city had no ${brandList}, say so plainly and offer to widen to nearby options only if they'd like. End by inviting them to refine.`;
+    }
+  }
+
   // ---- Multi-city trip (2+ cities in one request) ------------------------
   // Handled before the single-city switch so a NY+Miami+Orlando request reads
   // like an advisor comparing destinations, not one city at a time.
