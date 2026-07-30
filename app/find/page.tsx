@@ -1,11 +1,11 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { BackButton } from "@/components/ui/back-button";
-import { LiveSearch } from "@/components/search/live-search";
+import { AdvancedSearchForm } from "@/components/search/advanced-search-form";
 
 export const metadata: Metadata = {
-  title: "Find any hotel — WhataHotel",
-  description: "Search every WhataHotel property worldwide with live rates and advisor perks.",
+  title: "Search & compare hotels — WhataHotel",
+  description: "Structured multi-city hotel search — up to 3 cities, brands, amenities and preferences, with the best matches per destination.",
 };
 
 export default function FindPage() {
@@ -20,7 +20,7 @@ export default function FindPage() {
           <BackButton fallback="/" />
         </div>
       </header>
-      <LiveSearch />
+      <AdvancedSearchForm />
     </div>
   );
 }

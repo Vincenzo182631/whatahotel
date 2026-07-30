@@ -293,6 +293,13 @@ export function AirbnbLanding() {
             />
           </div>
 
+          <p className="mt-3 text-center text-sm text-[#717171]">
+            Prefer a form?{" "}
+            <Link href="/find" className="font-semibold text-[#FF385C] hover:underline">
+              Search &amp; compare up to 3 cities →
+            </Link>
+          </p>
+
           {/* Example prompts — each pill flips on its own; height is reserved so
               the page below never shifts when a pill changes. */}
           <div className="mx-auto mt-5 flex min-h-[4.5rem] max-w-xl flex-wrap content-center items-center justify-center gap-2">
