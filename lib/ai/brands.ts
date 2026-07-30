@@ -1,4 +1,4 @@
-import type { LiveHotel } from "@/lib/services/live-rates";
+import { getCityHotels, searchHotelsByName, type LiveHotel } from "@/lib/services/live-rates";
 
 /**
  * Hotel brands / chains the advisor understands. When a traveller names a brand,
@@ -133,6 +133,49 @@ export function parseBrandCityPairs(text: string): BrandCityPair[] {
 export function filterByBrand(hotels: LiveHotel[], brandKeys: string[]): LiveHotel[] {
   if (!brandKeys.length) return hotels;
   return hotels.filter((h) => hotelMatchesBrand(h.name, brandKeys));
+}
+
+/** Loose city match — the hotel belongs to the requested city (guards against a
+ *  brand property from a different city sneaking into a search result). */
+function sameCity(hotelCity: string | undefined, hotelName: string | undefined, city: string): boolean {
+  const c = city.toLowerCase().trim();
+  const hc = (hotelCity || "").toLowerCase();
+  const hn = (hotelName || "").toLowerCase();
+  if (!c) return true;
+  if (hc.includes(c) || c.includes(hc.split(/[\s,]/)[0])) return true;
+  const words = c.split(/\s+/).filter((w) => w.length > 2);
+  return words.some((w) => hc.includes(w) || hn.includes(w));
+}
+
+/**
+ * The best-known way to find a brand's properties IN a city: scan the whole
+ * catalogue by name (method=search) — this surfaces flagships that the city
+ * rate-list (top ~15 by price) omits, e.g. Four Seasons in Los Angeles. Falls
+ * back to filtering the city rate-list when the name search finds nothing.
+ * Results carry no rates/coords yet; the caller ranks + enriches them.
+ */
+export async function brandHotelsForCity(opts: {
+  brandLabel: string;
+  brandKey: string;
+  city: string;
+  checkIn?: string;
+  checkOut?: string;
+  guests?: number;
+}): Promise<LiveHotel[]> {
+  const { brandLabel, brandKey, city, checkIn, checkOut, guests } = opts;
+  const cityName = city.split(",")[0].trim();
+
+  const hits = (await searchHotelsByName(`${brandLabel} ${cityName}`).catch(() => [])).filter(
+    (h) => hotelMatchesBrand(h.name, [brandKey]) && sameCity(h.city, h.name, cityName),
+  );
+  if (hits.length) return hits;
+
+  // Fallback: the city's rate list, filtered to the brand.
+  if (checkIn && checkOut) {
+    const live = await getCityHotels({ city: cityName, checkIn, checkOut, guests }).catch(() => []);
+    return live.filter((h) => hotelMatchesBrand(h.name, [brandKey]));
+  }
+  return [];
 }
 
 /**

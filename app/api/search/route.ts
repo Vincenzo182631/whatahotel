@@ -13,7 +13,7 @@ import {
   buildLiveMatchReason,
   summarizeIntent,
 } from "@/lib/ai/travel-intent";
-import { parseAskedBrands, hotelMatchesBrand } from "@/lib/ai/brands";
+import { parseAskedBrands, brandHotelsForCity } from "@/lib/ai/brands";
 import { rateLimitExceeded } from "@/lib/security/rate-limit";
 import type { SearchCriteria } from "@/lib/services/types";
 
@@ -117,17 +117,31 @@ export async function POST(req: Request) {
   const groups = await Promise.all(
     cities.map(async (c) => {
       const brandLabel = c.brand || globalBrand;
-      const brandKey = brandLabel ? parseAskedBrands(brandLabel)[0]?.key : undefined;
+      const brand = brandLabel ? parseAskedBrands(brandLabel)[0] : undefined;
       const cityName = c.name.split(",")[0].trim();
 
+      // For a brand, scan the catalogue by name (finds flagships the city rate-
+      // list omits); otherwise use the city rate list. Missing dates → nothing.
       let live: LiveHotel[] = [];
       if (checkIn && checkOut) {
-        const fetchCity = () => getCityHotels({ city: cityName, checkIn, checkOut, guests: adults });
-        live = await fetchCity();
-        if (!live.length) live = await fetchCity();
+        if (brand) {
+          live = await brandHotelsForCity({
+            brandLabel: brand.label,
+            brandKey: brand.key,
+            city: cityName,
+            checkIn,
+            checkOut,
+            guests: adults,
+          });
+        } else {
+          const fetchCity = () => getCityHotels({ city: cityName, checkIn, checkOut, guests: adults });
+          live = await fetchCity();
+          if (!live.length) live = await fetchCity();
+        }
       }
       if (!live.length) {
-        return { city: c.name, brand: brandLabel, hotels: [] as LiveHotel[], empty: true };
+        // A named brand with no property vs the city simply being empty.
+        return { city: c.name, brand: brandLabel, hotels: [] as LiveHotel[], brandMissing: Boolean(brand), empty: !brand };
       }
 
       let anchor = intent.proximity ? await getAnchor(cityName, intent.proximity, live[0]?.country) : null;
@@ -135,10 +149,8 @@ export async function POST(req: Request) {
         live = await attachLiveCoordinates(live, 12);
         anchor = validateAnchor(anchor, live);
       }
-      let ranked: LiveHotel[] = rankLiveHotels(live, intent, anchor);
-      if (brandKey) ranked = ranked.filter((h) => hotelMatchesBrand(h.name, [brandKey]));
+      const ranked: LiveHotel[] = rankLiveHotels(live, intent, anchor);
 
-      const brandMissing = Boolean(brandKey) && ranked.length === 0;
       let picks = ranked.slice(0, PER_CITY);
       if (picks.length) {
         picks = (await attachLiveInfo(picks, picks.length)).map((h) => {
@@ -146,7 +158,7 @@ export async function POST(req: Request) {
           return reason ? { ...h, matchReason: reason } : h;
         });
       }
-      return { city: c.name, brand: brandLabel, hotels: picks, brandMissing };
+      return { city: c.name, brand: brandLabel, hotels: picks, brandMissing: false };
     }),
   );
 

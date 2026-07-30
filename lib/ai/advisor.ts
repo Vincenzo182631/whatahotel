@@ -31,6 +31,7 @@ import {
   parseBrandCityPairs,
   parseNamedHotels,
   hotelMatchesBrand,
+  brandHotelsForCity,
 } from "./brands";
 import { bareCountry } from "./country-links";
 import { CITY_POIS } from "./itinerary-data";
@@ -767,22 +768,35 @@ export async function runTurn(
     const single = brandPlan.length === 1 && brandPlan[0].brands.length === 1;
     const groups = await Promise.all(
       brandPlan.slice(0, 5).map(async (pc) => {
-        const fetchCity = () =>
-          getCityHotels({ city: pc.city, checkIn: criteria.checkIn!, checkOut: criteria.checkOut!, guests: criteria.adults });
-        let live = await fetchCity();
-        if (!live.length) live = await fetchCity();
-        if (!live.length) return { city: pc.city, label: pc.label, hotels: [] as LiveHotel[] };
-        let anchor = intent.proximity ? await getAnchor(pc.city, intent.proximity, live[0]?.country) : null;
+        // Scan the catalogue by name for EACH requested brand in this city —
+        // finds flagships the city rate-list omits (e.g. Four Seasons in LA).
+        const perBrand = await Promise.all(
+          pc.brands.map((b) =>
+            brandHotelsForCity({
+              brandLabel: b.label,
+              brandKey: b.key,
+              city: pc.city,
+              checkIn: criteria.checkIn!,
+              checkOut: criteria.checkOut!,
+              guests: criteria.adults,
+            }),
+          ),
+        );
+        let allCands = perBrand.flat();
+        if (!allCands.length) return { city: pc.city, label: pc.label, hotels: [] as LiveHotel[] };
+        // Resolve the proximity anchor once for the city, and attach real
+        // coordinates so ranking uses true distances (search results carry none).
+        let anchor = intent.proximity ? await getAnchor(pc.city, intent.proximity, allCands[0]?.country) : null;
         if (anchor) {
-          live = await attachLiveCoordinates(live, 12);
-          anchor = validateAnchor(anchor, live);
+          allCands = await attachLiveCoordinates(allCands, 12);
+          anchor = validateAnchor(anchor, allCands);
         }
-        const ranked = rankLiveHotels(live, intent, anchor);
-        // Per requested brand, take the best-ranked matching property in this
-        // city (up to 3 when it's a single brand in a single city).
+        // Per requested brand, take the best-ranked matching property (up to 3
+        // when it's a single brand in a single city).
         let picks: LiveHotel[] = [];
         for (const b of pc.brands) {
-          picks.push(...ranked.filter((h) => hotelMatchesBrand(h.name, [b.key])).slice(0, single ? 3 : 1));
+          const cands = allCands.filter((h) => hotelMatchesBrand(h.name, [b.key]));
+          picks.push(...rankLiveHotels(cands, intent, anchor).slice(0, single ? 3 : 1));
         }
         if (picks.length && (intent.proximity || intent.travelerTypes.length)) {
           picks = (await attachLiveInfo(picks, picks.length)).map((h) => {
