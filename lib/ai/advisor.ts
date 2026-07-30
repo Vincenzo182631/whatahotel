@@ -21,6 +21,7 @@ import {
   buildLiveComparison,
   attachLiveCoordinates,
   attachLiveInfo,
+  searchHotelsByName,
 } from "@/lib/services/live-rates";
 import type { LiveHotel } from "@/lib/services/live-rates";
 import { DESTINATIONS, resolveDestination } from "@/lib/services/mock-data";
@@ -28,6 +29,7 @@ import {
   type BrandDef,
   parseAskedBrands,
   parseBrandCityPairs,
+  parseNamedHotels,
   hotelMatchesBrand,
 } from "./brands";
 import { bareCountry } from "./country-links";
@@ -606,6 +608,86 @@ export async function runTurn(
     const key = resolveDestination(label) ?? undefined;
     return { key, label, city: label.split(",")[0].trim() };
   });
+
+  // ---- 4b-49. Specific hotel property lookup ------------------------------
+  // "Tell me about Four Seasons Maui", "Compare Ritz-Carlton Naples with Four
+  // Seasons Orlando" — the traveller named exact PROPERTIES. Look them up by
+  // name (method=search) and describe/compare those precise hotels, rather than
+  // running a city search. Guarded so a brand-in-city or multi-city list falls
+  // through to the brand / multi-city branches instead.
+  const namedPhrases = parseNamedHotels(lastUserMessage);
+  const isCityList = (criteria.destinations?.length ?? 0) >= 2 || scannedCities.length >= 2;
+  const compareTwo =
+    /\b(?:vs\.?|versus|against|compared? to)\b/i.test(lastUserMessage) ||
+    (/\bcompare\b/i.test(lastUserMessage) && /\bwith\b/i.test(lastUserMessage));
+  const describeOne =
+    /\b(?:tell me about|what about|info(?:rmation)?|details?|how (?:is|'s)|about the|is the)\b/i.test(
+      lastUserMessage,
+    );
+  // An explicit "compare X with/vs Y" or "tell me about X" names exact
+  // properties — honour it even across two places. The city-list guard only
+  // blocks the weaker "two brand phrases, no connector" trigger (so a plain
+  // brand-in-multiple-cities list isn't mistaken for named properties).
+  const specificPropertyTurn =
+    namedPhrases.length >= 1 &&
+    !refersToShown &&
+    (compareTwo || describeOne || (namedPhrases.length >= 2 && !isCityList));
+
+  if (specificPropertyTurn) {
+    const resolved = await Promise.all(
+      namedPhrases.slice(0, 3).map(async (phrase) => {
+        const hits = await searchHotelsByName(phrase).catch(() => []);
+        return { phrase, hotel: hits[0] ?? null };
+      }),
+    );
+    let found = resolved.map((r) => r.hotel).filter((h): h is LiveHotel => Boolean(h));
+    const notFound = resolved.filter((r) => !r.hotel).map((r) => r.phrase);
+    if (found.length) {
+      // Dedupe by id, then enrich with real amenities/dining for a grounded reply.
+      const seen = new Set<string>();
+      found = found.filter((h) => (seen.has(h.sourceHotelId) ? false : seen.add(h.sourceHotelId)));
+      found = await attachLiveInfo(found, found.length);
+      const cities = [...new Set(found.map((h) => h.city).filter(Boolean))];
+      const ctx: ReplyContext = {
+        action: "live",
+        criteria,
+        missing: [],
+        recommendations: [],
+        totalFound: found.length,
+        liveHotels: found,
+        cities: cities.length > 1 ? cities : undefined,
+        namedLookup: true,
+        notFoundNames: notFound.length ? notFound : undefined,
+        learned,
+        lastUserMessage,
+        user,
+      };
+      return {
+        ctx,
+        payload: {
+          action: "live",
+          criteria,
+          liveHotels: found,
+          cities: cities.length > 1 ? cities : undefined,
+        },
+      };
+    }
+    // Nothing resolved — tell them plainly and ask for the city (fall through to
+    // a light "ask" rather than inventing).
+    const ctx: ReplyContext = {
+      action: "ask",
+      criteria,
+      missing: [],
+      recommendations: [],
+      totalFound: 0,
+      namedLookup: true,
+      notFoundNames: namedPhrases,
+      learned,
+      lastUserMessage,
+      user,
+    };
+    return { ctx, payload: { action: "ask", criteria } };
+  }
 
   // ---- 4b-4a. Brand-aware comparison — lock the search to the named brand(s) --
   // When a traveller names a hotel brand ("Four Seasons in Miami and New York",

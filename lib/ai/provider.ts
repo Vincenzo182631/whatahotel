@@ -321,6 +321,33 @@ async function* streamFromClaude(
 }
 
 function buildSituation(ctx: ReplyContext): string {
+  // ---- Specific hotel property lookup (exact hotels named) ----------------
+  if (ctx.namedLookup) {
+    const missNote = ctx.notFoundNames?.length
+      ? ` You could NOT find: ${ctx.notFoundNames.join(", ")} — say so plainly (offer to try the exact name + city); never invent it.`
+      : "";
+    const hotels = ctx.liveHotels ?? [];
+    if (!hotels.length)
+      return `SITUATION: The traveller named specific hotel(s) but none could be found in WhataHotel's collection.${missNote} In 1–2 warm sentences, say you couldn't find them and ask for the exact hotel name and its city so you can search again. Do NOT invent a hotel.`;
+    const facts = hotels
+      .map((h) => {
+        const bits = [
+          h.city,
+          h.distanceLabel,
+          (h.amenities ?? []).slice(0, 5).join(", ") || null,
+          h.dining?.length ? `dining: ${h.dining.slice(0, 3).join(", ")}` : null,
+          h.perks?.length ? `perk: ${h.perks[0]}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ");
+        return `- ${h.name}${bits ? ` — ${bits}` : ""}`;
+      })
+      .join("\n");
+    if (hotels.length === 1)
+      return `SITUATION: The traveller asked about ONE specific hotel and you found it — its card is on screen. Real facts (use ONLY these; NEVER quote a nightly price — say "live rates for your dates"):\n${facts}\n${missNote}\nDescribe this exact property warmly in 2–3 sentences (location, standout amenities/dining, who it suits). Invite them to add dates for live rates or name another to compare it with.`;
+    return `SITUATION: The traveller named specific hotels and you found them — their cards are on screen. Real facts (use ONLY these; NEVER quote a nightly price — say "live rates for your dates"):\n${facts}\n${missNote}\nCompare these EXACT properties: in 2–4 tight sentences give the real differences (location, amenities, dining, who each suits) and a clear pick. Do NOT swap in a different hotel.`;
+  }
+
   // ---- Brand-locked comparison (a hotel brand/chain was named) -----------
   // The traveller asked for specific brand(s); the search stayed ON that brand.
   // Never suggest a different brand as "better" unless they ask for alternatives.

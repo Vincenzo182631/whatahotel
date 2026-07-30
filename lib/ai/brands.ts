@@ -134,3 +134,35 @@ export function filterByBrand(hotels: LiveHotel[], brandKeys: string[]): LiveHot
   if (!brandKeys.length) return hotels;
   return hotels.filter((h) => hotelMatchesBrand(h.name, brandKeys));
 }
+
+/**
+ * Specific hotel PROPERTY names in the message — a brand immediately followed by
+ * a place that reads as a property ("Four Seasons Maui", "Ritz-Carlton Naples"),
+ * NOT a brand-in-city ("Four Seasons IN Miami") or a generic ("Four Seasons
+ * hotels"). Used to look those exact properties up by name. Returns the search
+ * phrases, in order.
+ */
+export function parseNamedHotels(text: string): string[] {
+  const brands = parseAskedBrands(text);
+  if (!brands.length) return [];
+  const phrases: string[] = [];
+  for (const b of brands) {
+    const m = b.re.exec(text);
+    if (!m || m.index == null) continue;
+    const after = text.slice(m.index + m[0].length);
+    // Not a specific property: "in <city>", generic ("hotels"/"resorts"), a
+    // proximity phrase, or a trailing preference ("with a spa").
+    if (/^\s*(?:in\b|hotels?\b|resorts?\b|propert|near\b|around\b|close\b|with\b|that\b|which\b)/i.test(after))
+      continue;
+    // Capture the place that follows the brand (stops at a lowercase word / comma
+    // / connector), allowing "at/the/of/and" links inside a longer property name.
+    const placeM = after.match(
+      /^\s+((?:the\s+)?[A-Z][\w.'&-]+(?:\s+(?:at|the|de|di|of|and|&)?\s*[A-Z][\w.'&-]+){0,3})/,
+    );
+    if (placeM?.[1]) {
+      const place = placeM[1].replace(/\s+/g, " ").trim();
+      phrases.push(`${m[0].trim()} ${place}`.replace(/\s+/g, " "));
+    }
+  }
+  return [...new Set(phrases)];
+}

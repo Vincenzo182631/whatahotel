@@ -43,6 +43,11 @@ export interface ReplyContext {
   brands?: string[];
   /** Set when a brand was named but no destination yet — ask which city. */
   askBrandCity?: boolean;
+  /** The traveller named specific hotel PROPERTIES (e.g. "Four Seasons Maui")
+   *  and the app looked them up by name — describe/compare those exact hotels. */
+  namedLookup?: boolean;
+  /** Named properties that couldn't be found, so the reply can say so. */
+  notFoundNames?: string[];
   /** Multi-city results grouped per city, for the reply's per-city "why". */
   cityGroups?: {
     city: string;
