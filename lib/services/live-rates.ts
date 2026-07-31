@@ -703,6 +703,9 @@ const AMENITY_SIGNALS: [RegExp, string][] = [
   [/beach\s?front|on the beach|private beach|beach access|steps? (?:to|from) the beach/i, "beachfront"],
   [/ocean\s?view|sea\s?view|water\s?view/i, "oceanview"],
   [/\bgym\b|fitness|health club|workout/i, "gym"],
+  [/\bgolf\b/i, "golf"],
+  [/valet parking|self[- ]parking|\bparking\b|car park/i, "parking"],
+  [/pet[- ]friendly|dogs? (?:welcome|allowed|permitted)|pets? (?:welcome|allowed|permitted)/i, "pet"],
   [/kids?[ '-]?club|children'?s club|kids? (?:program|activities)|babysitt|family (?:program|friendly)/i, "kidsclub"],
   [/airport (?:transfer|shuttle|limousine)|complimentary shuttle/i, "airporttransfer"],
   [/butler/i, "butler"],
@@ -717,8 +720,14 @@ const AMENITY_SIGNALS: [RegExp, string][] = [
 
 function deriveAmenities(info: HotelInfo): string[] {
   const blob = [info.description ?? "", ...(info.amenities ?? []), ...(info.restaurants ?? [])].join(" ");
+  return detectAmenityKeys(blob);
+}
+
+/** Canonical amenity keys mentioned in arbitrary text (a hotel's info blob, or a
+ *  traveller's free-text request). Best-effort, never fabricated. */
+export function detectAmenityKeys(text: string): string[] {
   const out = new Set<string>();
-  for (const [re, key] of AMENITY_SIGNALS) if (re.test(blob)) out.add(key);
+  for (const [re, key] of AMENITY_SIGNALS) if (re.test(text)) out.add(key);
   return [...out];
 }
 

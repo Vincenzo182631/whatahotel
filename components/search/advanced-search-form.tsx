@@ -335,6 +335,21 @@ export function AdvancedSearchForm() {
               {summary.locationPref && <span className="capitalize"><b>Near:</b> {summary.locationPref}</span>}
               {summary.amenities.length > 0 && <span className="capitalize"><b>Amenities:</b> {summary.amenities.join(" • ")}</span>}
             </div>
+            {(() => {
+              const bits = [
+                summary.brand,
+                summary.hotelType,
+                summary.locationPref ? `near the ${summary.locationPref}` : "",
+                summary.travelerType,
+                ...summary.amenities,
+              ].filter(Boolean);
+              if (!bits.length) return null;
+              return (
+                <p className="mt-2.5 border-t border-[#EBEBEB] pt-2.5 text-sm text-[#555]">
+                  <b className="text-[#1a1a1a]">Why these hotels?</b> Ranked to best match your preferences for {bits.join(", ")}.
+                </p>
+              );
+            })()}
           </div>
 
           {/* Per-city results */}

@@ -3,6 +3,7 @@ import {
   getCityHotelsBeachAware,
   attachLiveCoordinates,
   attachLiveInfo,
+  detectAmenityKeys,
   type LiveHotel,
 } from "@/lib/services/live-rates";
 import {
@@ -13,7 +14,7 @@ import {
   buildLiveMatchReason,
   summarizeIntent,
 } from "@/lib/ai/travel-intent";
-import { parseAskedBrands, brandHotelsForCity } from "@/lib/ai/brands";
+import { parseAskedBrands, brandHotelsForCity, brandOfHotelName } from "@/lib/ai/brands";
 import { rateLimitExceeded } from "@/lib/security/rate-limit";
 import type { SearchCriteria } from "@/lib/services/types";
 
@@ -58,6 +59,39 @@ const TRAVELER_PHRASE: Record<string, string> = {
   group: "for a group",
   friends: "with friends",
   honeymoon: "for a honeymoon",
+};
+
+// Form amenity label → canonical amenity key (matches detectAmenityKeys output).
+// "dining" is checked against the hotel's on-site restaurants, not amenities.
+const FORM_AMENITY_KEY: Record<string, string> = {
+  spa: "spa",
+  pool: "pool",
+  gym: "gym",
+  casino: "casino",
+  "beach access": "beachfront",
+  "kids' facilities": "kidsclub",
+  golf: "golf",
+  parking: "parking",
+  "pet-friendly": "pet",
+  restaurant: "dining",
+};
+const AMENITY_LABEL: Record<string, string> = {
+  spa: "spa",
+  pool: "pool",
+  gym: "gym",
+  casino: "casino",
+  beachfront: "beach access",
+  oceanview: "ocean view",
+  kidsclub: "kids' facilities",
+  golf: "golf",
+  parking: "parking",
+  pet: "pet-friendly",
+  dining: "great restaurants",
+  rooftop: "rooftop",
+  breakfast: "breakfast",
+  michelin: "Michelin dining",
+  butler: "butler service",
+  ski: "skiing",
 };
 
 interface CityInput {
@@ -114,6 +148,33 @@ export async function POST(req: Request) {
   };
   const intent = parseTravelIntent(intentText, criteria);
 
+  // The full set of amenity/feature preferences to score hotels against — the
+  // checked amenities PLUS anything extracted from the free-text and location.
+  const requestedKeys = new Set<string>();
+  for (const a of amenities) {
+    const key = FORM_AMENITY_KEY[a.toLowerCase()];
+    if (key) requestedKeys.add(key);
+  }
+  for (const k of detectAmenityKeys(notes ?? "")) requestedKeys.add(k);
+  if (locationPref === "beach" || locationPref === "waterfront") requestedKeys.add("beachfront");
+  const PREF_POINTS = 16; // each matched preference beats a small distance edge
+
+  // Score an ENRICHED hotel by how many stated preferences it actually has.
+  const scorePrefs = (h: LiveHotel): { bonus: number; matched: string[] } => {
+    const has = new Set(h.amenities ?? []);
+    let bonus = 0;
+    const matched: string[] = [];
+    for (const key of requestedKeys) {
+      const ok = key === "dining" ? (h.dining?.length ?? 0) > 0 : has.has(key);
+      if (ok) {
+        bonus += PREF_POINTS;
+        matched.push(AMENITY_LABEL[key] ?? key);
+      }
+    }
+    if (hotelType === "luxury" && brandOfHotelName(h.name)) bonus += 6; // luxury flag
+    return { bonus, matched };
+  };
+
   const groups = await Promise.all(
     cities.map(async (c) => {
       const brandLabel = c.brand || globalBrand;
@@ -155,13 +216,24 @@ export async function POST(req: Request) {
       }
       const ranked: LiveHotel[] = rankLiveHotels(live, intent, anchor);
 
-      let picks = ranked.slice(0, PER_CITY);
-      if (picks.length) {
-        picks = (await attachLiveInfo(picks, picks.length)).map((h) => {
-          const reason = buildLiveMatchReason(h, intent);
-          return reason ? { ...h, matchReason: reason } : h;
-        });
-      }
+      // Enrich a CANDIDATE POOL (not just the top 3) with real amenities/dining,
+      // then re-rank by how well each hotel matches the stated preferences — so a
+      // spa/pool hotel further down can rise above a closer one that lacks them.
+      const pool = ranked.slice(0, requestedKeys.size ? 8 : PER_CITY);
+      const enriched = await attachLiveInfo(pool, pool.length);
+      const scored = enriched.map((h) => {
+        const { bonus, matched } = scorePrefs(h);
+        const proximityReason = buildLiveMatchReason(h, intent);
+        const reason = [proximityReason, matched.length ? `has ${matched.join(", ")}` : ""]
+          .filter(Boolean)
+          .join(" · ");
+        return {
+          hotel: reason ? { ...h, matchReason: reason } : h,
+          total: (h.relevanceScore ?? 0) + bonus,
+        };
+      });
+      scored.sort((a, b) => b.total - a.total);
+      const picks = scored.slice(0, PER_CITY).map((s) => s.hotel);
       return { city: c.name, brand: brandLabel, hotels: picks, brandMissing: false };
     }),
   );
