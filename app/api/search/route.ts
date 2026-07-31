@@ -99,6 +99,29 @@ interface CityInput {
   brand?: string; // per-city brand label (overrides global)
 }
 
+/** Parse a distance label like "~531 m from South Beach" / "~9.3 km" to km. */
+function parseKm(label?: string): number | null {
+  if (!label) return null;
+  const m = label.match(/~?\s*([\d.]+)\s*(m|km)\b/i);
+  if (!m) return null;
+  const v = parseFloat(m[1]);
+  return m[2].toLowerCase() === "m" ? v / 1000 : v;
+}
+// Beach-district city names, so a beachfront hotel is recognised even when its
+// info text and distance-to-one-anchor don't prove it (e.g. Bali's many beaches).
+const BEACH_CITY_RE =
+  /beach|seminyak|nusa dua|jimbaran|kuta|uluwatu|canggu|sanur|waikiki|south beach|surf club|palm beach|malibu|santa monica|riviera|cancun|tulum/i;
+
+/** Is this hotel GENUINELY beachfront? Any strong signal counts, since no single
+ *  one is reliable: the beachfront amenity, sitting within ~3 km of the beach
+ *  anchor, or being in a beach-district city. */
+function isBeachfront(h: LiveHotel): boolean {
+  if ((h.amenities ?? []).includes("beachfront")) return true;
+  const km = parseKm(h.distanceLabel);
+  if (km != null && km <= 3) return true;
+  return BEACH_CITY_RE.test(h.city ?? "");
+}
+
 export async function POST(req: Request) {
   if (await rateLimitExceeded(req, "form-search", 20, 60)) {
     return NextResponse.json({ error: "Too many searches — one moment." }, { status: 429 });
@@ -219,22 +242,38 @@ export async function POST(req: Request) {
       // Enrich a CANDIDATE POOL (not just the top 3) with real amenities/dining,
       // then re-rank by how well each hotel matches the stated preferences — so a
       // spa/pool hotel further down can rise above a closer one that lacks them.
-      const pool = ranked.slice(0, requestedKeys.size ? 8 : PER_CITY);
+      const beachIntent =
+        intent.proximity?.kind === "beach" || /beach|waterfront|water/i.test(locationPref ?? "");
+      const pool = ranked.slice(0, requestedKeys.size || beachIntent ? 10 : PER_CITY);
       const enriched = await attachLiveInfo(pool, pool.length);
       const scored = enriched.map((h) => {
         const { bonus, matched } = scorePrefs(h);
+        // For a beach request, a hotel that is GENUINELY on a beach (by any
+        // signal) is the point — rank it first regardless of which specific beach
+        // the anchor happened to be, so multi-beach destinations aren't distorted.
+        const bf = beachIntent && isBeachfront(h);
+        const beachBonus = bf ? 60 : 0;
+        if (bf && !matched.includes("beach access")) matched.unshift("beachfront");
         const proximityReason = buildLiveMatchReason(h, intent);
         const reason = [proximityReason, matched.length ? `has ${matched.join(", ")}` : ""]
           .filter(Boolean)
           .join(" · ");
         return {
           hotel: reason ? { ...h, matchReason: reason } : h,
-          total: (h.relevanceScore ?? 0) + bonus,
+          total: (h.relevanceScore ?? 0) + bonus + beachBonus,
+          beachfront: bf,
         };
       });
       scored.sort((a, b) => b.total - a.total);
-      const picks = scored.slice(0, PER_CITY).map((s) => s.hotel);
-      return { city: c.name, brand: brandLabel, hotels: picks, brandMissing: false };
+      const top = scored.slice(0, PER_CITY);
+      const picks = top.map((s) => s.hotel);
+      // Preference could NOT be met: a beach was asked for but nothing here is
+      // genuinely beachfront — tell the traveller instead of pretending.
+      const note =
+        beachIntent && !top.some((s) => s.beachfront)
+          ? `We couldn't find genuinely beachfront hotels in ${cityName} for these dates — showing the closest luxury options instead.`
+          : undefined;
+      return { city: c.name, brand: brandLabel, hotels: picks, brandMissing: false, note };
     }),
   );
 

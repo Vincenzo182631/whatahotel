@@ -45,6 +45,7 @@ interface Group {
   hotels: LiveHotel[];
   empty?: boolean;
   brandMissing?: boolean;
+  note?: string;
 }
 interface Summary {
   cities: { name: string; brand?: string }[];
@@ -360,6 +361,12 @@ export function AdvancedSearchForm() {
                   <MapPin className="size-4 text-[#FF385C]" /> {g.city.split(",")[0]}
                   {g.brand && <span className="text-sm font-normal text-[#717171]">· {g.brand}</span>}
                 </h2>
+                {g.note && (
+                  <div className="mb-3 flex items-start gap-2 rounded-xl border border-[#FF385C]/25 bg-[#FF385C]/[0.04] p-3 text-sm text-[#8a2540]">
+                    <AlertCircle className="mt-0.5 size-4 shrink-0 text-[#FF385C]" />
+                    <span>{g.note}</span>
+                  </div>
+                )}
                 {g.hotels.length > 0 ? (
                   <LiveHotelCards hotels={g.hotels} checkIn={summary.checkIn} checkOut={summary.checkOut} />
                 ) : (

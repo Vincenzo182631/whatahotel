@@ -460,7 +460,10 @@ function buildSituation(ctx: ReplyContext): string {
         ctx.requestedCount && hotels.length < ctx.requestedCount
           ? ` NOTE: they asked for ${ctx.requestedCount} but only ${hotels.length} match — say plainly that only ${hotels.length} fit their criteria (never pad with weaker options).`
           : "";
-      return `SITUATION: ${ctx.liveCity} is outside your curated set, so you searched WhataHotel's live availability. ${
+      const unmet = ctx.liveNote
+        ? ` IMPORTANT — a stated preference could NOT be met: ${ctx.liveNote} LEAD with this honestly (don't present these as beachfront), then offer the closest options.`
+        : "";
+      return `SITUATION: ${ctx.liveCity} is outside your curated set, so you searched WhataHotel's live availability.${unmet} ${
         intent
           ? `The traveller's intent: ${intent}. The app is showing ${hotels.length} real hotels RANKED by how well they fit that intent (closest/most-relevant first).`
           : `The app is showing ${hotels.length} real hotels with live rates and advisor perks.`

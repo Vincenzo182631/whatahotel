@@ -45,6 +45,8 @@ import {
   validateAnchor,
   applyIntentRanking,
   buildLiveMatchReason,
+  isBeachIntent,
+  isBeachfrontHotel,
 } from "./travel-intent";
 
 /** Pull concrete ISO dates the user typed (checkIn = earliest, checkOut = next). */
@@ -1053,16 +1055,27 @@ export async function runTurn(
         anchor = validateAnchor(anchor, live); // drop a bad geocode → qualitative
       }
       const ranked = rankLiveHotels(live, intent, anchor);
-      // Show exactly the requested number (or fewer if fewer match).
-      let liveHotels: import("@/lib/services/live-rates").LiveHotel[] = ranked.slice(0, shownLimit);
-      // Enrich the SHOWN hotels with real amenities + on-site dining so each card
-      // carries a grounded "why it matches" note (bounded, parallel, cached).
-      if (intent.proximity || intent.travelerTypes.length) {
-        liveHotels = (await attachLiveInfo(liveHotels, shownLimit)).map((h) => {
+      const beach = isBeachIntent(intent);
+      // Enrich a pool (bigger for a beach request, so we can recognise genuinely
+      // beachfront hotels), each with real amenities + a "why it matches" note.
+      const poolN = beach ? Math.max(shownLimit, 10) : shownLimit;
+      let pool: LiveHotel[] = ranked.slice(0, poolN);
+      if (intent.proximity || intent.travelerTypes.length || beach) {
+        pool = (await attachLiveInfo(pool, poolN)).map((h) => {
           const reason = buildLiveMatchReason(h, intent);
           return reason ? { ...h, matchReason: reason } : h;
         });
       }
+      // For a beach request, put genuinely-beachfront hotels first (by ANY signal)
+      // so a multi-beach destination isn't distorted by one anchor. Stable sort
+      // keeps the fit order within each group.
+      if (beach) pool = [...pool].sort((a, b) => Number(isBeachfrontHotel(b)) - Number(isBeachfrontHotel(a)));
+      const liveHotels: import("@/lib/services/live-rates").LiveHotel[] = pool.slice(0, shownLimit);
+      // Preference unmet: a beach was asked for but nothing here is beachfront.
+      const liveNote =
+        beach && liveHotels.length && !liveHotels.some(isBeachfrontHotel)
+          ? `We couldn't find genuinely beachfront hotels in ${liveCity} for these dates — these are the closest options.`
+          : undefined;
       const ctx: ReplyContext = {
         action: "live",
         criteria,
@@ -1073,6 +1086,7 @@ export async function runTurn(
         liveHotels,
         liveIntent: summarizeIntent(intent),
         requestedCount: criteria.requestedCount,
+        liveNote,
         learned,
         lastUserMessage,
         user,

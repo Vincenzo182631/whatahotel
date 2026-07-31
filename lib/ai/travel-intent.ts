@@ -880,6 +880,38 @@ export function applyIntentRanking(
 }
 
 /** One-line summary of the intent for the reply prompt. */
+/** Parse a distance label like "~531 m from South Beach" / "~9.3 km" to km. */
+export function distanceKmFromLabel(label?: string): number | null {
+  if (!label) return null;
+  const m = label.match(/~?\s*([\d.]+)\s*(m|km)\b/i);
+  if (!m) return null;
+  const v = parseFloat(m[1]);
+  return m[2].toLowerCase() === "m" ? v / 1000 : v;
+}
+
+// Beach-district names, so a beachfront hotel is recognised even when its info
+// text and distance-to-one-anchor don't prove it (e.g. Bali's many beaches).
+const BEACH_CITY_RE =
+  /beach|seminyak|nusa dua|jimbaran|kuta|uluwatu|canggu|sanur|waikiki|south beach|surf club|palm beach|malibu|santa monica|riviera|cancun|tulum/i;
+
+/** Is this hotel GENUINELY beachfront? Any strong signal counts, since none is
+ *  reliable alone: the beachfront amenity, within ~3 km of the beach anchor, or
+ *  a beach-district city. */
+export function isBeachfrontHotel(h: LiveHotel): boolean {
+  if ((h.amenities ?? []).includes("beachfront")) return true;
+  const km = distanceKmFromLabel(h.distanceLabel);
+  if (km != null && km <= 3) return true;
+  return BEACH_CITY_RE.test(h.city ?? "");
+}
+
+/** True when the traveller's intent is beach/waterfront. */
+export function isBeachIntent(intent: TravelIntent): boolean {
+  return (
+    intent.proximity?.kind === "beach" ||
+    /beach|waterfront|water|ocean|sea|coast|surf/i.test(intent.proximity?.label ?? "")
+  );
+}
+
 export function summarizeIntent(intent: TravelIntent): string {
   const bits: string[] = [];
   if (intent.proximity) bits.push(`near ${intent.proximity.label}`);

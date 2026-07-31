@@ -56,6 +56,9 @@ export interface ReplyContext {
   }[];
   /** One-line summary of the traveller's travel intent, when live-ranked. */
   liveIntent?: string;
+  /** An honest note when a stated preference couldn't be met (e.g. no beachfront
+   *  hotels in the chosen city) — the reply should lead with it. */
+  liveNote?: string;
   /** How many hotels the traveller asked for — so the reply can explain a
    *  shortfall ("only N match your criteria"). */
   requestedCount?: number;
