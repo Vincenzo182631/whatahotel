@@ -107,19 +107,28 @@ async function fetchJson(url: string): Promise<string> {
 }
 
 /**
- * Serialize upstream cityrates calls. The source throttles concurrent requests,
- * so firing one per city (as the homepage does) drops most of them. Chaining
- * them one-at-a-time keeps every city's rates coming back (results are cached).
+ * Serialize upstream calls of one kind. The source throttles concurrent
+ * requests, so firing several at once (the homepage per city, the compare grid
+ * per hotel) drops most of them. Chaining them one-at-a-time keeps every
+ * response coming back (results are cached, so repeat views stay instant).
  */
-let cityChain: Promise<unknown> = Promise.resolve();
-function cityQueue<T>(fn: () => Promise<T>): Promise<T> {
-  const run = cityChain.then(fn, fn);
-  cityChain = run.then(
-    () => undefined,
-    () => undefined,
-  );
-  return run;
+function makeQueue() {
+  let chain: Promise<unknown> = Promise.resolve();
+  return function queue<T>(fn: () => Promise<T>): Promise<T> {
+    const run = chain.then(fn, fn);
+    chain = run.then(
+      () => undefined,
+      () => undefined,
+    );
+    return run;
+  };
 }
+const cityQueue = makeQueue();
+// method=rates has its own queue: the /compare grid fetches 2–3 hotels' rates in
+// parallel (plus their info lookups), and the source dropped some of those
+// concurrent calls — which surfaced as "rate on request" for a hotel that
+// actually has availability (its rooms load fine on the single-fetch stay page).
+const rateQueue = makeQueue();
 
 /**
  * Fetch live rates for a source hotel id and date range via the WhataHotel API.
@@ -145,6 +154,28 @@ export async function getLiveRates(params: {
     `&guests=${guests}&checkIn=${checkIn}&checkOut=${checkOut}` +
     `&apiKey=${encodeURIComponent(API_KEY)}`;
 
+  // Serialize through the rates queue and CIRCLE BACK on a transient miss: the
+  // compare grid fires these in parallel, and the source drops concurrent calls,
+  // which showed as a missing entry rate for a hotel that does have rooms. One
+  // retry recovers a throttled call; a genuinely unavailable hotel still returns
+  // null (only one extra fetch). Successes are cached above's window.
+  let data: LiveRates | null = null;
+  for (let attempt = 0; attempt < 2 && !data; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 400));
+    data = await rateQueue(() => fetchRatesOnce(url, sourceHotelId, checkIn, checkOut, nights));
+  }
+  if (data) cache.set(key, { ts: Date.now(), data });
+  return data;
+}
+
+/** One `method=rates` fetch + parse. Returns null on a miss / non-200 / empty. */
+async function fetchRatesOnce(
+  url: string,
+  sourceHotelId: string,
+  checkIn: string,
+  checkOut: string,
+  nights: number,
+): Promise<LiveRates | null> {
   try {
     const text = await fetchJson(url);
     const json = parseWahJson<WahRatesResponse>(text);
@@ -179,7 +210,7 @@ export async function getLiveRates(params: {
     const rooms = [...byName.values()].sort((a, b) => a.nightly - b.nightly);
     if (rooms.length === 0) return null;
 
-    const data: LiveRates = {
+    return {
       live: true,
       hotelId: sourceHotelId,
       checkIn,
@@ -190,8 +221,6 @@ export async function getLiveRates(params: {
       rooms,
       perks: [], // perks come from the enriched dataset (hotel.perks)
     };
-    cache.set(key, { ts: Date.now(), data });
-    return data;
   } catch {
     return null;
   }
