@@ -140,6 +140,26 @@ export async function getLiveRates(params: {
   const hit = cache.get(key);
   if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
 
+  // Retry once: on the compare page THREE rate calls fire at once, and a single
+  // one occasionally fails/times out under that concurrency even though the same
+  // call succeeds in isolation — leaving a hotel with no rate. A retry recovers
+  // it. Only a real "no availability" (null after both tries) is returned.
+  let data: LiveRates | null = null;
+  for (let attempt = 0; attempt < 2 && !data; attempt++) {
+    data = await fetchLiveRatesOnce(sourceHotelId, checkIn, checkOut, guests, nights);
+  }
+  if (data) cache.set(key, { ts: Date.now(), data });
+  return data;
+}
+
+/** One method=rates fetch + parse. Returns null on failure / no availability. */
+async function fetchLiveRatesOnce(
+  sourceHotelId: string,
+  checkIn: string,
+  checkOut: string,
+  guests: number,
+  nights: number,
+): Promise<LiveRates | null> {
   const url =
     `${API_BASE}?method=rates&hotel=${encodeURIComponent(sourceHotelId)}` +
     `&guests=${guests}&checkIn=${checkIn}&checkOut=${checkOut}` +
@@ -190,7 +210,6 @@ export async function getLiveRates(params: {
       rooms,
       perks: [], // perks come from the enriched dataset (hotel.perks)
     };
-    cache.set(key, { ts: Date.now(), data });
     return data;
   } catch {
     return null;
