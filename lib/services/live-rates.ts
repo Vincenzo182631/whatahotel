@@ -396,6 +396,32 @@ export async function getCityHotels(params: {
   }
 }
 
+/**
+ * Like getCityHotels, but when the traveller wants the beach/water, also pull
+ * the adjacent BEACH DISTRICT — which is often a separate API city (e.g. "Miami
+ * Beach" holds the beachfront hotels that "Miami" never returns). Deduped by id.
+ */
+export async function getCityHotelsBeachAware(params: {
+  city: string;
+  checkIn: string;
+  checkOut: string;
+  guests?: number;
+  includeBeach?: boolean;
+}): Promise<LiveHotel[]> {
+  const base = await getCityHotels(params);
+  if (!params.includeBeach) return base;
+  const cityName = params.city.split(",")[0].trim();
+  const extra = (await searchHotelsByName(`${cityName} Beach`).catch(() => [])).filter(
+    (h) => (h.city || "").toLowerCase().includes(cityName.toLowerCase()) || /beach/i.test(h.city || ""),
+  );
+  if (!extra.length) return base;
+  const seen = new Set(base.map((h) => h.sourceHotelId));
+  // Beach hotels FIRST — they're what a beach search wants, and putting them at
+  // the front ensures the coordinate-enrichment pass (which is capped) covers
+  // them so they can be distance-ranked against the beach anchor.
+  return [...extra.filter((h) => !seen.has(h.sourceHotelId)), ...base];
+}
+
 /** Fallback for cities the cityrates endpoint can't match: search the directory
  *  by the city term and keep only hotels whose city matches. */
 async function cityHotelsViaSearch(city: string): Promise<LiveHotel[]> {
@@ -596,7 +622,7 @@ export async function getHotelInfo(hotelName: string, city: string): Promise<Hot
   // info-less hotel surfaces the UI's "view the hotel for details" note without
   // being re-hammered every load, while a transient miss self-heals on revisit.
   let data: HotelInfo | null = null;
-  for (let attempt = 0; attempt < 3 && !infoHasSubstance(data); attempt++) {
+  for (let attempt = 0; attempt < 2 && !infoHasSubstance(data); attempt++) {
     data = await fetchHotelInfoOnce(hotelName, city);
   }
   infoCache.set(key, { ts: Date.now(), data });

@@ -17,13 +17,14 @@ import { extractCriteriaPatch, classifyTurn } from "./provider";
 import { getCurrentUser } from "@/lib/auth/session";
 import { store } from "@/lib/data/store";
 import {
-  getCityHotels,
+  getCityHotelsBeachAware,
   buildLiveComparison,
   attachLiveCoordinates,
   attachLiveInfo,
   searchHotelsByName,
 } from "@/lib/services/live-rates";
 import type { LiveHotel } from "@/lib/services/live-rates";
+import type { TravelIntent } from "@/lib/ai/travel-intent";
 import { DESTINATIONS, resolveDestination } from "@/lib/services/mock-data";
 import {
   type BrandDef,
@@ -64,6 +65,16 @@ const CITY_STOPWORDS = new Set([
 ]);
 
 /** Best-effort city name after a preposition, for the no-LLM path. */
+/** True when the traveller's intent is beach/waterfront — a cue to also pull the
+ *  adjacent beach district (e.g. Miami Beach), whose hotels a plain city search
+ *  misses. */
+function wantsBeach(intent: TravelIntent): boolean {
+  return (
+    intent.proximity?.kind === "beach" ||
+    /beach|waterfront|water|ocean|sea|surf|coast/i.test(intent.proximity?.label ?? "")
+  );
+}
+
 function heuristicCity(text: string): string | undefined {
   const m = text.match(/\b(?:in|to|at|near|visiting|visit|around)\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)/);
   if (!m) return undefined;
@@ -914,11 +925,12 @@ export async function runTurn(
     const groups = await Promise.all(
       cityList.map(async (c) => {
         const fetchCity = () =>
-          getCityHotels({
+          getCityHotelsBeachAware({
             city: c.city,
             checkIn: criteria.checkIn!,
             checkOut: criteria.checkOut!,
             guests: criteria.adults,
+            includeBeach: wantsBeach(intent),
           });
         // Firing several city searches at once occasionally returns empty on a
         // cold cache; a single retry recovers it (a solo call always succeeds).
@@ -1020,10 +1032,11 @@ export async function runTurn(
     (criteria.destinationLabel?.split(",")[0].trim() || heuristicCity(lastUserMessage)) || undefined;
   if (liveCity) {
     if (criteria.checkIn && criteria.checkOut) {
-      let live = await getCityHotels({
+      let live = await getCityHotelsBeachAware({
         city: liveCity,
         checkIn: criteria.checkIn,
         checkOut: criteria.checkOut,
+        includeBeach: wantsBeach(turnIntent),
       });
       // Understand WHY they want this city, then rank the live results by real
       // fit (proximity to the requested anchor + amenity/traveller-type match),
@@ -1036,7 +1049,7 @@ export async function runTurn(
         ? await getAnchor(liveCity, intent.proximity, live[0]?.country)
         : null;
       if (anchor) {
-        live = await attachLiveCoordinates(live, 12);
+        live = await attachLiveCoordinates(live, 18);
         anchor = validateAnchor(anchor, live); // drop a bad geocode → qualitative
       }
       const ranked = rankLiveHotels(live, intent, anchor);

@@ -107,11 +107,15 @@ async function buildCol(hotel: Hotel, checkIn: string, checkOut: string, nights:
     perks: hotel.perks,
     info: null,
   };
-  const r =
+  // Fetch live rates and descriptive info IN PARALLEL — they're independent, and
+  // running them sequentially per hotel was the main reason the compare page sat
+  // on its loading skeleton for many seconds.
+  const [r, info] = await Promise.all([
     hotel.sourceHotelId && nights > 0
-      ? await getLiveRates({ sourceHotelId: hotel.sourceHotelId, checkIn, checkOut })
-      : null;
-  const info = await getHotelInfo(hotel.name, hotel.city);
+      ? getLiveRates({ sourceHotelId: hotel.sourceHotelId, checkIn, checkOut })
+      : Promise.resolve(null),
+    getHotelInfo(hotel.name, hotel.city),
+  ]);
   if (r) {
     col.live = true;
     col.currency = r.currency;

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import {
-  getCityHotels,
+  getCityHotelsBeachAware,
   attachLiveCoordinates,
   attachLiveInfo,
   type LiveHotel,
@@ -134,7 +134,11 @@ export async function POST(req: Request) {
             guests: adults,
           });
         } else {
-          const fetchCity = () => getCityHotels({ city: cityName, checkIn, checkOut, guests: adults });
+          const includeBeach =
+            intent.proximity?.kind === "beach" ||
+            /beach|water|ocean|coast/i.test((intent.proximity?.label ?? "") + " " + (locationPref ?? ""));
+          const fetchCity = () =>
+            getCityHotelsBeachAware({ city: cityName, checkIn, checkOut, guests: adults, includeBeach });
           live = await fetchCity();
           if (!live.length) live = await fetchCity();
         }
@@ -146,7 +150,7 @@ export async function POST(req: Request) {
 
       let anchor = intent.proximity ? await getAnchor(cityName, intent.proximity, live[0]?.country) : null;
       if (anchor) {
-        live = await attachLiveCoordinates(live, 12);
+        live = await attachLiveCoordinates(live, 18);
         anchor = validateAnchor(anchor, live);
       }
       const ranked: LiveHotel[] = rankLiveHotels(live, intent, anchor);
