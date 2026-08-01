@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LiveHotelCards } from "@/components/chat/live-hotel-cards";
+import { useTravelDates } from "@/store/travel-dates-store";
+import { useCompareSelection } from "@/store/compare-selection-store";
 import type { LiveHotel } from "@/lib/services/live-rates";
 
 const BRANDS = [
@@ -91,6 +93,9 @@ export function AdvancedSearchForm() {
   const [groups, setGroups] = useState<Group[] | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
 
+  const setTravelDates = useTravelDates((s) => s.setDates);
+  const clearCompare = useCompareSelection((s) => s.clear);
+
   const setCity = (i: number, patch: Partial<{ name: string; brand: string }>) =>
     setCities((cur) => cur.map((c, j) => (j === i ? { ...c, ...patch } : c)));
   const addCity = () => setCities((c) => (c.length < 3 ? [...c, { name: "", brand: "" }] : c));
@@ -113,6 +118,10 @@ export function AdvancedSearchForm() {
     setLoading(true);
     setGroups(null);
     setSummary(null);
+    // Share the dates so the "Compare" tray builds a /compare link for them, and
+    // drop any selections from a previous search.
+    setTravelDates(checkIn, checkOut);
+    clearCompare();
     try {
       const res = await fetch("/api/search", {
         method: "POST",

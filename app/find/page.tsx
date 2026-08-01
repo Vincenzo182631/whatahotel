@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { BackButton } from "@/components/ui/back-button";
 import { AdvancedSearchForm } from "@/components/search/advanced-search-form";
+import { CompareBar } from "@/components/chat/compare-bar";
 
 export const metadata: Metadata = {
   title: "Search & compare hotels — WhataHotel",
@@ -21,6 +22,8 @@ export default function FindPage() {
         </div>
       </header>
       <AdvancedSearchForm />
+      {/* Floating "Compare N hotels" tray — appears when hotels are selected. */}
+      <CompareBar />
     </div>
   );
 }
