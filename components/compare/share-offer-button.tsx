@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Share2, Loader2, Link2, Check, ExternalLink, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ShareTargets } from "@/components/compare/share-targets";
 
 /**
  * Agent-only shortcut on the /compare page: turn the current comparison into a
@@ -27,6 +28,7 @@ export function ShareOfferButton({
   const [creating, setCreating] = useState(false);
   const [offer, setOffer] = useState<{ id: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -70,7 +72,10 @@ export function ShareOfferButton({
   return (
     <div className="relative w-full sm:w-auto">
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          setOpen((v) => !v);
+          setShowPicker(false);
+        }}
         className="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full border border-[#FF385C]/40 bg-[#FF385C]/[0.06] px-3.5 py-2 text-sm font-semibold text-[#FF385C] transition-colors hover:bg-[#FF385C]/10 sm:min-h-0 sm:w-auto"
       >
         <Share2 className="size-4" /> Share This Hotel Comparison
@@ -107,15 +112,32 @@ export function ShareOfferButton({
                 <Link2 className="size-4 shrink-0 text-[#717171]" />
                 <span className="truncate text-xs text-[#333]">{link}</span>
               </div>
-              <p className="text-xs text-[#717171]">Copy this link and paste it into your own email or message to the guest.</p>
-              <div className="flex flex-wrap gap-2">
-                <button onClick={copy} className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C] px-3.5 py-1.5 text-sm font-semibold text-white hover:opacity-90">
-                  {copied ? <Check className="size-4" /> : <Link2 className="size-4" />} {copied ? "Copied!" : "Copy link"}
-                </button>
-                <a href={link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-[#717171] hover:bg-black/[0.04]">
-                  <ExternalLink className="size-4" /> Open
-                </a>
-              </div>
+              {showPicker ? (
+                <div>
+                  <ShareTargets getUrl={() => link} onDone={() => setOpen(false)} />
+                  <button
+                    onClick={() => setShowPicker(false)}
+                    className="mt-3 text-xs font-medium text-[#717171] hover:text-[#1a1a1a]"
+                  >
+                    ‹ Back
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <p className="text-xs text-[#717171]">Copy the link, send it straight to the guest, or paste it into your own email.</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={copy} className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C] px-3.5 py-1.5 text-sm font-semibold text-white hover:opacity-90">
+                      {copied ? <Check className="size-4" /> : <Link2 className="size-4" />} {copied ? "Copied!" : "Copy link"}
+                    </button>
+                    <button onClick={() => setShowPicker(true)} className="inline-flex items-center gap-1.5 rounded-full border border-[#FF385C]/40 bg-[#FF385C]/[0.06] px-3.5 py-1.5 text-sm font-semibold text-[#FF385C] hover:bg-[#FF385C]/10">
+                      <Share2 className="size-4" /> Share link
+                    </button>
+                    <a href={link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-[#717171] hover:bg-black/[0.04]">
+                      <ExternalLink className="size-4" /> Open
+                    </a>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
