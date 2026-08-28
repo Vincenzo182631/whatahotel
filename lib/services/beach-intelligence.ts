@@ -55,6 +55,13 @@ export interface BeachAlert {
   zone: string;
   score: number;
   level: BeachRiskLevel;
+  /**
+   * "warning" — the water itself is measurably affected (score at/below
+   * BEACH_ALERT_SCORE); shown in red. "watch" — the water is still decent but
+   * the forecast is turning; shown in amber, because a red banner over a clear
+   * beach reads as alarmism and costs the advisor its credibility.
+   */
+  severity: "warning" | "watch";
   /** Score at/below this threshold is considered a warning-worthy beach. */
   worsening: boolean;
   /** Short bullet reasons ("Beach score 42/100 — high sargassum risk", …). */
@@ -69,17 +76,60 @@ export interface BeachAlert {
 export const BEACH_ALERT_SCORE = 60;
 
 /**
+ * Score at/below which a "worsening" forecast is worth surfacing on its own.
+ * Above this the water is clear enough that a forecast alone says nothing
+ * actionable — and the upstream service reports "worsening" for most zones
+ * during sargassum season, so ungated it fires on every destination at once.
+ */
+export const BEACH_WATCH_SCORE = 75;
+
+/**
+ * How old a news report may be and still describe conditions *today*. Beyond
+ * this it is history: relaying a weeks-old "crisis" headline beside a live
+ * satellite reading makes a clear beach look dangerous.
+ */
+export const MAX_REPORT_AGE_DAYS = 14;
+
+/** Is this report recent enough to describe the beach as it is right now? */
+export function isReportFresh(
+  publishedAt: string | undefined,
+  maxAgeDays = MAX_REPORT_AGE_DAYS,
+): boolean {
+  if (!publishedAt) return false;
+  const then = new Date(publishedAt).getTime();
+  if (Number.isNaN(then)) return false;
+  return (Date.now() - then) / 86400000 <= maxAgeDays;
+}
+
+/**
+ * Whether this zone's news may be relayed as current. Only news we can *prove*
+ * is old gets dropped — an undateable item is kept, so a missing timestamp
+ * never silently suppresses a genuine warning.
+ */
+function newsIsCurrent(b: BeachCondition): boolean {
+  if (!b.latestReport) return true;
+  return isReportFresh(b.latestReport.publishedAt);
+}
+
+/**
  * Decide whether a beach condition warrants a visible warning, and build it.
- * Fires when the beach score is at/below the threshold OR conditions are
- * forecast to worsen. Returns null when the beach is fine.
+ * Fires when the beach score is at/below the threshold, or when a worsening
+ * forecast meets water that is already less than clear. Returns null when the
+ * beach is fine — including a clear beach with a worsening forecast, which is a
+ * forecast, not a warning.
  */
 export function beachAlertFrom(b: BeachCondition): BeachAlert | null {
   const lowScore = b.score <= BEACH_ALERT_SCORE;
-  const worsening = b.forecastTrend === "worsening";
+  // A worsening forecast only means something when there is something to worsen
+  // into. On clear water it is noise.
+  const worsening =
+    b.forecastTrend === "worsening" && b.score <= BEACH_WATCH_SCORE;
   if (!lowScore && !worsening) return null;
 
   const levelWord =
     b.level === "HIGH" ? "high" : b.level === "MODERATE" ? "moderate" : "low";
+  const useNews = b.newsFlag && Boolean(b.newsSummary) && newsIsCurrent(b);
+
   const reasons: string[] = [];
   if (lowScore) {
     reasons.push(`Beach score ${b.score}/100 — ${levelWord} sargassum risk`);
@@ -87,7 +137,7 @@ export function beachAlertFrom(b: BeachCondition): BeachAlert | null {
   if (worsening) {
     reasons.push("Sargassum forecast to worsen over the next 7 days");
   }
-  if (b.newsFlag && b.newsSummary) {
+  if (useNews && b.newsSummary) {
     reasons.push(b.newsSummary);
   }
 
@@ -95,9 +145,10 @@ export function beachAlertFrom(b: BeachCondition): BeachAlert | null {
     zone: b.zone,
     score: b.score,
     level: b.level,
+    severity: lowScore ? "warning" : "watch",
     worsening,
     reasons,
-    newsSummary: b.newsFlag ? b.newsSummary : null,
+    newsSummary: useNews ? b.newsSummary : null,
     alternatives: b.alternatives,
   };
 }
@@ -245,9 +296,12 @@ export function formatBeachFacts(b: BeachCondition): string {
     lines.push(`Nearby zones with clearer conditions: ${alts}.`);
   }
   // News / announcements (context — the satellite score above is the number).
-  if (b.newsFlag && b.newsSummary) {
+  // Anything older than MAX_REPORT_AGE_DAYS is withheld entirely: the advisor
+  // cannot relay as "current" what it is never shown.
+  const current = newsIsCurrent(b);
+  if (b.newsFlag && b.newsSummary && current) {
     lines.push(`Early-warning from recent news: ${b.newsSummary}.`);
-  } else if (b.latestReport?.summary) {
+  } else if (b.latestReport?.summary && current) {
     const when = relativeDay(b.latestReport.publishedAt);
     lines.push(
       `Recent report (${b.latestReport.source}${when ? `, ${when}` : ""}): ${b.latestReport.summary}.`,
