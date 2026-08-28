@@ -44,7 +44,9 @@ export function BeachAlertBanner({ alert }: { alert: BeachAlert }) {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      role="alert"
+      // A warning interrupts the screen reader; a watch is announced politely,
+      // for the same reason it isn't red.
+      role={alert.severity === "watch" ? "status" : "alert"}
       className={`flex gap-3 rounded-2xl border px-4 py-3 ${tone.box}`}
     >
       <div className={`grid size-8 shrink-0 place-items-center rounded-full ${tone.badge}`}>
