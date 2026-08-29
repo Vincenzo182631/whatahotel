@@ -61,7 +61,7 @@ const TARGETS: Target[] = [
     label: "Email",
     color: "#EA4335",
     href: (url, msg) =>
-      `mailto:?subject=${enc("Hotel comparison — WhataHotel")}&body=${enc(`${msg}\n\n${url}`)}`,
+      `mailto:?subject=${enc("Hotel comparison — WhataHotel")}&body=${enc(`${msg}\r\n\r\n${url}`)}`,
     icon: <Mail className="size-5" strokeWidth={1.75} aria-hidden />,
   },
   {
@@ -132,24 +132,31 @@ export function ShareTargets({
     <div>
       <p className="mb-2 text-xs font-medium text-[#717171]">Share to…</p>
       <div className="grid grid-cols-4 gap-1">
-        {TARGETS.map((t) => (
-          <a
-            key={t.key}
-            href={t.href(getUrl(), MESSAGE)}
-            target="_blank"
-            rel="noreferrer"
-            onClick={() => onDone?.()}
-            className={tile}
-          >
-            <span
-              className="flex size-11 items-center justify-center rounded-full text-white"
-              style={{ backgroundColor: t.color }}
+        {TARGETS.map((t) => {
+          const href = t.href(getUrl(), MESSAGE);
+          // Web share intents open in a new tab; protocol handlers (mailto:, sms:)
+          // must open in the SAME context — a _blank tab swallows the handoff and
+          // the mail/SMS app never opens.
+          const external = /^https?:/i.test(href);
+          return (
+            <a
+              key={t.key}
+              href={href}
+              target={external ? "_blank" : undefined}
+              rel={external ? "noreferrer" : undefined}
+              onClick={() => onDone?.()}
+              className={tile}
             >
-              {t.icon}
-            </span>
-            <span className="text-[11px] leading-tight text-[#333]">{t.label}</span>
-          </a>
-        ))}
+              <span
+                className="flex size-11 items-center justify-center rounded-full text-white"
+                style={{ backgroundColor: t.color }}
+              >
+                {t.icon}
+              </span>
+              <span className="text-[11px] leading-tight text-[#333]">{t.label}</span>
+            </a>
+          );
+        })}
 
         {/* Copy tile — same footprint as an app, re-copies the link. */}
         <button type="button" onClick={copy} className={tile}>
