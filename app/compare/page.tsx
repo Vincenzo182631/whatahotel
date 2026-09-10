@@ -7,6 +7,7 @@ import { ShareComparisonButton } from "@/components/compare/share-comparison-but
 import { CompareDateBar } from "@/components/compare/compare-date-bar";
 import { BeachAlertFor } from "@/components/chat/beach-alert-for";
 import { LogComparison } from "@/components/compare/log-comparison";
+import { ScrollScrubber } from "@/components/compare/scroll-scrubber";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -94,6 +95,8 @@ export default async function ComparePage({ searchParams }: Params) {
         )}
         <ComparisonView hotelIds={ids} checkIn={checkIn} checkOut={checkOut} />
       </main>
+      {/* Right-edge drag scrubber — grab it to move up/down a long comparison. */}
+      <ScrollScrubber />
     </div>
   );
 }
