@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { MemorySync } from "@/components/memory-sync";
 import { NavigationProgress } from "@/components/navigation-progress";
+import { ScrollScrubber } from "@/components/compare/scroll-scrubber";
 
 const sans = Manrope({
   subsets: ["latin"],
@@ -61,6 +62,9 @@ export default function RootLayout({
           <MemorySync />
           <NavigationProgress />
           <div className="relative z-10">{children}</div>
+          {/* Subtle right-edge drag scrubber on every page (hides itself when
+              the page isn't tall enough to scroll). */}
+          <ScrollScrubber />
         </Providers>
       </body>
     </html>
