@@ -6,8 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * Right-edge drag scrubber for long pages (mounted app-wide in the root layout).
  * A vertical track pinned to the right with a grab handle: drag it up/down to
  * scrub the whole page, or click anywhere on the track to jump there. The handle
- * also follows normal scrolling, so it doubles as a position indicator. It's kept
- * deliberately subtle (a faint neutral capsule) and only sharpens on hover/drag.
+ * also follows normal scrolling, so it doubles as a position indicator. The handle
+ * uses the brand/icon colour (#FF385C) so it pops on both light and dark pages.
  * Hides itself when the page isn't tall enough to scroll. Pointer events cover
  * mouse + touch; arrow / page / home / end keys work when focused.
  */
@@ -122,32 +122,34 @@ export function ScrollScrubber() {
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onKeyDown={onKeyDown}
-        className="group pointer-events-auto relative h-full w-3 touch-none select-none"
+        className="group pointer-events-auto relative h-full w-3.5 touch-none select-none"
       >
-        {/* Faint rail — only hinted on hover/drag, so it stays unobtrusive */}
+        {/* Faint brand-pink rail, hinted on hover/drag */}
         <span
           className={`absolute left-1/2 top-1 bottom-1 w-px -translate-x-1/2 rounded-full transition-colors ${
-            dragging ? "bg-neutral-400/30" : "bg-transparent group-hover:bg-neutral-400/25"
+            dragging ? "bg-[#FF385C]/25" : "bg-transparent group-hover:bg-[#FF385C]/20"
           }`}
         />
 
-        {/* Grab handle — deliberately subtle by default (a neutral translucent
-            capsule that reads on both light and dark pages), and only becomes
-            clearer on hover / while dragging. */}
+        {/* Grab handle — hot-pink (#FF385C, the brand/icon colour) so it pops on
+            both light and dark pages; widens slightly on hover / while dragging. */}
         <span
-          className={`absolute left-1/2 -translate-x-1/2 rounded-full ring-1 backdrop-blur-sm transition-[width,background-color] ${
-            dragging
-              ? "w-2 bg-neutral-500/70 ring-white/20"
-              : "w-1.5 bg-neutral-400/35 ring-black/[0.04] group-hover:w-2 group-hover:bg-neutral-500/60"
+          className={`absolute left-1/2 flex -translate-x-1/2 flex-col items-center justify-center gap-[3px] rounded-full bg-[#FF385C] text-white ring-1 ring-white/25 shadow-[0_4px_14px_-2px_rgba(255,56,92,0.65)] transition-[width,transform] ${
+            dragging ? "w-3 scale-105" : "w-2.5 group-hover:w-3"
           }`}
           style={{ top: `calc((100% - ${HANDLE}px) * ${frac})`, height: HANDLE }}
-        />
+        >
+          {/* grip dots */}
+          <span className="size-[3px] rounded-full bg-white/90" />
+          <span className="size-[3px] rounded-full bg-white/90" />
+          <span className="size-[3px] rounded-full bg-white/90" />
+        </span>
       </div>
 
       {/* Position bubble — only while actively dragging */}
       {dragging && (
         <div
-          className="pointer-events-none absolute right-4 flex -translate-y-1/2 items-center rounded-full bg-[#1a1a1a]/90 px-2 py-1 text-[11px] font-semibold text-white shadow-lg"
+          className="pointer-events-none absolute right-4 flex -translate-y-1/2 items-center rounded-full bg-[#FF385C] px-2 py-1 text-[11px] font-semibold text-white shadow-lg"
           style={{ top: `calc(${HANDLE / 2}px + (100% - ${HANDLE}px) * ${frac})` }}
         >
           {Math.round(frac * 100)}%
