@@ -11,7 +11,8 @@ import { StayDatePicker } from "@/components/search/stay-date-picker";
 import { StayBooking } from "@/components/search/stay-booking";
 import { DockedAdvisor } from "@/components/hotel/docked-advisor";
 import { JsonLd } from "@/components/seo/json-ld";
-import { lodgingSchema } from "@/lib/seo/schema";
+import { lodgingSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { resolveDestination, DESTINATIONS } from "@/lib/services/mock-data";
 import { formatCurrency } from "@/lib/utils";
 import type { Hotel } from "@/lib/services/types";
 
@@ -105,10 +106,19 @@ export default async function StayPage({ params, searchParams }: Params) {
     priceFrom: rates ? { amount: rates.entryNightly, currency: rates.currency } : undefined,
   });
 
+  // Breadcrumb: Home › [City] › Hotel. Link the city crumb only when it maps to
+  // a known destination page.
+  const cityKey = resolveDestination(hotel.city);
+  const crumbs = [{ name: "Home", path: "/" }];
+  if (cityKey && DESTINATIONS[cityKey]) {
+    crumbs.push({ name: DESTINATIONS[cityKey].label.split(",")[0], path: `/city/${cityKey}` });
+  }
+  crumbs.push({ name: hotel.name, path: `/stay/${id}` });
+
   return (
     <div className="min-h-dvh bg-white text-[#222]">
       {/* Structured data — Hotel rich result */}
-      <JsonLd data={hotelSchema} />
+      <JsonLd data={[hotelSchema, breadcrumbSchema(crumbs)]} />
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-[#EBEBEB] bg-white">
         <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-6 py-3.5">

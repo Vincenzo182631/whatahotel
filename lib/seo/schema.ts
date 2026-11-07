@@ -143,6 +143,21 @@ interface BlogArticle {
   author?: string;
 }
 
+/** A breadcrumb trail. Items are ordered root → current; the current page is
+ *  last. Each item links to its path (the last may be the page itself). */
+export function breadcrumbSchema(items: { name: string; path: string }[]): Json {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.name,
+      item: abs(it.path),
+    })),
+  };
+}
+
 /** The journal index as a Blog, listing each post. */
 export function blogSchema(articles: BlogArticle[]): Json {
   return {
