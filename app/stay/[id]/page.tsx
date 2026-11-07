@@ -10,6 +10,8 @@ import { CityMap } from "@/components/hotel/city-map";
 import { StayDatePicker } from "@/components/search/stay-date-picker";
 import { StayBooking } from "@/components/search/stay-booking";
 import { DockedAdvisor } from "@/components/hotel/docked-advisor";
+import { JsonLd } from "@/components/seo/json-ld";
+import { lodgingSchema } from "@/lib/seo/schema";
 import { formatCurrency } from "@/lib/utils";
 import type { Hotel } from "@/lib/services/types";
 
@@ -90,8 +92,23 @@ export default async function StayPage({ params, searchParams }: Params) {
     bookingUrl: hotel.bookingUrl,
   };
 
+  const hotelSchema = lodgingSchema({
+    path: `/stay/${id}`,
+    name: hotel.name,
+    description: info?.description,
+    images: [hotel.image, ...hotel.gallery],
+    streetAddress: hotel.address,
+    city: hotel.city,
+    country: hotel.country,
+    coordinates: hotel.coordinates,
+    amenities: info?.amenities,
+    priceFrom: rates ? { amount: rates.entryNightly, currency: rates.currency } : undefined,
+  });
+
   return (
     <div className="min-h-dvh bg-white text-[#222]">
+      {/* Structured data — Hotel rich result */}
+      <JsonLd data={hotelSchema} />
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-[#EBEBEB] bg-white">
         <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-6 py-3.5">
