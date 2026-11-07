@@ -5,6 +5,8 @@ import { Providers } from "./providers";
 import { MemorySync } from "@/components/memory-sync";
 import { NavigationProgress } from "@/components/navigation-progress";
 import { ScrollScrubber } from "@/components/compare/scroll-scrubber";
+import { JsonLd } from "@/components/seo/json-ld";
+import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
 
 const sans = Manrope({
   subsets: ["latin"],
@@ -56,6 +58,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={sans.variable}>
+        {/* Site-wide structured data (publisher + site identity). */}
+        <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <div className="aurora" aria-hidden />
         <div className="grain" aria-hidden />
         <Providers>
