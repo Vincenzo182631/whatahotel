@@ -13,6 +13,8 @@ import {
   getArticle,
   getRelatedArticles,
 } from "@/lib/journal/articles";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbSchema } from "@/lib/seo/schema";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -178,6 +180,13 @@ export default async function ArticlePage({ params }: Params) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "The Journal", path: "/journal" },
+          { name: article.title, path: `/journal/${slug}` },
+        ])}
       />
     </main>
   );

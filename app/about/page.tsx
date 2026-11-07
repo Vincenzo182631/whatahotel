@@ -13,6 +13,8 @@ import {
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbSchema } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
   title: "About WhataHotel — Your AI Luxury Travel Advisor",
@@ -52,6 +54,12 @@ const TRUST = [
 export default function AboutPage() {
   return (
     <main className="min-h-dvh">
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "About", path: "/about" },
+        ])}
+      />
       <SiteHeader />
 
       {/* Hero */}

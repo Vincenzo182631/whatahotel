@@ -16,7 +16,7 @@ import { RoomsSection } from "@/components/hotel/rooms-section";
 import { TrackView } from "@/components/hotel/track-view";
 import { AMENITY_META } from "@/components/hotel/amenity-meta";
 import { JsonLd } from "@/components/seo/json-ld";
-import { catalogueHotelSchema } from "@/lib/seo/schema";
+import { catalogueHotelSchema, breadcrumbSchema } from "@/lib/seo/schema";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -54,7 +54,18 @@ export default async function HotelPage({ params, searchParams }: Params) {
   return (
     <main className="min-h-dvh">
       {/* Structured data — Hotel rich result */}
-      <JsonLd data={catalogueHotelSchema(hotel)} />
+      <JsonLd
+        data={[
+          catalogueHotelSchema(hotel),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            ...(hotel.destinationKey
+              ? [{ name: hotel.city, path: `/city/${hotel.destinationKey}` }]
+              : []),
+            { name: hotel.name, path: `/hotel/${hotel.id}` },
+          ]),
+        ]}
+      />
       <TrackView
         hotel={{
           id: hotel.id,
