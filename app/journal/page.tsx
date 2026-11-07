@@ -5,6 +5,8 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { getAllArticles } from "@/lib/journal/articles";
+import { JsonLd } from "@/components/seo/json-ld";
+import { blogSchema } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
   title: "The Journal — Luxury Travel Guides & Tips | WhataHotel",
@@ -26,6 +28,8 @@ export default function JournalPage() {
 
   return (
     <main className="min-h-dvh">
+      {/* Structured data — Blog index */}
+      <JsonLd data={blogSchema(articles)} />
       <SiteHeader />
 
       <div className="container pb-20 pt-10">

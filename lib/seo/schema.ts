@@ -133,3 +133,98 @@ export function catalogueHotelSchema(hotel: Hotel): Json {
         : undefined,
   });
 }
+
+interface BlogArticle {
+  slug: string;
+  title: string;
+  excerpt?: string;
+  image?: string;
+  date: string;
+  author?: string;
+}
+
+/** The journal index as a Blog, listing each post. */
+export function blogSchema(articles: BlogArticle[]): Json {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "The Journal — WhataHotel",
+    description:
+      "Destination guides, packing wisdom and luxury travel inspiration from the WhataHotel advisory team.",
+    url: `${SITE_URL}/journal`,
+    publisher: { "@type": "Organization", name: SITE_NAME },
+    blogPost: articles.map((a) =>
+      clean({
+        "@type": "BlogPosting",
+        headline: a.title,
+        description: a.excerpt,
+        url: `${SITE_URL}/journal/${a.slug}`,
+        image: a.image ? abs(a.image) : undefined,
+        datePublished: a.date,
+        author: a.author ? { "@type": "Organization", name: a.author } : undefined,
+      }),
+    ),
+  };
+}
+
+interface CityHotel {
+  id: string;
+  name: string;
+  image?: string;
+  startingRate?: number;
+  currency?: string;
+  rating?: number;
+  reviewCount?: number;
+  starRating?: number;
+}
+
+/** A city page as a CollectionPage whose mainEntity is an ordered ItemList of
+ *  the city's hotels — each a compact Hotel node. */
+export function cityHotelsSchema(input: {
+  id: string;
+  label: string;
+  country?: string;
+  hotels: CityHotel[];
+}): Json {
+  const items = input.hotels.map((h, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    item: clean({
+      "@type": "Hotel",
+      name: h.name,
+      url: `${SITE_URL}/hotel/${h.id}`,
+      image: h.image ? abs(h.image) : undefined,
+      address: clean({
+        "@type": "PostalAddress",
+        addressLocality: input.label.split(",")[0].trim(),
+        addressCountry: input.country,
+      }),
+      starRating:
+        h.starRating && h.starRating > 0
+          ? { "@type": "Rating", ratingValue: h.starRating, bestRating: 5 }
+          : undefined,
+      aggregateRating:
+        h.rating && h.rating > 0 && h.reviewCount && h.reviewCount > 0
+          ? { "@type": "AggregateRating", ratingValue: h.rating, bestRating: 10, reviewCount: h.reviewCount }
+          : undefined,
+      priceRange:
+        h.startingRate && h.startingRate > 0
+          ? `from ${h.currency || "USD"} ${Math.round(h.startingRate)} / night`
+          : undefined,
+    }),
+  }));
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `Hotels in ${input.label}`,
+    description: `Browse every luxury hotel in ${input.label}, with advisor-exclusive perks.`,
+    url: `${SITE_URL}/city/${input.id}`,
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: items.length,
+      itemListElement: items,
+    },
+  };
+}
+

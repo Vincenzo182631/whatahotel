@@ -8,6 +8,8 @@ import { DESTINATIONS } from "@/lib/services/mock-data";
 import { HotelGridCard } from "@/components/airbnb-landing";
 import { TravelDatesBar } from "@/components/search/travel-dates-bar";
 import { CityMap, type MapHotel } from "@/components/hotel/city-map";
+import { JsonLd } from "@/components/seo/json-ld";
+import { cityHotelsSchema } from "@/lib/seo/schema";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -63,6 +65,24 @@ export default async function CityPage({ params }: Params) {
 
   return (
     <div className="min-h-dvh bg-white text-[#222]">
+      {/* Structured data — city hotel collection */}
+      <JsonLd
+        data={cityHotelsSchema({
+          id,
+          label: meta.label,
+          country: meta.country,
+          hotels: hotels.map((h) => ({
+            id: h.id,
+            name: h.name,
+            image: h.image,
+            startingRate: h.startingRate,
+            currency: h.currency,
+            rating: h.rating,
+            reviewCount: h.reviewCount,
+            starRating: h.starRating,
+          })),
+        })}
+      />
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-[#EBEBEB] bg-white">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-6 py-3.5">
