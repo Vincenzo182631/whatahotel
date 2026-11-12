@@ -101,6 +101,12 @@ function composeLive(ctx: ReplyContext): string {
   const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
   const top = hotels[0];
   const topNote = [top?.distanceLabel, top?.matchReason].filter(Boolean).join(" · ");
+  if (ctx.sampleDates) {
+    const why = intent ? ` ranked for ${intent}` : "";
+    return `${greeting(ctx.user)}Here ${n === 1 ? "is" : "are"} ${n} ${n === 1 ? "hotel" : "hotels"} in ${city}${why}, priced live for a sample stay of ${ctx.sampleDates.label} with advisor perks included.${
+      top && topNote ? ` ${top.name} leads: ${topNote}.` : ""
+    } Share your exact dates and I'll refresh the rates.`;
+  }
   if (intent) {
     return `${greeting(ctx.user)}For ${city} (${intent}), I ranked WhataHotel's live availability by what actually fits — ${n} ${n === 1 ? "hotel" : "hotels"} with live rates and advisor perks.${
       top && topNote ? ` ${top.name} leads: ${topNote}.` : ""

@@ -35,6 +35,7 @@ import {
   brandHotelsForCity,
 } from "./brands";
 import { bareCountry } from "./country-links";
+import { sampleStayDates } from "./sample-dates";
 import { CITY_POIS } from "./itinerary-data";
 import {
   parseTravelIntent,
@@ -1033,13 +1034,25 @@ export async function runTurn(
   const liveCity =
     (criteria.destinationLabel?.split(",")[0].trim() || heuristicCity(lastUserMessage)) || undefined;
   if (liveCity) {
-    if (criteria.checkIn && criteria.checkOut) {
-      let live = await getCityHotelsBeachAware({
-        city: liveCity,
-        checkIn: criteria.checkIn,
-        checkOut: criteria.checkOut,
-        includeBeach: wantsBeach(turnIntent),
-      });
+    // Exact dates, or — when they gave only a month ("5 nights in March") —
+    // representative dates in that month, so they see real hotels and prices
+    // now instead of being stopped by a dates question.
+    const sampleDates = sampleStayDates(criteria) ?? undefined;
+    const stayIn = criteria.checkIn && criteria.checkOut ? criteria.checkIn : sampleDates?.checkIn;
+    const stayOut = criteria.checkIn && criteria.checkOut ? criteria.checkOut : sampleDates?.checkOut;
+    const found =
+      stayIn && stayOut
+        ? await getCityHotelsBeachAware({
+            city: liveCity,
+            checkIn: stayIn,
+            checkOut: stayOut,
+            includeBeach: wantsBeach(turnIntent),
+          })
+        : [];
+    // An empty result for SAMPLE dates is more likely a source hiccup than a
+    // city we don't cover — fall back to asking for their dates instead.
+    if (stayIn && stayOut && (found.length > 0 || !sampleDates)) {
+      let live = found;
       // Understand WHY they want this city, then rank the live results by real
       // fit (proximity to the requested anchor + amenity/traveller-type match),
       // filtering out clearly-irrelevant options for strong geographic intents.
@@ -1087,11 +1100,12 @@ export async function runTurn(
         liveIntent: summarizeIntent(intent),
         requestedCount: criteria.requestedCount,
         liveNote,
+        sampleDates,
         learned,
         lastUserMessage,
         user,
       };
-      return { ctx, payload: { action: "live", criteria, liveCity, liveHotels } };
+      return { ctx, payload: { action: "live", criteria, liveCity, liveHotels, sampleDates } };
     }
     // Named a city we don't hold locally but no dates yet — ask for them.
     const ctx: ReplyContext = {

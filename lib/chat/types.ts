@@ -42,6 +42,9 @@ export interface AdvisorPayload {
   /** Live results for a city outside the local set (link out to WhataHotel). */
   liveHotels?: LiveHotel[];
   liveCity?: string;
+  /** Sample dates the live rates were priced for when the traveller gave only
+   *  a month; cards price for these, and the reply asks for exact dates. */
+  sampleDates?: { checkIn: string; checkOut: string; label: string };
   /** For a multi-city trip ("hotels in NY, Miami & Orlando"): the ordered city
    *  labels. When present with 2+ entries the UI groups the hotel cards under a
    *  heading per city (each hotel already carries its own `city`). */
