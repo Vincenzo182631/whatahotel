@@ -59,6 +59,9 @@ export interface ReplyContext {
   /** An honest note when a stated preference couldn't be met (e.g. no beachfront
    *  hotels in the chosen city) — the reply should lead with it. */
   liveNote?: string;
+  /** Representative dates used for a live search when the traveller gave a
+   *  month but no exact dates — the reply must say these are sample dates. */
+  sampleDates?: { checkIn: string; checkOut: string; label: string };
   /** How many hotels the traveller asked for — so the reply can explain a
    *  shortfall ("only N match your criteria"). */
   requestedCount?: number;

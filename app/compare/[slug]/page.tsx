@@ -17,6 +17,7 @@ import {
 } from "@/lib/seo/comparisons";
 import { getHotelInfo, getLiveHotel } from "@/lib/services/live-rates";
 import { cn } from "@/lib/utils";
+import { LiveRateDuel } from "@/components/compare/live-rate-duel";
 import type { Hotel } from "@/lib/services/types";
 
 const list = (xs: string[]) =>
@@ -85,7 +86,6 @@ export default async function HotelVsPage({ params }: Params) {
   const city = cityLabel(a);
   const sameCity = a.destinationKey === b.destinationKey;
   const winner = v.pick === "a" ? a : v.pick === "b" ? b : null;
-  const liveCompare = `/compare?a=${encodeURIComponent(a.id)}&b=${encodeURIComponent(b.id)}`;
   const related = [...relatedPairs(a, 3, b.id), ...relatedPairs(b, 3, a.id)].filter(
     (p, i, all) => p.path !== canonical && all.findIndex((q) => q.path === p.path) === i,
   );
@@ -256,11 +256,17 @@ export default async function HotelVsPage({ params }: Params) {
             </div>
           )}
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link href={liveCompare} className="inline-flex items-center gap-1 rounded-full bg-[#FF385C] px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
-              Compare live rates for your dates <ArrowUpRight className="size-3.5" />
-            </Link>
+            <a href="#live-prices" className="inline-flex items-center gap-1 rounded-full bg-[#FF385C] px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
+              See live prices for your dates <ArrowUpRight className="size-3.5" />
+            </a>
           </div>
         </section>
+
+        <LiveRateDuel
+          a={{ id: a.id, name: a.name, href: hotelHref(a) }}
+          b={{ id: b.id, name: b.name, href: hotelHref(b) }}
+          city={city}
+        />
 
         {/* Head-to-head */}
         <section className="mt-8">

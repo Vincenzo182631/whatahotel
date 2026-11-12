@@ -469,7 +469,10 @@ function buildSituation(ctx: ReplyContext): string {
       const unmet = ctx.liveNote
         ? ` IMPORTANT — a stated preference could NOT be met: ${ctx.liveNote} LEAD with this honestly (don't present these as beachfront), then offer the closest options.`
         : "";
-      return `SITUATION: ${ctx.liveCity} is outside your curated set, so you searched WhataHotel's live availability.${unmet} ${
+      const sample = ctx.sampleDates
+        ? ` IMPORTANT — they gave a month but no exact dates, so these rates are for a SAMPLE stay of ${ctx.sampleDates.label}. Say so plainly, and end by inviting them to share their exact dates so you can refresh the rates (instead of saying "for your dates").`
+        : "";
+      return `SITUATION: ${ctx.liveCity} is outside your curated set, so you searched WhataHotel's live availability.${unmet}${sample} ${
         intent
           ? `The traveller's intent: ${intent}. The app is showing ${hotels.length} real hotels RANKED by how well they fit that intent (closest/most-relevant first).`
           : `The app is showing ${hotels.length} real hotels with live rates and advisor perks.`

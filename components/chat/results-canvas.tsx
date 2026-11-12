@@ -78,8 +78,8 @@ export function ResultsCanvas({ messages }: { messages: ChatMessage[] }) {
             {p.liveHotels && p.liveHotels.length > 0 && (
               <LiveHotelCards
                 hotels={p.liveHotels}
-                checkIn={p.criteria?.checkIn}
-                checkOut={p.criteria?.checkOut}
+                checkIn={p.criteria?.checkIn || p.sampleDates?.checkIn}
+                checkOut={p.criteria?.checkOut || p.sampleDates?.checkOut}
                 cities={p.cities}
               />
             )}
