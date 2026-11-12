@@ -55,7 +55,9 @@ export function tidyRoomName(raw: string): string {
 /** One-tap date presets, so nobody has to fiddle with a calendar to see a price. */
 function presets(): { label: string; checkIn: string; checkOut: string }[] {
   const today = new Date();
-  const friday = addDays(today, ((5 - today.getDay() + 7) % 7) || 7);
+  // The coming Friday, unless it's under 3 days away — then the one after.
+  const toFriday = (5 - today.getDay() + 7) % 7;
+  const friday = addDays(today, toFriday < 3 ? toFriday + 7 : toFriday);
   const inMonth = addDays(today, 30);
   const inThreeMonths = addDays(today, 90);
   return [
@@ -92,17 +94,29 @@ export function LiveRateDuel({ a, b, city }: { a: DuelHotel; b: DuelHotel; city?
   useEffect(() => {
     if (!hasDates) return;
     let cancelled = false;
-    for (const h of [a, b]) {
-      setResults((r) => ({ ...r, [h.id]: { status: "loading" } }));
+    // The source occasionally drops one of two simultaneous requests, so a
+    // "no rate" answer is retried once after a short pause before we show it.
+    const load = (h: DuelHotel, attempt: number) => {
       const q = new URLSearchParams({ id: h.id, checkIn, checkOut, guests: "2" });
       fetch(`/api/rates?${q}`)
         .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
         .then((data: RatesResponse) => {
-          if (!cancelled) setResults((r) => ({ ...r, [h.id]: { status: "ok", data } }));
+          if (cancelled) return;
+          if (!(data.live && data.entryNightly > 0) && attempt === 0) {
+            setTimeout(() => !cancelled && load(h, 1), 1500);
+            return;
+          }
+          setResults((r) => ({ ...r, [h.id]: { status: "ok", data } }));
         })
         .catch(() => {
-          if (!cancelled) setResults((r) => ({ ...r, [h.id]: { status: "error" } }));
+          if (cancelled) return;
+          if (attempt === 0) setTimeout(() => !cancelled && load(h, 1), 1500);
+          else setResults((r) => ({ ...r, [h.id]: { status: "error" } }));
         });
+    };
+    for (const h of [a, b]) {
+      setResults((r) => ({ ...r, [h.id]: { status: "loading" } }));
+      load(h, 0);
     }
     return () => {
       cancelled = true;
