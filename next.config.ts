@@ -8,6 +8,20 @@ const nextConfig: NextConfig = {
     // allowlist; the UI still falls back to a seeded image if a URL 404s.
     unoptimized: true,
   },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // The voice advisor needs the microphone; nothing uses the camera.
+          { key: "Permissions-Policy", value: "camera=(), microphone=(self), geolocation=(self)" },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -537,7 +537,9 @@ export async function attachLiveCoordinates(hotels: LiveHotel[], max = 12): Prom
 export async function getLiveHotel(sourceHotelId: string): Promise<LiveHotelFull | null> {
   if (!API_KEY || !sourceHotelId) return null;
   const hit = hotelCache.get(sourceHotelId);
-  if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
+  // A miss is re-checked after 2 minutes, not 30: the source sometimes answers a
+  // throttled request with a non-OK status, and that must not hide a real hotel.
+  if (hit && Date.now() - hit.ts < (hit.data ? CACHE_TTL : EMPTY_INFO_TTL)) return hit.data;
 
   const url = `${API_BASE}?method=hotel&hotel=${encodeURIComponent(sourceHotelId)}&apiKey=${encodeURIComponent(API_KEY)}`;
   try {

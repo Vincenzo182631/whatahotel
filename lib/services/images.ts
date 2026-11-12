@@ -32,6 +32,9 @@ export function fallbackImage(seed: string, w = 1200, h = 800) {
  */
 export function hiResImage(url: string | undefined | null): string {
   if (!url) return url ?? "";
+  // The page is https, so an http:// image is mixed content (blocked or silently
+  // upgraded by browsers). Ask for https up front.
+  url = url.replace(/^http:\/\//i, "https://");
   if (/(?:^|\.)bstatic\.com\//.test(url) || /booking\.com\//.test(url)) {
     return url
       .replace(/\/max\d+x\d+\//, "/max1920x1080/")

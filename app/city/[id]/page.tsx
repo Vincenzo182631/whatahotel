@@ -14,6 +14,13 @@ import { cityPairs } from "@/lib/seo/comparisons";
 
 type Params = { params: Promise<{ id: string }> };
 
+// Only the known destinations exist — anything else is a real 404 (not a
+// streamed "not found" with a 200 status).
+export const dynamicParams = false;
+export function generateStaticParams() {
+  return Object.keys(DESTINATIONS).map((id) => ({ id }));
+}
+
 // Rough city centres, used when no hotel in the city has coordinates yet.
 const CITY_CENTER: Record<string, [number, number]> = {
   paris: [48.8566, 2.3522],
