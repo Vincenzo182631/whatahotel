@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { MapPin, UtensilsCrossed, Check } from "lucide-react";
 import { PerksList } from "@/components/hotel/perks-list";
 import { BackButton } from "@/components/ui/back-button";
-import { getLiveHotel, getLiveRates, getHotelInfo } from "@/lib/services/live-rates";
+import { getLiveHotel, getLiveRates, getHotelInfo, type LiveHotelFull } from "@/lib/services/live-rates";
 import { ZoomableImage } from "@/components/ui/zoomable-image";
 import { CityMap } from "@/components/hotel/city-map";
 import { StayDatePicker } from "@/components/search/stay-date-picker";
@@ -24,8 +24,24 @@ type Params = { params: Promise<{ id: string }>; searchParams: Promise<{ checkIn
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
-  const hotel = await getLiveHotel(id);
+  const hotel = (await getLiveHotel(id)) ?? catalogueFallback(id);
   return { title: hotel ? `${hotel.name} — WhataHotel` : "Hotel — WhataHotel" };
+}
+
+function catalogueFallback(sourceId: string): LiveHotelFull | null {
+  const h = getCatalogueHotelBySourceId(sourceId);
+  if (!h) return null;
+  return {
+    sourceHotelId: sourceId,
+    name: h.name,
+    city: h.city,
+    country: h.country,
+    image: h.image,
+    gallery: h.gallery,
+    perks: h.perks.map((p) => p.label),
+    bookingUrl: h.bookingUrl ?? "",
+    coordinates: h.coordinates?.lat && h.coordinates?.lng ? h.coordinates : undefined,
+  };
 }
 
 function nightsBetween(a: string, b: string) {
@@ -38,7 +54,9 @@ export default async function StayPage({ params, searchParams }: Params) {
   const { id } = await params;
   const { checkIn = "", checkOut = "" } = await searchParams;
 
-  const hotel = await getLiveHotel(id);
+  // Live identity first; if the source is down or throttled, a curated hotel
+  // still renders from the catalogue instead of showing "not found".
+  const hotel = (await getLiveHotel(id)) ?? catalogueFallback(id);
   if (!hotel) notFound();
 
   const nights = nightsBetween(checkIn, checkOut);
