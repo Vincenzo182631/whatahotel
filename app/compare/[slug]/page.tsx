@@ -212,7 +212,7 @@ export default async function HotelVsPage({ params }: Params) {
                 />
                 {winner?.id === s.hotel.id && (
                   <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#FF385C] px-2.5 py-1 text-xs font-semibold text-white">
-                    <Trophy className="size-3.5" /> Advisor's pick
+                    <Trophy className="size-3.5" /> Advisor&apos;s pick
                   </span>
                 )}
               </div>

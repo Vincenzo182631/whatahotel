@@ -75,7 +75,7 @@ export default function AboutPage() {
           We built WhataHotel for a simple reason: booking a beautiful hotel had
           become a chore of tabs, filters, and fake urgency. We believe planning
           the finest trips of your life should feel like talking to someone who
-          knows you — and knows the world's great hotels by heart.
+          knows you — and knows the world&apos;s great hotels by heart.
         </p>
       </section>
 
@@ -95,10 +95,10 @@ export default function AboutPage() {
             <p>
               WhataHotel exists to change that. We pair the warmth and judgement
               of an expert luxury travel advisor with the speed and recall of
-              artificial intelligence. The result is an advisor that's available
+              artificial intelligence. The result is an advisor that&apos;s available
               the moment inspiration strikes, remembers everything you tell it,
               and guides you all the way from a vague daydream to a confirmed
-              booking — complete with perks you'd never find on a booking site.
+              booking — complete with perks you&apos;d never find on a booking site.
             </p>
           </div>
         </div>
@@ -109,7 +109,7 @@ export default function AboutPage() {
         <div className="mx-auto max-w-4xl rounded-3xl glass-strong p-8 text-center shadow-card md:p-12">
           <Sparkles className="mx-auto size-6 text-primary" strokeWidth={1.5} />
           <h2 className="mt-4 font-display text-2xl font-light leading-snug md:text-3xl">
-            Our mission is to make the world's finest hotels feel personal,
+            Our mission is to make the world&apos;s finest hotels feel personal,
             accessible, and effortless — guiding every traveller from{" "}
             <span className="text-gradient-gold italic">inspiration to booking</span>{" "}
             through conversation.
@@ -157,10 +157,10 @@ export default function AboutPage() {
                 Traditional booking sites optimise for volume. A great advisor
                 optimises for you. WhataHotel brings the two together: an
                 intelligent advisor that understands natural language, asks smart
-                follow-up questions, and never forgets a detail you've shared.
+                follow-up questions, and never forgets a detail you&apos;ve shared.
               </p>
               <p>
-                Behind the conversation sits a curated collection of the world's
+                Behind the conversation sits a curated collection of the world&apos;s
                 finest hotels and the advisor-exclusive perks that come with
                 them. You get honest recommendations, the reasoning behind each
                 one, and genuine added value — all without the forms.

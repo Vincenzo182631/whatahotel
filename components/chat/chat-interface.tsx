@@ -185,7 +185,7 @@ export function ChatInterface() {
             ) : agentMode ? (
               <>
                 <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-primary">
-                  <Headset className="size-3.5" /> You're with a human advisor — replies appear here.
+                  <Headset className="size-3.5" /> You&apos;re with a human advisor — replies appear here.
                 </p>
                 <ChatComposer onSend={(t) => sendToAgent(t)} autoFocus placeholder="Message your advisor…" />
               </>

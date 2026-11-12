@@ -109,7 +109,7 @@ async function pool(items, size) {
   return stats;
 }
 
-const stats = await pool(hotels, 4);
+await pool(hotels, 4);
 fs.writeFileSync(outPath, JSON.stringify(cache, null, 2));
 const withRating = Object.values(cache).filter((c) => c.rating).length;
 const withPhotos = Object.values(cache).filter((c) => c.photos?.length).length;

@@ -86,7 +86,7 @@ function parseBudget(text: string, current: SearchCriteria): Partial<SearchCrite
     /(lower|reduce|decrease|cheaper|less|tighten|drop|smaller).{0,18}budget|budget.{0,14}(down|lower|less|cheaper)/.test(t);
 
   // Find a rate figure — try strongest signals first so "3 nights" never wins.
-  let m =
+  const m =
     tn.match(/\$\s?(\d+(?:\.\d+)?)\s?(k)?/) || // "$1200", "$1.2k"
     tn.match(
       /(\d+(?:\.\d+)?)\s?(k)?\s*(?:\/\s*night|per\s*night|a\s*night|nightly|usd|dollars|euros?)/,

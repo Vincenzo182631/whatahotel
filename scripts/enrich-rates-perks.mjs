@@ -15,7 +15,6 @@ const UA =
 // Sample stay used only to load a live rates page (perks are date-independent).
 const CHECK_IN = "2026-09-15";
 const CHECK_OUT = "2026-09-18";
-const NIGHTS = 3;
 const FX = { USD: 1, EUR: 1.08, GBP: 1.27, JPY: 0.0067, IDR: 0.000062, AED: 0.272 };
 
 const all = JSON.parse(fs.readFileSync(path.join(DATA, "whatahotel-hotels.json"), "utf8"));
@@ -42,7 +41,7 @@ async function get(url, tries = 3) {
       clearTimeout(t);
       if (!r.ok) throw new Error("HTTP " + r.status);
       return await r.text();
-    } catch (e) {
+    } catch {
       if (i === tries - 1) throw e;
       await sleep(500 * (i + 1));
     }
@@ -143,7 +142,7 @@ const run = async () => {
       if (perks.length) withPerks++;
       if (entry) withRate++;
       process.stdout.write(".");
-    } catch (e) {
+    } catch {
       failed++;
       process.stdout.write("x");
     }

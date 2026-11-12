@@ -39,7 +39,7 @@ export function SiteFooter() {
 
         <div className="mt-10 flex flex-col items-start justify-between gap-2 border-t border-black/[0.06] pt-6 text-xs text-foreground/55 sm:flex-row sm:items-center">
           <p>© {2026} WhataHotel. Crafted for travellers with taste.</p>
-          <p>Prices and availability powered by WhataHotel's advisor network.</p>
+          <p>Prices and availability powered by WhataHotel&apos;s advisor network.</p>
         </div>
       </div>
     </footer>
