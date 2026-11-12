@@ -195,7 +195,7 @@ export async function* streamGrounded(
     system,
     messages: [{ role: "user", content: prompt }],
   });
-  for await (const delta of result.textStream) yield delta;
+  yield* textOrThrow(result.fullStream);
 }
 
 /** What the router decided the traveller wants this turn. */
@@ -323,9 +323,7 @@ async function* streamFromClaude(
       },
     ],
   });
-  for await (const delta of result.textStream) {
-    yield delta;
-  }
+  yield* textOrThrow(result.fullStream);
 }
 
 function buildSituation(ctx: ReplyContext): string {
@@ -537,6 +535,20 @@ In 1–2 sentences, introduce the shortlist for ${ctx.liveCity}${
       return `SITUATION: Respond warmly and helpfully to the traveller's message: "${ctx.lastUserMessage}". If it's a general question about how WhataHotel works (advisor rates, complimentary perks, in-app booking, comparing hotels), answer it briefly and accurately. Then, in one line, invite them to share their destination, dates and the vibe they're after so you can find the perfect stay.`;
     default:
       return `SITUATION: Open the conversation and invite them to describe the trip.`;
+  }
+}
+
+/**
+ * Yield the text of an AI SDK stream, re-throwing provider errors. The SDK's
+ * `textStream` swallows errors and just ends (an empty reply); throwing lets
+ * callers fall back to the deterministic voice instead.
+ */
+async function* textOrThrow(
+  parts: AsyncIterable<{ type: string; text?: string; error?: unknown }>,
+): AsyncGenerator<string, void, unknown> {
+  for await (const part of parts) {
+    if (part.type === "text-delta" && part.text) yield part.text;
+    else if (part.type === "error") throw part.error;
   }
 }
 
