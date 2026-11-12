@@ -96,7 +96,7 @@ export default function SavedPage() {
         ) : (
           <Card className="flex items-center gap-3 text-sm text-[#717171]">
             <Heart className="size-5 text-[#FF385C]" />
-            You haven't saved any hotels yet.{" "}
+            You haven&apos;t saved any hotels yet.{" "}
             <Link href="/" className="font-semibold text-[#FF385C] hover:underline">Browse hotels →</Link>
           </Card>
         )}

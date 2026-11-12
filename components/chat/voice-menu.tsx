@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Play, Loader2, Square, X } from "lucide-react";
+import { Check, Play, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useVoiceStore, type VoiceProvider } from "@/store/voice-store";
 import { OPENAI_VOICES, ELEVEN_VOICES, VOICE_SAMPLE } from "@/lib/voice/voices";

@@ -91,7 +91,7 @@ export function BookingSummary({ booking }: { booking: BookingDraft }) {
       {booking.complete && (
         <div className="border-t border-primary/15 bg-primary/5 p-4 text-sm text-foreground/80">
           Your advisor will confirm availability and apply the advisor rate plus
-          all exclusive perks. You'll receive a confirmation by email shortly.
+          all exclusive perks. You&apos;ll receive a confirmation by email shortly.
         </div>
       )}
     </motion.div>

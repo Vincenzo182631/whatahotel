@@ -25,7 +25,7 @@ export default function SavedPage() {
           Your saved <span className="text-gradient-gold">collection</span>
         </h1>
         <p className="mt-2 text-foreground/72">
-          The hotels you've fallen for. Ready when you are.
+          The hotels you&apos;ve fallen for. Ready when you are.
         </p>
 
         {saved.length === 0 ? (
@@ -33,7 +33,7 @@ export default function SavedPage() {
             <Heart className="size-10 text-primary/40" />
             <p className="mt-4 font-display text-xl">No saved hotels yet</p>
             <p className="mt-1 max-w-sm text-sm text-foreground/70">
-              Tell your advisor what you're dreaming of, then tap the heart on any
+              Tell your advisor what you&apos;re dreaming of, then tap the heart on any
               recommendation to keep it here.
             </p>
             <Button className="mt-6" asChild>

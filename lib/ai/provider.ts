@@ -44,15 +44,21 @@ const FAST_MODEL = pickModel(
   PROVIDER === "openai" ? "gpt-4o-mini" : "claude-haiku-4-5-20251001",
 );
 
+/**
+ * OpenAI's strict structured outputs require EVERY schema field to be
+ * `required`, which rejects our optional-field extraction/routing schemas —
+ * so structured calls turn strict mode off.
+ */
+const STRUCTURED_OPTIONS = {
+  openai: { strictJsonSchema: false },
+};
+
 /** Resolve the configured provider's model handle for the AI SDK. */
 async function chatModel(fast = false) {
   const id = fast ? FAST_MODEL : MODEL;
   if (PROVIDER === "openai") {
     const { openai } = await import("@ai-sdk/openai");
-    // Disable OpenAI strict structured outputs — it requires EVERY schema field
-    // to be `required`, which rejects our optional-field extraction/routing
-    // schemas. Tool-mode (this setting) supports optional fields.
-    return openai(id, { structuredOutputs: false });
+    return openai(id);
   }
   const { anthropic } = await import("@ai-sdk/anthropic");
   return anthropic(id);
@@ -105,10 +111,11 @@ export async function extractCriteriaPatch(
   if (!hasLLM || !lastUser) return base;
 
   try {
-    const { generateObject } = await import("ai");
-    const { object } = await generateObject({
+    const { generateText, Output } = await import("ai");
+    const { output: object } = await generateText({
       model: await chatModel(true),
-      schema: criteriaPatchSchema,
+      output: Output.object({ schema: criteriaPatchSchema }),
+      providerOptions: STRUCTURED_OPTIONS,
       system:
         "Extract ONLY the hotel-search details the user newly states or changes in their latest message, plus any new preference/need/constraint as `notes`. Omit anything not mentioned. Return canonical destination keys.",
       prompt: `Known so far: ${summarizeCriteria(current)}\n\nConversation:\n${messages
@@ -188,7 +195,7 @@ export async function* streamGrounded(
     system,
     messages: [{ role: "user", content: prompt }],
   });
-  for await (const delta of result.textStream) yield delta;
+  yield* textOrThrow(result.fullStream);
 }
 
 /** What the router decided the traveller wants this turn. */
@@ -222,10 +229,11 @@ export async function classifyTurn(
     ? shownHotels.map((h, i) => `${i + 1}. ${h.name}`).join("; ")
     : "none yet";
   try {
-    const { generateObject } = await import("ai");
-    const { object } = await generateObject({
+    const { generateText, Output } = await import("ai");
+    const { output: object } = await generateText({
       model: await chatModel(true),
-      schema: routeSchema,
+      output: Output.object({ schema: routeSchema }),
+      providerOptions: STRUCTURED_OPTIONS,
       system: `Classify what the traveller wants in their latest message to a luxury hotel concierge. Actions:
 - recommend: wants hotel suggestions or to search a destination
 - compare: wants two or more hotels compared side by side
@@ -315,9 +323,7 @@ async function* streamFromClaude(
       },
     ],
   });
-  for await (const delta of result.textStream) {
-    yield delta;
-  }
+  yield* textOrThrow(result.fullStream);
 }
 
 function buildSituation(ctx: ReplyContext): string {
@@ -529,6 +535,20 @@ In 1–2 sentences, introduce the shortlist for ${ctx.liveCity}${
       return `SITUATION: Respond warmly and helpfully to the traveller's message: "${ctx.lastUserMessage}". If it's a general question about how WhataHotel works (advisor rates, complimentary perks, in-app booking, comparing hotels), answer it briefly and accurately. Then, in one line, invite them to share their destination, dates and the vibe they're after so you can find the perfect stay.`;
     default:
       return `SITUATION: Open the conversation and invite them to describe the trip.`;
+  }
+}
+
+/**
+ * Yield the text of an AI SDK stream, re-throwing provider errors. The SDK's
+ * `textStream` swallows errors and just ends (an empty reply); throwing lets
+ * callers fall back to the deterministic voice instead.
+ */
+async function* textOrThrow(
+  parts: AsyncIterable<{ type: string; text?: string; error?: unknown }>,
+): AsyncGenerator<string, void, unknown> {
+  for await (const part of parts) {
+    if (part.type === "text-delta" && part.text) yield part.text;
+    else if (part.type === "error") throw part.error;
   }
 }
 

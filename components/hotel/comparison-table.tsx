@@ -69,7 +69,7 @@ export function ComparisonTable({ comparison }: { comparison: HotelComparison })
       <div className="flex items-start gap-3 border-t border-primary/15 bg-primary/5 p-4">
         <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
         <p className="text-sm leading-relaxed text-foreground/85">
-          <span className="font-medium text-primary">Advisor's take — </span>
+          <span className="font-medium text-primary">Advisor&apos;s take — </span>
           {recommendation}
         </p>
       </div>
