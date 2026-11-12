@@ -243,3 +243,32 @@ export function cityHotelsSchema(input: {
   };
 }
 
+
+/** A "Hotel A vs Hotel B" page: the two hotels as an ordered ItemList. */
+export function comparisonSchema(input: { path: string; name: string; description: string; hotels: Hotel[] }): Json {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: input.name,
+    description: input.description,
+    url: abs(input.path),
+    numberOfItems: input.hotels.length,
+    itemListElement: input.hotels.map((h, i) => {
+      const { "@context": _ctx, ...hotel } = catalogueHotelSchema(h);
+      return { "@type": "ListItem", position: i + 1, item: hotel };
+    }),
+  };
+}
+
+/** FAQPage — the questions must match the FAQ shown on the page. */
+export function faqSchema(faqs: { q: string; a: string }[]): Json {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+}

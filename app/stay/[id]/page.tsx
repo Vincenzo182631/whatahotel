@@ -13,6 +13,7 @@ import { DockedAdvisor } from "@/components/hotel/docked-advisor";
 import { JsonLd } from "@/components/seo/json-ld";
 import { lodgingSchema, breadcrumbSchema } from "@/lib/seo/schema";
 import { resolveDestination, DESTINATIONS } from "@/lib/services/mock-data";
+import { getCatalogueHotelBySourceId, relatedPairs } from "@/lib/seo/comparisons";
 import { formatCurrency } from "@/lib/utils";
 import type { Hotel } from "@/lib/services/types";
 
@@ -114,6 +115,10 @@ export default async function StayPage({ params, searchParams }: Params) {
     crumbs.push({ name: DESTINATIONS[cityKey].label.split(",")[0], path: `/city/${cityKey}` });
   }
   crumbs.push({ name: hotel.name, path: `/stay/${id}` });
+
+  // "Compare with…" links to this hotel's head-to-head pages (curated hotels only).
+  const catalogueHotel = getCatalogueHotelBySourceId(id);
+  const comparisons = catalogueHotel ? relatedPairs(catalogueHotel, 6) : [];
 
   return (
     <div className="min-h-dvh bg-white text-[#222]">
@@ -241,6 +246,27 @@ export default async function StayPage({ params, searchParams }: Params) {
                     hotels={[{ id: hotel.sourceHotelId, name: hotel.name, priceLabel: rates ? formatCurrency(rates.entryNightly, rates.currency) : hotel.name, lat: hotel.coordinates.lat, lng: hotel.coordinates.lng }]}
                   />
                 </div>
+              </section>
+            )}
+
+            {comparisons.length > 0 && (
+              <section>
+                <h2 className="mb-2 text-lg font-semibold">Compare {hotel.name} with…</h2>
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {comparisons.map((p) => {
+                    const rival = p.a.id === catalogueHotel?.id ? p.b : p.a;
+                    return (
+                      <li key={p.path}>
+                        <Link
+                          href={p.path}
+                          className="block rounded-xl border border-[#EBEBEB] px-4 py-3 text-sm hover:border-[#FF385C]/40"
+                        >
+                          <span className="text-[#FF385C]">vs</span> {rival.name}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
               </section>
             )}
           </div>

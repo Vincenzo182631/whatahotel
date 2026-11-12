@@ -18,7 +18,7 @@ export default function robots(): MetadataRoute.Robots {
           "/signup",
           "/reset",
           "/saved",
-          "/compare",
+          "/compare?", // live ?a=&b= view; /compare/<a>-vs-<b> pages stay indexable
           "/offer/",
         ],
       },

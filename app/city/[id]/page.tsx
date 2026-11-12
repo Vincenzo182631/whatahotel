@@ -10,6 +10,7 @@ import { TravelDatesBar } from "@/components/search/travel-dates-bar";
 import { CityMap, type MapHotel } from "@/components/hotel/city-map";
 import { JsonLd } from "@/components/seo/json-ld";
 import { cityHotelsSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { cityPairs } from "@/lib/seo/comparisons";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -45,6 +46,7 @@ export default async function CityPage({ params }: Params) {
     .filter((h) => h.destinationKey === id)
     .sort((a, b) => a.startingRate - b.startingRate); // price low → high
   if (hotels.length === 0) notFound();
+  const comparisons = cityPairs(id);
 
   const mapHotels: MapHotel[] = hotels
     .filter((h) => h.coordinates?.lat && h.coordinates?.lng)
@@ -130,6 +132,27 @@ export default async function CityPage({ params }: Params) {
                 <HotelGridCard key={hotel.id} hotel={hotel} />
               ))}
             </div>
+
+            {/* Popular head-to-heads — crawlable "A vs B" pages */}
+            {comparisons.length > 0 && (
+              <section className="mt-10">
+                <h2 className="text-lg font-semibold">
+                  Popular {meta.label.split(",")[0]} hotel comparisons
+                </h2>
+                <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {comparisons.map((p) => (
+                    <li key={p.path}>
+                      <Link
+                        href={p.path}
+                        className="block rounded-xl border border-[#EBEBEB] px-4 py-3 text-sm hover:border-[#FF385C]/40"
+                      >
+                        {p.a.name} <span className="text-[#FF385C]">vs</span> {p.b.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </div>
         </div>
       </div>

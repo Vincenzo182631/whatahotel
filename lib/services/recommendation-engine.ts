@@ -59,7 +59,7 @@ const PRESTIGE: Record<string, number> = {
   SLS: 8, LXR: 8, Pullman: 8, Sheraton: 8, "W Hotels": 8, "Tribute Portfolio": 8,
   Marriott: 7.5, Hilton: 7.5, Hyatt: 7.5,
 };
-function prestige(brand?: string): number {
+export function prestige(brand?: string): number {
   if (!brand) return 7;
   return PRESTIGE[brand] ?? 7.5;
 }
