@@ -3,12 +3,14 @@ import { SITE_URL } from "@/lib/seo/schema";
 import { hotelDetailsService } from "@/lib/services";
 import { DESTINATIONS } from "@/lib/services/mock-data";
 import { getAllArticles } from "@/lib/journal/articles";
+import { featuredPairs } from "@/lib/seo/comparisons";
 
 /**
  * sitemap.xml — the public, indexable surface of the site: the static pages,
- * every journal article, every destination/city page, and every hotel (by its
- * canonical URL). Dynamic/personal routes (compare, offers, dashboard, auth,
- * saved) are intentionally excluded — they're also blocked in robots.ts.
+ * every journal article, every destination/city page, every hotel (by its
+ * canonical URL) and the "Hotel A vs Hotel B" comparison pages. Dynamic/personal
+ * routes (the live ?a=&b= compare view, offers, dashboard, auth, saved) are
+ * intentionally excluded — they're also blocked in robots.ts.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -44,5 +46,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...cities, ...articles, ...hotelPages];
+  // "Hotel A vs Hotel B" pages for each city's headline hotels.
+  const comparisons: MetadataRoute.Sitemap = featuredPairs().map((p) => ({
+    url: `${SITE_URL}${p.path}`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...cities, ...articles, ...hotelPages, ...comparisons];
 }
