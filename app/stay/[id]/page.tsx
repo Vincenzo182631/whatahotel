@@ -11,7 +11,7 @@ import { StayDatePicker } from "@/components/search/stay-date-picker";
 import { StayBooking } from "@/components/search/stay-booking";
 import { DockedAdvisor } from "@/components/hotel/docked-advisor";
 import { JsonLd } from "@/components/seo/json-ld";
-import { lodgingSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { lodgingSchema, breadcrumbSchema, canonicalUrl } from "@/lib/seo/schema";
 import { resolveDestination, DESTINATIONS } from "@/lib/services/mock-data";
 import { getCatalogueHotelBySourceId, relatedPairs } from "@/lib/seo/comparisons";
 import { formatCurrency } from "@/lib/utils";
@@ -25,7 +25,14 @@ type Params = { params: Promise<{ id: string }>; searchParams: Promise<{ checkIn
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
   const hotel = (await getLiveHotel(id)) ?? catalogueFallback(id);
-  return { title: hotel ? `${hotel.name} — WhataHotel` : "Hotel — WhataHotel" };
+  if (!hotel) return { title: "Hotel — WhataHotel" };
+  const title = `${hotel.name} — WhataHotel`;
+  const url = canonicalUrl(`/stay/${id}`);
+  return {
+    title,
+    alternates: { canonical: url },
+    openGraph: { title, url, type: "website", images: hotel.image ? [hotel.image] : undefined },
+  };
 }
 
 function catalogueFallback(sourceId: string): LiveHotelFull | null {
