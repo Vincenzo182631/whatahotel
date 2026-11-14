@@ -14,7 +14,7 @@ import {
   getRelatedArticles,
 } from "@/lib/journal/articles";
 import { JsonLd } from "@/components/seo/json-ld";
-import { breadcrumbSchema } from "@/lib/seo/schema";
+import { breadcrumbSchema, canonicalUrl } from "@/lib/seo/schema";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -30,9 +30,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     title: a.metaTitle,
     description: a.metaDescription,
     keywords: a.keywords,
+    alternates: { canonical: canonicalUrl(`/journal/${slug}`) },
     openGraph: {
       title: a.metaTitle,
       description: a.metaDescription,
+      url: canonicalUrl(`/journal/${slug}`),
       type: "article",
       publishedTime: a.date,
       authors: [a.author],
@@ -67,6 +69,8 @@ export default async function ArticlePage({ params }: Params) {
     "@type": "BlogPosting",
     headline: article.title,
     description: article.metaDescription,
+    url: canonicalUrl(`/journal/${slug}`),
+    mainEntityOfPage: canonicalUrl(`/journal/${slug}`),
     image: article.image,
     datePublished: article.date,
     author: { "@type": "Organization", name: article.author },

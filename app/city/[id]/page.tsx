@@ -9,7 +9,7 @@ import { HotelGridCard } from "@/components/airbnb-landing";
 import { TravelDatesBar } from "@/components/search/travel-dates-bar";
 import { CityMap, type MapHotel } from "@/components/hotel/city-map";
 import { JsonLd } from "@/components/seo/json-ld";
-import { cityHotelsSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { cityHotelsSchema, breadcrumbSchema, canonicalUrl } from "@/lib/seo/schema";
 import { cityPairs } from "@/lib/seo/comparisons";
 
 type Params = { params: Promise<{ id: string }> };
@@ -37,9 +37,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
   const meta = DESTINATIONS[id];
   if (!meta) return { title: "City not found — WhataHotel" };
+  const title = `Hotels in ${meta.label} — WhataHotel`;
+  const description = `Browse every luxury hotel in ${meta.label} on the map, with advisor-exclusive perks.`;
+  const url = canonicalUrl(`/city/${id}`);
   return {
-    title: `Hotels in ${meta.label} — WhataHotel`,
-    description: `Browse every luxury hotel in ${meta.label} on the map, with advisor-exclusive perks.`,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { title, description, url, type: "website" },
   };
 }
 

@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { ArrowUpRight, Check, MapPin, Sparkles, Star, Trophy, UtensilsCrossed, X } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { JsonLd } from "@/components/seo/json-ld";
-import { breadcrumbSchema, comparisonSchema, faqSchema, SITE_URL } from "@/lib/seo/schema";
+import { breadcrumbSchema, canonicalUrl, comparisonSchema, faqSchema } from "@/lib/seo/schema";
 import {
   AMENITY_LABEL,
   buildVerdict,
@@ -47,11 +47,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: `${SITE_URL}${path}` },
+    alternates: { canonical: canonicalUrl(path) },
     openGraph: {
       title,
       description,
-      url: `${SITE_URL}${path}`,
+      url: canonicalUrl(path),
       type: "article",
       images: [a.image, b.image].filter(Boolean),
     },

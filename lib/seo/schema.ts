@@ -13,6 +13,29 @@ export const SITE_URL = (
 ).replace(/\/$/, "");
 export const SITE_NAME = "WhataHotel";
 
+/**
+ * The public content pages (hotel profiles, comparisons, city pages and the
+ * journal) are also published by the parent company, Lorraine Travel, at
+ * www.lorrainetravel.com/hotel-guide/... That copy is the one search engines
+ * should index, so these pages name it as their canonical. App pages (home,
+ * find, login, dashboard, …) keep this site as their canonical.
+ *
+ * Set NEXT_PUBLIC_CONTENT_CANONICAL_ORIGIN="" to make every page self-canonical.
+ * Never mark these pages noindex: the Lorraine Travel copy treats noindex as a 404.
+ */
+export const CONTENT_CANONICAL_ORIGIN = (
+  process.env.NEXT_PUBLIC_CONTENT_CANONICAL_ORIGIN ?? "https://www.lorrainetravel.com/hotel-guide"
+).replace(/\/$/, "");
+
+const CONTENT_PATH = /^\/(stay|compare|city|journal)(\/|$)/;
+
+/** Absolute canonical URL for a site path (see CONTENT_CANONICAL_ORIGIN). */
+export function canonicalUrl(path: string): string {
+  return CONTENT_CANONICAL_ORIGIN && CONTENT_PATH.test(path)
+    ? `${CONTENT_CANONICAL_ORIGIN}${path}`
+    : `${SITE_URL}${path}`;
+}
+
 type Json = Record<string, unknown>;
 
 /** Drop undefined/null/empty values so the emitted JSON-LD stays clean. */
@@ -27,7 +50,7 @@ function clean<T extends Json>(obj: T): T {
   return out as T;
 }
 
-const abs = (path: string) => (path.startsWith("http") ? path : `${SITE_URL}${path}`);
+const abs = (path: string) => (path.startsWith("http") ? path : canonicalUrl(path));
 
 /** Site-wide publisher identity. Rendered once in the root layout. */
 export function organizationSchema(): Json {
@@ -166,14 +189,14 @@ export function blogSchema(articles: BlogArticle[]): Json {
     name: "The Journal — WhataHotel",
     description:
       "Destination guides, packing wisdom and luxury travel inspiration from the WhataHotel advisory team.",
-    url: `${SITE_URL}/journal`,
+    url: canonicalUrl("/journal"),
     publisher: { "@type": "Organization", name: SITE_NAME },
     blogPost: articles.map((a) =>
       clean({
         "@type": "BlogPosting",
         headline: a.title,
         description: a.excerpt,
-        url: `${SITE_URL}/journal/${a.slug}`,
+        url: canonicalUrl(`/journal/${a.slug}`),
         image: a.image ? abs(a.image) : undefined,
         datePublished: a.date,
         author: a.author ? { "@type": "Organization", name: a.author } : undefined,
@@ -234,7 +257,7 @@ export function cityHotelsSchema(input: {
     "@type": "CollectionPage",
     name: `Hotels in ${input.label}`,
     description: `Browse every luxury hotel in ${input.label}, with advisor-exclusive perks.`,
-    url: `${SITE_URL}/city/${input.id}`,
+    url: canonicalUrl(`/city/${input.id}`),
     mainEntity: {
       "@type": "ItemList",
       numberOfItems: items.length,
