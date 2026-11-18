@@ -178,6 +178,9 @@ export interface Verdict {
   chooseB: string[];
   amenitiesA: string[];
   amenitiesB: string[];
+  /** False when that hotel's amenity list is missing or too short to judge from. */
+  amenityKnownA: boolean;
+  amenityKnownB: boolean;
   distanceKm: number | null;
   faqs: { q: string; a: string }[];
 }
@@ -344,12 +347,20 @@ export function buildVerdict(A: Side, B: Side): Verdict {
     }
   }
 
-  // 5. Facilities.
+  // 5. Facilities: only when BOTH hotels have a real amenity list. A missing or
+  // near-empty list means the data didn't load, not that the hotel lacks a spa
+  // or pool (Nov 2026: "George V adds spa, pool and fitness center" vs Cheval
+  // Blanc Paris, which has both, because Cheval Blanc's list was empty).
   const amenitiesA = amenityKeys(A);
   const amenitiesB = amenityKeys(B);
+  const MIN_LISTED = 5;
+  const listed = (s: Side) => (s.info?.amenities?.length ?? 0) + s.hotel.amenities.length;
+  const amenityKnownA = listed(A) >= MIN_LISTED;
+  const amenityKnownB = listed(B) >= MIN_LISTED;
+  const facilitiesKnown = amenityKnownA && amenityKnownB;
   const onlyA = amenitiesA.filter((k) => !amenitiesB.includes(k));
   const onlyB = amenitiesB.filter((k) => !amenitiesA.includes(k));
-  if (onlyA.length !== onlyB.length && (onlyA.length || onlyB.length)) {
+  if (facilitiesKnown && onlyA.length !== onlyB.length && (onlyA.length || onlyB.length)) {
     const aw = onlyA.length > onlyB.length;
     cats.push({
       label: "Facilities",
@@ -453,6 +464,8 @@ export function buildVerdict(A: Side, B: Side): Verdict {
     chooseB,
     amenitiesA,
     amenitiesB,
+    amenityKnownA,
+    amenityKnownB,
     distanceKm,
     faqs,
   };

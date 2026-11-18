@@ -319,12 +319,15 @@ export default async function HotelVsPage({ params }: Params) {
                 {allAmenities.map((k) => (
                   <tr key={k} className="border-b border-[#EBEBEB] last:border-0">
                     <th scope="row" className="p-3 text-xs font-semibold uppercase tracking-wide text-[#717171]">{AMENITY_LABEL[k]}</th>
-                    {[v.amenitiesA, v.amenitiesB].map((have, i) => (
+                    {([[v.amenitiesA, v.amenityKnownA], [v.amenitiesB, v.amenityKnownB]] as const).map(([have, known], i) => (
                       <td key={i} className="p-3">
                         {have.includes(k) ? (
                           <Check className="size-4 text-[#FF385C]" aria-label="Yes" />
-                        ) : (
+                        ) : known ? (
                           <X className="size-4 text-[#c4c4c4]" aria-label="Not listed" />
+                        ) : (
+                          // Its amenity list didn't load: don't imply the hotel lacks this.
+                          <span className="text-xs text-[#9a9a9a]">No data</span>
                         )}
                       </td>
                     ))}
