@@ -33,7 +33,15 @@ type Params = { params: Promise<{ slug: string }> };
 const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
 function describe(a: Hotel, b: Hotel): string {
-  return `${a.name} vs ${b.name}: compare these ${cityLabel(a)} hotels side by side — luxury pedigree, exclusive perks, dining, facilities and value — with our advisor's verdict on which to book.`;
+  return `${a.name} vs ${b.name}: compare these ${cityLabel(a)} hotels side by side on luxury pedigree, exclusive perks, dining, facilities and value, with our advisor's verdict on which to book.`;
+}
+
+/** Search snippet that answers the question before the click: "A or B? Our pick: …". */
+function verdictDescription(a: Hotel, b: Hotel, shortVerdict: string): string {
+  const lead = `${a.name} or ${b.name}? ${shortVerdict}`;
+  const full = `${lead} Compare rates, perks, dining and live prices.`;
+  if (full.length <= 160) return full;
+  return lead.length <= 160 ? lead : describe(a, b);
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -43,7 +51,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { a, b } = pair;
   const path = comparisonPath(a.id, b.id);
   const title = `${a.name} vs ${b.name}: Which Is Better? | WhataHotel`;
-  const description = describe(a, b);
+  // Same verdict as the page (hotel info is cached, so this adds no extra fetches).
+  const [A, B] = await Promise.all([loadSide(a), loadSide(b)]);
+  const description = verdictDescription(a, b, buildVerdict(A, B).shortVerdict);
   return {
     title,
     description,
@@ -220,7 +230,7 @@ export default async function HotelVsPage({ params }: Params) {
                 {s.hotel.brand && <p className="text-[10px] font-medium uppercase tracking-wider text-[#FF385C]">{s.hotel.brand}</p>}
                 <p className="font-semibold leading-tight">{s.hotel.name}</p>
                 <p className="mt-1 line-clamp-2 text-sm text-[#717171]">
-                  {s.info?.description || s.hotel.shortPitch}
+                  {(s.info?.description || s.hotel.shortPitch || "").replace(/\s+—\s+/g, ", ")}
                 </p>
               </div>
             </Link>
@@ -248,7 +258,7 @@ export default async function HotelVsPage({ params }: Params) {
                     </ul>
                   ) : (
                     <p className="mt-1.5 text-sm text-[#717171]">
-                      {tiedOn ? `It matches its rival on ${tiedOn} — pick it if you prefer its ${h.brand ? `${h.brand} ` : ""}style and setting.` : `Pick it if you prefer its ${h.brand ? `${h.brand} ` : ""}style and setting.`}
+                      {tiedOn ? `It matches its rival on ${tiedOn}, so pick it if you prefer its ${h.brand ? `${h.brand} ` : ""}style and setting.` : `Pick it if you prefer its ${h.brand ? `${h.brand} ` : ""}style and setting.`}
                     </p>
                   )}
                 </div>
