@@ -48,7 +48,8 @@ const VALUES = [
 const TRUST = [
   { icon: BadgeCheck, label: "Advisor perks included" },
   { icon: Globe2, label: "Hand-vetted hotels worldwide" },
-  { icon: MessagesSquare, label: "No booking fees, ever" },
+  // Not "no booking fees": online bookings carry a $10.95 transaction fee (Greg, Nov 2026).
+  { icon: MessagesSquare, label: "Free account, no credit card needed" },
 ];
 
 export default function AboutPage() {

@@ -1,8 +1,10 @@
 import { Check } from "lucide-react";
 
+// Online bookings carry a $10.95 transaction fee (confirmed by Greg, Nov 2026), so
+// never claim "no booking fees" here.
 const FEATURES = [
   "Advisor perks included",
-  "No booking fees",
+  "Direct hotel rates",
   "Real luxury inventory",
 ];
 
