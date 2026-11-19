@@ -16,20 +16,20 @@ const sans = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "WhataHotel — Search, Rank & Compare the Best Luxury Hotels",
+  title: "WhataHotel! | Search, Rank & Compare the Best Luxury Hotels",
   description:
-    "Tell WhataHotel a city and what matters to you. Our AI advisor searches the finest hotels, ranks them out of 10 for your needs, and helps you compare the top picks side by side — with advisor-exclusive perks.",
+    "Tell WhataHotel! a city and what matters to you. Our AI advisor searches the finest hotels, ranks them out of 10 for your needs, and helps you compare the top picks side by side, with advisor-exclusive perks.",
   keywords: [
     "luxury hotels",
     "AI travel advisor",
-    "WhataHotel",
+    "WhataHotel!",
     "luxury travel",
     "hotel booking",
   ],
   openGraph: {
-    title: "WhataHotel — Search, Rank & Compare the Best Luxury Hotels",
+    title: "WhataHotel! | Search, Rank & Compare the Best Luxury Hotels",
     description:
-      "Search a city's finest hotels, ranked out of 10 for your needs, and compared side by side — powered by AI, in conversation.",
+      "Search a city's finest hotels, ranked out of 10 for your needs, and compared side by side, powered by AI, in conversation.",
     type: "website",
   },
   icons: {
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: "WhataHotel",
+    title: "WhataHotel!",
     statusBarStyle: "default",
   },
 };

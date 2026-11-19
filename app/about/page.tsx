@@ -17,9 +17,9 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { breadcrumbSchema } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
-  title: "About WhataHotel — Your AI Luxury Travel Advisor",
+  title: "About WhataHotel! | Your AI Luxury Travel Advisor",
   description:
-    "WhataHotel pairs the warmth of an expert travel advisor with the intelligence of AI — curating the world's finest hotels, explaining every choice, and securing advisor-exclusive perks.",
+    "WhataHotel! pairs the warmth of an expert travel advisor with the intelligence of AI, curating the world's finest hotels, explaining every choice, and securing advisor-exclusive perks.",
 };
 
 const VALUES = [

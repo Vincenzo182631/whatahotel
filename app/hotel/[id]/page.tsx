@@ -25,9 +25,9 @@ type Params = {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
   const hotel = await hotelDetailsService.getHotelById(id);
-  if (!hotel) return { title: "Hotel not found — WhataHotel" };
+  if (!hotel) return { title: "Hotel not found | WhataHotel!" };
   return {
-    title: `${hotel.name} — WhataHotel`,
+    title: `${hotel.name} | WhataHotel!`,
     description: hotel.shortPitch,
   };
 }

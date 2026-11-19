@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
   const offer = await getOffer(id);
   return {
-    title: offer ? `Your ${offer.city} options — WhataHotel` : "Offer — WhataHotel",
+    title: offer ? `Your ${offer.city} options | WhataHotel!` : "Offer | WhataHotel!",
     robots: { index: false }, // private, per-guest link
   };
 }

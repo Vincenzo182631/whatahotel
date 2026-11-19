@@ -47,10 +47,10 @@ function verdictDescription(a: Hotel, b: Hotel, shortVerdict: string): string {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const pair = parseComparisonSlug(slug);
-  if (!pair) return { title: "Hotel comparison — WhataHotel" };
+  if (!pair) return { title: "Hotel comparison | WhataHotel!" };
   const { a, b } = pair;
   const path = comparisonPath(a.id, b.id);
-  const title = `${a.name} vs ${b.name}: Which Is Better? | WhataHotel`;
+  const title = `${a.name} vs ${b.name}: Which Is Better? | WhataHotel!`;
   // Same verdict as the page (hotel info is cached, so this adds no extra fetches).
   const [A, B] = await Promise.all([loadSide(a), loadSide(b)]);
   const description = verdictDescription(a, b, buildVerdict(A, B).shortVerdict);

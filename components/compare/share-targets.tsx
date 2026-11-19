@@ -61,7 +61,7 @@ const TARGETS: Target[] = [
     label: "Email",
     color: "#EA4335",
     href: (url, msg) =>
-      `mailto:?subject=${enc("Hotel comparison — WhataHotel")}&body=${enc(`${msg}\r\n\r\n${url}`)}`,
+      `mailto:?subject=${enc("Hotel comparison | WhataHotel!")}&body=${enc(`${msg}\r\n\r\n${url}`)}`,
     icon: <Mail className="size-5" strokeWidth={1.75} aria-hidden />,
   },
   {

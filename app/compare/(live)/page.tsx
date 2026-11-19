@@ -26,7 +26,7 @@ type Search = {
 type Params = { searchParams: Promise<Search> };
 
 export const metadata: Metadata = {
-  title: "Compare hotels — WhataHotel",
+  title: "Compare hotels | WhataHotel!",
 };
 
 export default async function ComparePage({ searchParams }: Params) {

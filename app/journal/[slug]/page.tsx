@@ -25,7 +25,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const a = getArticle(slug);
-  if (!a) return { title: "Article not found — WhataHotel Journal" };
+  if (!a) return { title: "Article not found | WhataHotel! Journal" };
   return {
     title: a.metaTitle,
     description: a.metaDescription,
@@ -76,7 +76,7 @@ export default async function ArticlePage({ params }: Params) {
     author: { "@type": "Organization", name: article.author },
     publisher: {
       "@type": "Organization",
-      name: "WhataHotel",
+      name: "WhataHotel!",
     },
     keywords: article.keywords.join(", "),
   };

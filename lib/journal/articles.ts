@@ -55,7 +55,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "art-of-slow-travel",
     title: "The Art of Slow Travel: Why Luxury Means Going Slower",
-    metaTitle: "The Art of Slow Travel | WhataHotel Journal",
+    metaTitle: "The Art of Slow Travel | WhataHotel! Journal",
     metaDescription:
       "Slow travel is the new luxury. Learn how staying longer, doing less, and choosing the right hotels turns an ordinary trip into an unforgettable experience.",
     category: "Travel Philosophy",
@@ -147,7 +147,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "luxury-paris-guide",
     title: "A Connoisseur's Guide to Paris: Where to Stay, Dine, and Wander",
-    metaTitle: "Luxury Paris Travel Guide: Where to Stay & Dine | WhataHotel",
+    metaTitle: "Luxury Paris Travel Guide: Where to Stay & Dine | WhataHotel!",
     metaDescription:
       "An insider's luxury guide to Paris — the best palace hotels, Michelin dining, hidden neighbourhoods, and how to experience the City of Light like a local.",
     category: "Destination Guide",
@@ -245,7 +245,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "maldives-overwater-villa-guide",
     title: "The Ultimate Maldives Guide: Choosing Your Overwater Villa",
-    metaTitle: "Maldives Overwater Villa Guide: How to Choose | WhataHotel",
+    metaTitle: "Maldives Overwater Villa Guide: How to Choose | WhataHotel!",
     metaDescription:
       "Everything you need to plan the perfect Maldives trip — how to choose an overwater villa, when to go, seaplane vs speedboat, and the best resorts for honeymoons.",
     category: "Destination Guide",
@@ -336,7 +336,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "tokyo-quiet-luxury",
     title: "Tokyo for the Discerning Traveler: Ryokans, Omakase, and Quiet Luxury",
-    metaTitle: "Luxury Tokyo Travel Guide: Quiet Luxury & Omakase | WhataHotel",
+    metaTitle: "Luxury Tokyo Travel Guide: Quiet Luxury & Omakase | WhataHotel!",
     metaDescription:
       "A refined guide to luxury Tokyo — where to stay, the art of omakase, ryokan etiquette, the best neighbourhoods, and how to experience the city's quiet luxury.",
     category: "Destination Guide",
@@ -434,7 +434,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "luxury-beach-packing-guide",
     title: "How to Pack for a Luxury Beach Holiday (Without Overpacking)",
-    metaTitle: "Luxury Beach Holiday Packing Guide & Checklist | WhataHotel",
+    metaTitle: "Luxury Beach Holiday Packing Guide & Checklist | WhataHotel!",
     metaDescription:
       "A complete luxury beach packing guide — what to bring, what to leave, the capsule resort wardrobe, and the travel essentials that make a beach trip effortless.",
     category: "Packing Guide",
@@ -533,7 +533,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "perfect-anniversary-trip",
     title: "Planning the Perfect Anniversary Trip: A Romantic Travel Blueprint",
-    metaTitle: "How to Plan the Perfect Anniversary Trip | WhataHotel",
+    metaTitle: "How to Plan the Perfect Anniversary Trip | WhataHotel!",
     metaDescription:
       "A step-by-step blueprint for planning an unforgettable anniversary trip — choosing the destination, the hotel, the surprises, and the perks that make it special.",
     category: "Travel Tips",
@@ -628,7 +628,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "luxury-ski-retreats-swiss-alps",
     title: "The Best Luxury Ski Retreats in the Swiss Alps",
-    metaTitle: "Best Luxury Ski Retreats in the Swiss Alps | WhataHotel",
+    metaTitle: "Best Luxury Ski Retreats in the Swiss Alps | WhataHotel!",
     metaDescription:
       "A guide to luxury skiing in the Swiss Alps — the best ski-in/ski-out hotels, when to go, what to pack, and how to plan a flawless alpine retreat.",
     category: "Destination Guide",
@@ -725,7 +725,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "luxury-family-travel",
     title: "First-Class Family Travel: Luxury Holidays the Whole Family Will Love",
-    metaTitle: "Luxury Family Travel Guide & Best Family Hotels | WhataHotel",
+    metaTitle: "Luxury Family Travel Guide & Best Family Hotels | WhataHotel!",
     metaDescription:
       "How to plan a luxury family holiday everyone enjoys — choosing family-friendly hotels, connecting rooms, kids' clubs, and tips for stress-free travel with children.",
     category: "Family Travel",
@@ -819,7 +819,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "bali-wellness-culture-guide",
     title: "Bali Beyond the Beach: A Wellness and Culture Guide",
-    metaTitle: "Bali Wellness & Culture Guide: Ubud, Spas & More | WhataHotel",
+    metaTitle: "Bali Wellness & Culture Guide: Ubud, Spas & More | WhataHotel!",
     metaDescription:
       "Discover the Bali beyond the beach — Ubud's wellness retreats, temple culture, rice-terrace serenity, the best luxury resorts, and how to plan a restorative trip.",
     category: "Destination Guide",
@@ -910,7 +910,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "booking-luxury-hotels-for-less",
     title: "The Smart Traveler's Guide to Booking Luxury Hotels for Less",
-    metaTitle: "How to Book Luxury Hotels for Less: Insider Guide | WhataHotel",
+    metaTitle: "How to Book Luxury Hotels for Less: Insider Guide | WhataHotel!",
     metaDescription:
       "Insider strategies for booking five-star hotels for less — advisor rates and perks, the best times to book, loyalty hacks, and why an advisor beats an OTA.",
     category: "Travel Tips",

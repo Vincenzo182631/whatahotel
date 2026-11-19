@@ -25,8 +25,8 @@ type Params = { params: Promise<{ id: string }>; searchParams: Promise<{ checkIn
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
   const hotel = (await getLiveHotel(id)) ?? catalogueFallback(id);
-  if (!hotel) return { title: "Hotel — WhataHotel" };
-  const title = `${hotel.name} — WhataHotel`;
+  if (!hotel) return { title: "Hotel | WhataHotel!" };
+  const title = `${hotel.name} | WhataHotel!`;
   const url = canonicalUrl(`/stay/${id}`);
   return {
     title,
