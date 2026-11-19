@@ -11,7 +11,7 @@ import type { Hotel } from "@/lib/services/types";
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || "https://whatahotel.vercel.app"
 ).replace(/\/$/, "");
-export const SITE_NAME = "WhataHotel";
+export const SITE_NAME = "WhataHotel!";
 
 /**
  * The public content pages (hotel profiles, comparisons, city pages and the
@@ -186,7 +186,7 @@ export function blogSchema(articles: BlogArticle[]): Json {
   return {
     "@context": "https://schema.org",
     "@type": "Blog",
-    name: "The Journal — WhataHotel",
+    name: "The Journal | WhataHotel!",
     description:
       "Destination guides, packing wisdom and luxury travel inspiration from the WhataHotel advisory team.",
     url: canonicalUrl("/journal"),

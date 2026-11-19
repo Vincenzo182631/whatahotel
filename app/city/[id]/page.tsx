@@ -36,8 +36,8 @@ const CITY_CENTER: Record<string, [number, number]> = {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
   const meta = DESTINATIONS[id];
-  if (!meta) return { title: "City not found — WhataHotel" };
-  const title = `Hotels in ${meta.label} — WhataHotel`;
+  if (!meta) return { title: "City not found | WhataHotel!" };
+  const title = `Hotels in ${meta.label} | WhataHotel!`;
   const description = `Browse every luxury hotel in ${meta.label} on the map, with advisor-exclusive perks.`;
   const url = canonicalUrl(`/city/${id}`);
   return {

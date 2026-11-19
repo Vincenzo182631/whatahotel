@@ -7,8 +7,8 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "WhataHotel — Luxury Hotel Advisor",
-    short_name: "WhataHotel",
+    name: "WhataHotel! Luxury Hotel Advisor",
+    short_name: "WhataHotel!",
     description:
       "Search, rank and compare the finest luxury hotels with an AI travel advisor.",
     start_url: "/",

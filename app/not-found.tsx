@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Page not found — WhataHotel",
+  title: "Page not found | WhataHotel!",
   robots: { index: false },
 };
 

@@ -5,7 +5,7 @@ import { AdvancedSearchForm } from "@/components/search/advanced-search-form";
 import { CompareBar } from "@/components/chat/compare-bar";
 
 export const metadata: Metadata = {
-  title: "Search & compare hotels — WhataHotel",
+  title: "Search & compare hotels | WhataHotel!",
   description: "Structured multi-city hotel search — up to 3 cities, brands, amenities and preferences, with the best matches per destination.",
 };
 

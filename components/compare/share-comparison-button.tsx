@@ -65,7 +65,7 @@ export function ShareComparisonButton({
     // Mobile: hand straight to the native share sheet.
     if (canNativeShare()) {
       try {
-        await nav!.share({ title: "Hotel comparison — WhataHotel", url });
+        await nav!.share({ title: "Hotel comparison | WhataHotel!", url });
         setOpen(false);
         return;
       } catch {
