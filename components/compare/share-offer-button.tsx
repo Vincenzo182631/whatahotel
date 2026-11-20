@@ -53,7 +53,7 @@ export function ShareOfferButton({
       }
       setOffer(d.offer);
     } catch {
-      setError("Couldn't create the offer — try again.");
+      setError("Couldn't create the offer. Try again.");
     } finally {
       setCreating(false);
     }

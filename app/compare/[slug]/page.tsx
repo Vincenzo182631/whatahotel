@@ -112,7 +112,7 @@ export default async function HotelVsPage({ params }: Params) {
             ))}
           </span>
         ) : (
-          "—"
+          "–"
         ),
     },
     {
@@ -132,7 +132,7 @@ export default async function HotelVsPage({ params }: Params) {
             ))}
           </ul>
         ) : (
-          "—"
+          "–"
         ),
     },
     {
@@ -149,13 +149,13 @@ export default async function HotelVsPage({ params }: Params) {
             ))}
           </ul>
         ) : (
-          "—"
+          "–"
         ),
     },
     {
       label: "Nearby",
       show: (s) => Boolean(s.info?.attractions.length),
-      cell: (s) => (s.info?.attractions.length ? s.info.attractions.slice(0, 4).join(" · ") : "—"),
+      cell: (s) => (s.info?.attractions.length ? s.info.attractions.slice(0, 4).join(" · ") : "–"),
     },
   ];
   // Hide a row when neither hotel has data for it — no padding with blanks.
@@ -179,7 +179,7 @@ export default async function HotelVsPage({ params }: Params) {
 
       <header className="sticky top-0 z-30 border-b border-[#EBEBEB] bg-white">
         <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-6 py-3.5">
-          <Link href="/" aria-label="What a Hotel — home" className="shrink-0">
+          <Link href="/" aria-label="WhataHotel! home" className="shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="What a Hotel" className="h-8 w-auto" />
           </Link>

@@ -61,7 +61,7 @@ export function organizationSchema(): Json {
     url: SITE_URL,
     logo: `${SITE_URL}/icon-512.png`,
     description:
-      "An AI-first luxury travel advisor that searches, ranks and compares the finest hotels — with advisor-exclusive perks.",
+      "An AI-first luxury travel advisor that searches, ranks and compares the finest hotels, with advisor-exclusive perks.",
   };
 }
 

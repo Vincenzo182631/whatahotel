@@ -37,7 +37,7 @@ export function SiteHeader({ heroMode = false }: { heroMode?: boolean }) {
             href="/"
             onClick={() => resetConversation()}
             className="group flex items-center"
-            aria-label="What a Hotel — home"
+            aria-label="WhataHotel! home"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

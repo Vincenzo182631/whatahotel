@@ -230,8 +230,8 @@ export function LiveRateDuel({ a, b, city }: { a: DuelHotel; b: DuelHotel; city?
                   ) : (
                     <p className="mt-3 text-sm text-[#717171]">
                       {r.status === "error"
-                        ? "Live rates are unavailable right now — try again shortly."
-                        : "No live rate for these dates — rate on request. Try other dates or ask the advisor."}
+                        ? "Live rates are unavailable right now. Try again shortly."
+                        : "No live rate for these dates (rate on request). Try other dates or ask the advisor."}
                     </p>
                   )}
 

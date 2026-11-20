@@ -13,13 +13,13 @@ export function SiteFooter() {
       <div className="container py-12">
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row">
           <div className="max-w-sm">
-            <Link href="/" className="flex items-center" aria-label="What a Hotel — home">
+            <Link href="/" className="flex items-center" aria-label="WhataHotel! home">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="What a Hotel" className="h-10 w-auto max-w-none" />
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-foreground/70">
               An AI-powered luxury travel advisor. Curated hotels, honest
-              recommendations and advisor-exclusive perks — from inspiration to
+              recommendations and advisor-exclusive perks, from inspiration to
               booking, in conversation.
             </p>
           </div>

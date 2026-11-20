@@ -241,7 +241,7 @@ export function RoomsSection({
         </div>
       ) : cards.length === 0 ? (
         <p className="rounded-2xl border border-black/[0.08] bg-white p-6 text-sm text-[#717171]">
-          Room details are confirmed at booking — ask the advisor and I&apos;ll pull them up.
+          Room details are confirmed at booking. Ask the advisor and I&apos;ll pull them up.
         </p>
       ) : null}
 

@@ -53,7 +53,7 @@ interface Row {
 export function HotelCompare({
   hotels,
   title = "Compare similar hotels",
-  subtitle = "See how this stay measures up against another exceptional option nearby — with live entry-level rates for your dates.",
+  subtitle = "See how this stay measures up against another exceptional option nearby, with live entry-level rates for your dates.",
 }: {
   hotels: Hotel[];
   title?: string;
@@ -134,7 +134,7 @@ export function HotelCompare({
       cell: (h, i) => {
         const perks = rates[i]?.data?.perks ?? h.perks;
         if (!perks?.length)
-          return <span className="text-sm text-foreground/45">—</span>;
+          return <span className="text-sm text-foreground/45">–</span>;
         return (
           <ul className="space-y-1">
             {perks.slice(0, 5).map((p) => (
@@ -181,7 +181,7 @@ export function HotelCompare({
             <span className="text-foreground/55"> / 10 · {h.reviewCount.toLocaleString()} reviews</span>
           </span>
         ) : (
-          <span className="text-sm text-foreground/45">—</span>
+          <span className="text-sm text-foreground/45">–</span>
         ),
     },
     {
@@ -239,7 +239,7 @@ export function HotelCompare({
       visible: hotels.some((h) => h.usp || h.highlights.length),
       cell: (h) => (
         <span className="text-sm leading-snug text-foreground/80">
-          {h.usp ?? h.highlights[0] ?? "—"}
+          {h.usp ?? h.highlights[0] ?? "–"}
         </span>
       ),
     },

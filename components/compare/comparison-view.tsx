@@ -298,7 +298,7 @@ export async function ComparisonView({
             <span className="text-[#717171]"> / 10 · {c.hotel.reviewCount.toLocaleString()} reviews</span>
           </span>
         ) : (
-          <span className="text-sm text-[#9a9a9a]">—</span>
+          <span className="text-sm text-[#9a9a9a]">–</span>
         ),
     },
     {
@@ -358,7 +358,7 @@ export async function ComparisonView({
       label: "Exclusive Complimentary Perks",
       cell: (c) => {
         const { perks: items, conditions } = splitPerks(c.perks);
-        if (!items.length && !conditions.length) return <span className="text-sm text-[#9a9a9a]">—</span>;
+        if (!items.length && !conditions.length) return <span className="text-sm text-[#9a9a9a]">–</span>;
         return (
           <div>
             <ul className="space-y-1">
@@ -438,7 +438,7 @@ export async function ComparisonView({
           <span className="flex items-center gap-1.5"><MapPin className="size-4 text-[#FF385C]" /> {ha.city} · {dateLabel}</span>
           {dist != null && <span>· {dist} km apart</span>}
           {anyLive && nights > 0 && <span className="text-[#9a9a9a]">· live rates as of today</span>}
-          {!anyLive && nights > 0 && <span className="text-[#E61E4D]">· live rates unavailable for these dates — shown as rate on request</span>}
+          {!anyLive && nights > 0 && <span className="text-[#E61E4D]">· live rates unavailable for these dates, shown as rate on request</span>}
         </p>
         {/* Live voice call, grounded in THIS comparison */}
         <CompareVoiceButton hotelIds={hotelIds.slice(0, 3)} checkIn={checkIn} checkOut={checkOut} />

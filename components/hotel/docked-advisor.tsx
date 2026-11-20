@@ -25,7 +25,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
     {
       id: "intro",
       role: "assistant",
-      content: `I'm your personal advisor for **${hotel.name}** — I know the rooms, dining, perks and the whole destination. Ask me which room suits you, the best nearby restaurants or beaches, how far the airport is, or say the occasion (honeymoon, family, anniversary) and I'll tailor everything. Want a 3-day plan? Just ask.`,
+      content: `I'm your personal advisor for **${hotel.name}**. I know the rooms, dining, perks and the whole destination. Ask me which room suits you, the best nearby restaurants or beaches, how far the airport is, or say the occasion (honeymoon, family, anniversary) and I'll tailor everything. Want a 3-day plan? Just ask.`,
     },
   ]);
   const [busy, setBusy] = useState(false);

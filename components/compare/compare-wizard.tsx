@@ -176,7 +176,7 @@ export function CompareWizard({
                   setCityText(e.target.value);
                   setSelected([]);
                 }}
-                placeholder="Type any city — or pick one"
+                placeholder="Type any city or pick one"
                 className={inputCls}
               />
               <datalist id="wah-compare-cities">
