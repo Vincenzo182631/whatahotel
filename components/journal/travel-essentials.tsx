@@ -40,7 +40,7 @@ export function TravelEssentials({
       </div>
 
       <p className="mt-5 text-xs text-foreground/55">
-        Links open Amazon search results. As an Amazon Associate, WhataHotel may earn
+        Links open Amazon search results. As an Amazon Associate, WhataHotel! may earn
         from qualifying purchases.
       </p>
     </section>

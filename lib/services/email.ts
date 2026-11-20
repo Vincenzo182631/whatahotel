@@ -8,7 +8,7 @@
  *   EMAIL_FROM="WhataHotel <alerts@yourdomain.com>"   (a verified sender)
  */
 const RESEND_KEY = process.env.RESEND_API_KEY || "";
-const FROM = process.env.EMAIL_FROM || "WhataHotel <onboarding@resend.dev>";
+const FROM = process.env.EMAIL_FROM || "WhataHotel! <onboarding@resend.dev>";
 
 export function emailConfigured(): boolean {
   return Boolean(RESEND_KEY);

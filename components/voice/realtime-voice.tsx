@@ -181,7 +181,10 @@ export function RealtimeVoice({
         <X className="size-5" />
       </button>
 
-      <p className="text-sm font-semibold uppercase tracking-widest text-white/50">WhataHotel Advisor</p>
+      <p className="text-sm font-semibold uppercase tracking-widest text-white/50">
+        {/* The brand keeps its casing inside the all-caps label. */}
+        <span className="normal-case tracking-wide">WhataHotel!</span> Advisor
+      </p>
 
       {/* Orb */}
       <div className="relative my-10 grid place-items-center">
@@ -218,7 +221,7 @@ export function RealtimeVoice({
       >
         <PhoneOff className="size-4" /> End call
       </button>
-      <p className="mt-4 text-xs text-white/40">Powered by OpenAI Realtime · grounded in live WhataHotel rates</p>
+      <p className="mt-4 text-xs text-white/40">Powered by OpenAI Realtime · grounded in live WhataHotel! rates</p>
     </div>,
     document.body,
   );

@@ -136,7 +136,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -197,7 +197,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -258,7 +258,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -319,7 +319,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -380,7 +380,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -441,7 +441,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -498,7 +498,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -559,7 +559,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -595,7 +595,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -645,7 +645,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -695,7 +695,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -737,7 +737,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -786,7 +786,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -834,7 +834,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -887,7 +887,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -948,7 +948,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -984,7 +984,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1036,7 +1036,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1096,7 +1096,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1156,7 +1156,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1215,7 +1215,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1276,7 +1276,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1337,7 +1337,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1398,7 +1398,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1454,7 +1454,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1490,7 +1490,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1531,7 +1531,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1582,7 +1582,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1618,7 +1618,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1659,7 +1659,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1720,7 +1720,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1781,7 +1781,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1817,7 +1817,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1877,7 +1877,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1938,7 +1938,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -1974,7 +1974,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2010,7 +2010,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2071,7 +2071,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2107,7 +2107,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2154,7 +2154,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2190,7 +2190,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2251,7 +2251,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2287,7 +2287,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2348,7 +2348,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2389,7 +2389,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2425,7 +2425,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2481,7 +2481,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2533,7 +2533,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2587,7 +2587,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2643,7 +2643,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2679,7 +2679,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2740,7 +2740,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2801,7 +2801,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2837,7 +2837,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2873,7 +2873,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2909,7 +2909,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -2945,7 +2945,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3006,7 +3006,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3047,7 +3047,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3100,7 +3100,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3147,7 +3147,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3208,7 +3208,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3262,7 +3262,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3308,7 +3308,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3369,7 +3369,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3410,7 +3410,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3462,7 +3462,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3503,7 +3503,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3544,7 +3544,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3580,7 +3580,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3629,7 +3629,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3687,7 +3687,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3748,7 +3748,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3787,7 +3787,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3838,7 +3838,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3899,7 +3899,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -3950,7 +3950,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4011,7 +4011,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4047,7 +4047,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4103,7 +4103,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4164,7 +4164,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4207,7 +4207,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4263,7 +4263,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4323,7 +4323,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4384,7 +4384,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4431,7 +4431,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4482,7 +4482,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4543,7 +4543,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4603,7 +4603,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4639,7 +4639,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4675,7 +4675,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4711,7 +4711,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4747,7 +4747,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4793,7 +4793,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4834,7 +4834,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4879,7 +4879,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4922,7 +4922,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -4964,7 +4964,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5005,7 +5005,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5055,7 +5055,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5103,7 +5103,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5164,7 +5164,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5200,7 +5200,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5236,7 +5236,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5272,7 +5272,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5308,7 +5308,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5358,7 +5358,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5398,7 +5398,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5459,7 +5459,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5495,7 +5495,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5531,7 +5531,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5575,7 +5575,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5611,7 +5611,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5672,7 +5672,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5733,7 +5733,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5769,7 +5769,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5819,7 +5819,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5880,7 +5880,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5916,7 +5916,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5952,7 +5952,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -5988,7 +5988,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6032,7 +6032,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6092,7 +6092,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6144,7 +6144,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6186,7 +6186,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6247,7 +6247,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6308,7 +6308,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6360,7 +6360,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6402,7 +6402,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6448,7 +6448,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6484,7 +6484,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6540,7 +6540,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6591,7 +6591,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6627,7 +6627,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6663,7 +6663,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6707,7 +6707,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6743,7 +6743,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6784,7 +6784,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6835,7 +6835,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6883,7 +6883,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6921,7 +6921,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -6957,7 +6957,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7010,7 +7010,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7071,7 +7071,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7127,7 +7127,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7188,7 +7188,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7230,7 +7230,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7289,7 +7289,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7350,7 +7350,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7411,7 +7411,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7463,7 +7463,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7520,7 +7520,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7581,7 +7581,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7641,7 +7641,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7702,7 +7702,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7738,7 +7738,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7777,7 +7777,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7813,7 +7813,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7849,7 +7849,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7902,7 +7902,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7938,7 +7938,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -7998,7 +7998,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8045,7 +8045,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8094,7 +8094,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8130,7 +8130,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8191,7 +8191,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8247,7 +8247,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8304,7 +8304,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8365,7 +8365,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8401,7 +8401,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8451,7 +8451,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8487,7 +8487,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8548,7 +8548,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8589,7 +8589,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8625,7 +8625,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8685,7 +8685,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8741,7 +8741,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8788,7 +8788,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8843,7 +8843,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8897,7 +8897,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -8948,7 +8948,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9009,7 +9009,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9053,7 +9053,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9106,7 +9106,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9167,7 +9167,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9203,7 +9203,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9264,7 +9264,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9308,7 +9308,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9369,7 +9369,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9408,7 +9408,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9454,7 +9454,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9490,7 +9490,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9526,7 +9526,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9581,7 +9581,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9642,7 +9642,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9695,7 +9695,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9751,7 +9751,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9812,7 +9812,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9848,7 +9848,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9884,7 +9884,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9936,7 +9936,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -9975,7 +9975,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10031,7 +10031,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10083,7 +10083,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10132,7 +10132,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10185,7 +10185,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10246,7 +10246,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10300,7 +10300,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10336,7 +10336,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10381,7 +10381,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10438,7 +10438,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10498,7 +10498,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10544,7 +10544,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10593,7 +10593,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10654,7 +10654,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10704,7 +10704,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10747,7 +10747,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10801,7 +10801,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10842,7 +10842,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10903,7 +10903,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -10964,7 +10964,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11025,7 +11025,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11086,7 +11086,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11144,7 +11144,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11190,7 +11190,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11251,7 +11251,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11292,7 +11292,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11336,7 +11336,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11372,7 +11372,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11422,7 +11422,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11481,7 +11481,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11526,7 +11526,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11567,7 +11567,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11628,7 +11628,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11673,7 +11673,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11725,7 +11725,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11786,7 +11786,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11834,7 +11834,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11879,7 +11879,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11940,7 +11940,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -11976,7 +11976,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12028,7 +12028,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12075,7 +12075,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12114,7 +12114,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12172,7 +12172,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12212,7 +12212,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12265,7 +12265,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12326,7 +12326,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12384,7 +12384,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12429,7 +12429,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12483,7 +12483,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12540,7 +12540,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12576,7 +12576,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12617,7 +12617,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12678,7 +12678,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12723,7 +12723,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12775,7 +12775,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12836,7 +12836,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12897,7 +12897,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -12958,7 +12958,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13010,7 +13010,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13056,7 +13056,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13114,7 +13114,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13157,7 +13157,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13218,7 +13218,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13273,7 +13273,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13333,7 +13333,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13381,7 +13381,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13434,7 +13434,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13486,7 +13486,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13547,7 +13547,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13598,7 +13598,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13659,7 +13659,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13705,7 +13705,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13741,7 +13741,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13786,7 +13786,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13842,7 +13842,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13901,7 +13901,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13948,7 +13948,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -13984,7 +13984,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14043,7 +14043,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14079,7 +14079,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14140,7 +14140,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14200,7 +14200,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14244,7 +14244,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14305,7 +14305,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14366,7 +14366,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14411,7 +14411,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14449,7 +14449,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14485,7 +14485,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14525,7 +14525,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14586,7 +14586,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14622,7 +14622,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14658,7 +14658,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14703,7 +14703,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14739,7 +14739,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14775,7 +14775,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14836,7 +14836,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14897,7 +14897,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14917,7 +14917,7 @@ export const HOTELS: Hotel[] = [
     "country": "United Arab Emirates",
     "neighborhood": "Dubai",
     "shortPitch": "a five-star luxury hotel in Dubai.",
-    "description": " is a five-star luxury hotel in Dubai, available with WhataHotel's exclusive complimentary perks.",
+    "description": " is a five-star luxury hotel in Dubai, available with WhataHotel!'s exclusive complimentary perks.",
     "image": "https://whatahotel.com/content/hotels/3403/grand-hyatt-dubai-41650032-1513090958-ImageGalleryLightboxLarge.jpg",
     "gallery": [],
     "rating": 0,
@@ -14933,7 +14933,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -14973,7 +14973,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15025,7 +15025,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15061,7 +15061,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15097,7 +15097,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15133,7 +15133,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15169,7 +15169,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15205,7 +15205,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15241,7 +15241,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15280,7 +15280,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15316,7 +15316,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15354,7 +15354,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15412,7 +15412,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15448,7 +15448,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15509,7 +15509,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15545,7 +15545,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15581,7 +15581,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15632,7 +15632,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15681,7 +15681,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15733,7 +15733,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15769,7 +15769,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15819,7 +15819,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15870,7 +15870,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15922,7 +15922,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -15983,7 +15983,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16044,7 +16044,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16105,7 +16105,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16141,7 +16141,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16202,7 +16202,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16246,7 +16246,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16282,7 +16282,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16336,7 +16336,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16372,7 +16372,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16417,7 +16417,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16453,7 +16453,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16489,7 +16489,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16535,7 +16535,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16571,7 +16571,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16607,7 +16607,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16655,7 +16655,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16691,7 +16691,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16752,7 +16752,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16813,7 +16813,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16854,7 +16854,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16915,7 +16915,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -16951,7 +16951,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17012,7 +17012,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17032,7 +17032,7 @@ export const HOTELS: Hotel[] = [
     "country": "United Arab Emirates",
     "neighborhood": "Dubai",
     "shortPitch": "a five-star luxury hotel in Dubai.",
-    "description": " is a five-star luxury hotel in Dubai, available with WhataHotel's exclusive complimentary perks.",
+    "description": " is a five-star luxury hotel in Dubai, available with WhataHotel!'s exclusive complimentary perks.",
     "image": "https://whatahotel.com/content/hotels/6310/",
     "gallery": [],
     "rating": 0,
@@ -17048,7 +17048,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17084,7 +17084,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17125,7 +17125,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17161,7 +17161,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17222,7 +17222,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17281,7 +17281,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17329,7 +17329,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17365,7 +17365,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17401,7 +17401,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17462,7 +17462,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17498,7 +17498,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17534,7 +17534,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17570,7 +17570,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17611,7 +17611,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17672,7 +17672,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17733,7 +17733,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17773,7 +17773,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17822,7 +17822,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17865,7 +17865,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17926,7 +17926,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -17962,7 +17962,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -18023,7 +18023,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -18075,7 +18075,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],
@@ -18095,7 +18095,7 @@ export const HOTELS: Hotel[] = [
     "country": "United States",
     "neighborhood": "Maui",
     "shortPitch": "Marriott — a five-star luxury hotel in Maui.",
-    "description": "Wailea Beach Resort - Marriott, Maui is a five-star luxury hotel in Maui, available with WhataHotel's exclusive complimentary perks.",
+    "description": "Wailea Beach Resort - Marriott, Maui is a five-star luxury hotel in Maui, available with WhataHotel!'s exclusive complimentary perks.",
     "image": "https://whatahotel.com/content/hotels/2171/Wailea-Beach-ResortMarriott-Maui-Hawaii-Outrigger-Canoe-59ce02059abed500110cb84a.jpg",
     "gallery": [
       "https://d2573qu6qrjt8c.cloudfront.net/FFE1A55EF23D4F92A7A201228CA4819E/FFE1A55EF23D4F92A7A201228CA4819E.jpg",
@@ -18129,7 +18129,7 @@ export const HOTELS: Hotel[] = [
       {
         "id": "p1",
         "label": "Exclusive complimentary perks",
-        "detail": "Included on bookings through WhataHotel"
+        "detail": "Included on bookings through WhataHotel!"
       }
     ],
     "vibes": [],

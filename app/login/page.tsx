@@ -57,7 +57,7 @@ export default function LoginPage() {
   return (
     <AuthShell
       title="Welcome back"
-      subtitle="Log in to your WhataHotel account."
+      subtitle="Log in to your WhataHotel! account."
       footer={
         <>
           New here?{" "}

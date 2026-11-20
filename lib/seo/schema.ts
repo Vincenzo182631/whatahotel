@@ -188,7 +188,7 @@ export function blogSchema(articles: BlogArticle[]): Json {
     "@type": "Blog",
     name: "The Journal | WhataHotel!",
     description:
-      "Destination guides, packing wisdom and luxury travel inspiration from the WhataHotel advisory team.",
+      "Destination guides, packing wisdom and luxury travel inspiration from the WhataHotel! advisory team.",
     url: canonicalUrl("/journal"),
     publisher: { "@type": "Organization", name: SITE_NAME },
     blogPost: articles.map((a) =>

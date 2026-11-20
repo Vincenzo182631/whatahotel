@@ -94,7 +94,7 @@ for (const h of all) {
     shortPitch: `${brand ? brand + " — " : ""}a five-star luxury hotel in ${h.city}.`,
     description:
       h.description ||
-      `${h.name} is a five-star luxury hotel in ${h.city}, available with WhataHotel's exclusive complimentary perks.`,
+      `${h.name} is a five-star luxury hotel in ${h.city}, available with WhataHotel!'s exclusive complimentary perks.`,
     image,
     gallery,
     rating: 0, // not published by source
@@ -107,7 +107,7 @@ for (const h of all) {
     amenities: [],
     highlights: [],
     perks: [
-      { id: "p1", label: "Exclusive complimentary perks", detail: "Included on bookings through WhataHotel" },
+      { id: "p1", label: "Exclusive complimentary perks", detail: "Included on bookings through WhataHotel!" },
     ],
     vibes: [],
     goodFor: [],

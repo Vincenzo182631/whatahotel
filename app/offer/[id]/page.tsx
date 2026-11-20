@@ -84,7 +84,7 @@ export default async function OfferPage({ params }: Params) {
         </div>
 
         <p className="mt-10 text-center text-xs text-[#9a9a9a]">
-          Questions? Reply to the email from {advisor}, or ask the advisor above. Powered by WhataHotel.
+          Questions? Reply to the email from {advisor}, or ask the advisor above. Powered by WhataHotel!
         </p>
       </main>
     </div>

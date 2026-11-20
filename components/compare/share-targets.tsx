@@ -102,7 +102,7 @@ const TARGETS: Target[] = [
 ];
 
 /** A short message that rides along with the link on apps that take a caption. */
-const MESSAGE = "Take a look at this hotel comparison on WhataHotel:";
+const MESSAGE = "Take a look at this hotel comparison on WhataHotel!";
 
 export function ShareTargets({
   getUrl,

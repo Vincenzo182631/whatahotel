@@ -66,14 +66,15 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="container pt-16 pb-12 text-center">
         <p className="text-xs uppercase tracking-[0.25em] text-primary/80">
-          About WhataHotel
+          {/* The brand keeps its casing inside the all-caps label. */}
+          About <span className="normal-case tracking-[0.12em]">WhataHotel!</span>
         </p>
         <h1 className="mx-auto mt-4 max-w-3xl font-display text-4xl font-light leading-[1.08] tracking-tight md:text-6xl">
           Travel should feel like a{" "}
           <span className="text-gradient-gold italic">conversation</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-foreground/75">
-          We built WhataHotel for a simple reason: booking a beautiful hotel had
+          We built WhataHotel! for a simple reason: booking a beautiful hotel had
           become a chore of tabs, filters, and fake urgency. We believe planning
           the finest trips of your life should feel like talking to someone who
           knows you — and knows the world&apos;s great hotels by heart.
@@ -94,7 +95,7 @@ export default function AboutPage() {
               online travel agencies.
             </p>
             <p>
-              WhataHotel exists to change that. We pair the warmth and judgement
+              WhataHotel! exists to change that. We pair the warmth and judgement
               of an expert luxury travel advisor with the speed and recall of
               artificial intelligence. The result is an advisor that&apos;s available
               the moment inspiration strikes, remembers everything you tell it,
@@ -156,7 +157,7 @@ export default function AboutPage() {
             <div className="mt-5 space-y-4 leading-relaxed text-foreground/80">
               <p>
                 Traditional booking sites optimise for volume. A great advisor
-                optimises for you. WhataHotel brings the two together: an
+                optimises for you. WhataHotel! brings the two together: an
                 intelligent advisor that understands natural language, asks smart
                 follow-up questions, and never forgets a detail you&apos;ve shared.
               </p>

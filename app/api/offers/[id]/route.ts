@@ -50,7 +50,7 @@ export async function POST(req: Request, { params }: Ctx) {
 
   const sent = await sendEmail({
     to: offer.guestEmails,
-    subject: `Your ${offer.city} hotel options from WhataHotel`,
+    subject: `Your ${offer.city} hotel options from WhataHotel!`,
     html: `<div style="font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:520px;margin:0 auto;color:#1a1a1a">
         <p style="font-size:15px;margin:0 0 14px">${hi}</p>
         <p style="font-size:15px;margin:0 0 16px">${escapeHtml(advisor)} has prepared a personalised comparison of hotels in <strong>${escapeHtml(offer.city)}</strong> for your dates. Open it to see live rates, room options and advisor perks side by side — and ask our AI advisor any questions.</p>

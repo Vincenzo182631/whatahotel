@@ -108,7 +108,7 @@ export function ConversationsView() {
         for (const c of convs) {
           if (c.needsAgent && !seenNeedsAgent.current.has(c.sessionId)) {
             try {
-              const n = new Notification("WhataHotel — a guest needs a live advisor", {
+              const n = new Notification("WhataHotel! — a guest needs a live advisor", {
                 body: `${c.name || c.email || "A guest"} asked to speak with a human.`,
                 tag: c.sessionId,
               });
