@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { MapPin, UtensilsCrossed, Check } from "lucide-react";
@@ -12,6 +13,7 @@ import { StayBooking } from "@/components/search/stay-booking";
 import { DockedAdvisor } from "@/components/hotel/docked-advisor";
 import { JsonLd } from "@/components/seo/json-ld";
 import { lodgingSchema, breadcrumbSchema, canonicalUrl } from "@/lib/seo/schema";
+import { stayMetaDescription } from "@/lib/seo/hotel-description";
 import { resolveDestination, DESTINATIONS } from "@/lib/services/mock-data";
 import { getCatalogueHotelBySourceId, relatedPairs } from "@/lib/seo/comparisons";
 import { formatCurrency } from "@/lib/utils";
@@ -22,16 +24,36 @@ export const maxDuration = 30;
 
 type Params = { params: Promise<{ id: string }>; searchParams: Promise<{ checkIn?: string; checkOut?: string }> };
 
+// One hotel-info lookup per request, shared by generateMetadata and the page.
+const hotelInfoFor = cache((name: string, city: string) => getHotelInfo(name, city));
+
+/**
+ * Live identity first; if the source is down or throttled, a curated hotel still renders
+ * from the catalogue. A hotel with no name at all is treated as not found: it used to
+ * render a blank page titled " | WhataHotel!".
+ */
+const resolveHotel = cache(async (id: string): Promise<LiveHotelFull | null> => {
+  const live = await getLiveHotel(id);
+  const fallback = catalogueFallback(id);
+  if (live && !live.name.trim() && fallback) return { ...live, name: fallback.name };
+  const hotel = live ?? fallback;
+  return hotel && hotel.name.trim() ? hotel : null;
+});
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
-  const hotel = (await getLiveHotel(id)) ?? catalogueFallback(id);
+  const hotel = await resolveHotel(id);
   if (!hotel) return { title: "Hotel | WhataHotel!" };
   const title = `${hotel.name} | WhataHotel!`;
   const url = canonicalUrl(`/stay/${id}`);
+  // Each hotel gets its own snippet (it used to inherit the site-wide default).
+  const description = stayMetaDescription(hotel, await hotelInfoFor(hotel.name, hotel.city));
   return {
     title,
+    description,
     alternates: { canonical: url },
-    openGraph: { title, url, type: "website", images: hotel.image ? [hotel.image] : undefined },
+    openGraph: { title, description, url, type: "website", images: hotel.image ? [hotel.image] : undefined },
+    twitter: { title, description },
   };
 }
 
@@ -61,14 +83,12 @@ export default async function StayPage({ params, searchParams }: Params) {
   const { id } = await params;
   const { checkIn = "", checkOut = "" } = await searchParams;
 
-  // Live identity first; if the source is down or throttled, a curated hotel
-  // still renders from the catalogue instead of showing "not found".
-  const hotel = (await getLiveHotel(id)) ?? catalogueFallback(id);
+  const hotel = await resolveHotel(id);
   if (!hotel) notFound();
 
   const nights = nightsBetween(checkIn, checkOut);
   const [info, rates] = await Promise.all([
-    getHotelInfo(hotel.name, hotel.city),
+    hotelInfoFor(hotel.name, hotel.city),
     nights > 0 ? getLiveRates({ sourceHotelId: id, checkIn, checkOut }) : Promise.resolve(null),
   ]);
 

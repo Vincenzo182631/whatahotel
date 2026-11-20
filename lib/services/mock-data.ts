@@ -41,8 +41,12 @@ const GEO = geoEnrichment as Record<string, { lat: number; lng: number }>;
  *  1. WhataHotel source — real advisor perks, derived amenities and a refreshed
  *     entry rate (`hotel-enrichment.json`, from `scripts/enrich-rates-perks.mjs`).
  *  2. Google Places — guest rating + photos (`place-enrichment.json`).
+ *
+ * The source occasionally lists a hotel with no name (h-3403 and h-6310 in Dubai, Nov 2026).
+ * Those rendered as blank pages titled " | WhataHotel!", so they are left out of the catalogue,
+ * and with it the city pages, comparisons and sitemaps.
  */
-export const HOTELS: Hotel[] = RAW_HOTELS.map((h) => {
+export const HOTELS: Hotel[] = RAW_HOTELS.filter((h) => h.name.trim()).map((h) => {
   let hotel = h;
 
   // 1) Real perks / amenities / entry rate from the WhataHotel source.
