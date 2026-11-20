@@ -177,7 +177,7 @@ export function AirbnbLanding() {
       {/* HEADER — minimal, glassy over the image */}
       <header className="border-b border-white/30 bg-white/55 backdrop-blur-md">
         <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-4 px-6 py-3.5">
-          <Link href="/" aria-label="What a Hotel — home" className="shrink-0">
+          <Link href="/" aria-label="WhataHotel! home" className="shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="What a Hotel" className="h-8 w-auto max-w-none" />
           </Link>
@@ -279,7 +279,7 @@ export function AirbnbLanding() {
             Where would you like to stay?
           </h1>
           <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-[#717171]">
-            Ask me to find or compare hotels anywhere in the world — I&rsquo;ll pull live rates,
+            Ask me to find or compare hotels anywhere in the world, and I&rsquo;ll pull live rates,
             rooms, perks and honest recommendations for your dates.
           </p>
 

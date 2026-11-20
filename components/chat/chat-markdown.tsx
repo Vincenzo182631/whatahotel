@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from "react";
+import { noEmDash } from "@/lib/text/no-em-dash";
 
 /**
  * Tiny, dependency-free markdown renderer for advisor chat replies.
@@ -103,7 +104,7 @@ export function ChatMarkdown({
   /** Resolves `[findhotel:NAME]` tags into a preview card of another named hotel. */
   foundHotels?: Record<string, ChatHotelCard>;
 }) {
-  const lines = content.replace(/\r\n/g, "\n").split("\n");
+  const lines = noEmDash(content.replace(/\r\n/g, "\n")).split("\n");
 
   // Shared hotel preview card (used by [hotel] and [findhotel:NAME]).
   const hotelCardEl = (hc: ChatHotelCard, key: string) => (

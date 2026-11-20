@@ -60,7 +60,7 @@ export async function POST(req: Request) {
         send({
           type: "text",
           value:
-            "My apologies — something interrupted me just now. Could you say that once more?",
+            "My apologies, something interrupted me just now. Could you say that once more?",
         });
         send({ type: "final", payload });
       } finally {

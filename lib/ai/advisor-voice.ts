@@ -7,10 +7,10 @@ import type { AdvisorUser, ReplyContext } from "./context";
 function greeting(user?: AdvisorUser): string {
   if (!user?.greet) return "";
   if (user.upcomingTripCity) {
-    return `Welcome back, ${user.firstName} — looking forward to your ${user.upcomingTripCity} trip. `;
+    return `Welcome back, ${user.firstName}. Looking forward to your ${user.upcomingTripCity} trip. `;
   }
   if (user.lastTripCity) {
-    return `Welcome back, ${user.firstName} — lovely to see you again after ${user.lastTripCity}. `;
+    return `Welcome back, ${user.firstName}. Lovely to see you again after ${user.lastTripCity}. `;
   }
   return `Welcome back, ${user.firstName}. `;
 }
@@ -35,7 +35,7 @@ const QUESTION: Record<CriteriaField, string> = {
   dates: "When are you travelling, and for how many nights?",
   budget: "What's your ideal nightly budget?",
   occasion: "Is this trip for a special occasion?",
-  guests: "How many guests will I be planning for — and any children?",
+  guests: "How many guests will I be planning for, and any children?",
 };
 
 function pick<T>(arr: T[], seed: number): T {
@@ -49,21 +49,21 @@ function acknowledge(ctx: ReplyContext): string {
   if (ctx.learned.includes("destination") && c.destinationLabel) {
     return pick(
       [
-        `${c.destinationLabel.split(",")[0]} — a wonderful choice.`,
+        `${c.destinationLabel.split(",")[0]}, a wonderful choice.`,
         `${c.destinationLabel.split(",")[0]}, beautiful.`,
-        `Ah, ${c.destinationLabel.split(",")[0]} — exquisite.`,
+        `Ah, ${c.destinationLabel.split(",")[0]}. Exquisite.`,
       ],
       seed,
     );
   }
   if (ctx.learned.includes("budget") && c.budgetMax) {
-    return `Noted — I'll keep us around $${c.budgetMax.toLocaleString()} a night.`;
+    return `Noted. I'll keep us around $${c.budgetMax.toLocaleString()} a night.`;
   }
   if (ctx.learned.includes("occasion") && c.occasion) {
-    return `How lovely — a trip to mark ${c.occasion === "anniversary" ? "your anniversary" : `a ${c.occasion}`}.`;
+    return `How lovely, a trip to mark ${c.occasion === "anniversary" ? "your anniversary" : `a ${c.occasion}`}.`;
   }
   if (ctx.learned.includes("amenities")) {
-    return `Noted — I've added that to your preferences.`;
+    return `Noted. I've added that to your preferences.`;
   }
   return pick(["Wonderful.", "Of course.", "Happy to help."], seed);
 }
@@ -96,7 +96,7 @@ function composeLive(ctx: ReplyContext): string {
   const hotels = ctx.liveHotels ?? [];
   const n = hotels.length;
   if (n === 0) {
-    return `I'm sorry — I couldn't find any WhataHotel! properties in ${city} at the moment; that destination isn't in our collection right now. If there's a nearby city you'd consider I'm happy to look, or email info@lorrainetravel.com and the team will help arrange ${city} directly.`;
+    return `I'm sorry, I couldn't find any WhataHotel! properties in ${city} at the moment; that destination isn't in our collection right now. If there's a nearby city you'd consider I'm happy to look, or email info@lorrainetravel.com and the team will help arrange ${city} directly.`;
   }
   const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
   const top = hotels[0];
@@ -108,17 +108,17 @@ function composeLive(ctx: ReplyContext): string {
     } Share your exact dates and I'll refresh the rates.`;
   }
   if (intent) {
-    return `${greeting(ctx.user)}For ${city} (${intent}), I ranked WhataHotel!'s live availability by what actually fits — ${n} ${n === 1 ? "hotel" : "hotels"} with live rates and advisor perks.${
+    return `${greeting(ctx.user)}For ${city} (${intent}), I ranked WhataHotel!'s live availability by what actually fits: ${n} ${n === 1 ? "hotel" : "hotels"} with live rates and advisor perks.${
       top && topNote ? ` ${top.name} leads: ${topNote}.` : ""
     } Tap any to view rates and book.`;
   }
-  return `${greeting(ctx.user)}${city} isn't in my curated list, so I checked WhataHotel!'s live availability — here ${n === 1 ? "is a match" : `are ${n} matches`} with live rates and advisor perks for your dates. Tap any to view rates and book.`;
+  return `${greeting(ctx.user)}${city} isn't in my curated list, so I checked WhataHotel!'s live availability. Here ${n === 1 ? "is a match" : `are ${n} matches`} with live rates and advisor perks for your dates. Tap any to view rates and book.`;
 }
 
 function composeAsk(ctx: ReplyContext): string {
   // Live search for a city outside the local set needs concrete dates.
   if (ctx.liveCity && (!ctx.criteria.checkIn || !ctx.criteria.checkOut)) {
-    return `${greeting(ctx.user)}I can search ${ctx.liveCity} live across WhataHotel! — just tell me your check-in and check-out dates and I'll pull real rates and perks.`;
+    return `${greeting(ctx.user)}I can search ${ctx.liveCity} live across WhataHotel! Just tell me your check-in and check-out dates and I'll pull real rates and perks.`;
   }
   const ack = acknowledge(ctx);
 
@@ -133,12 +133,12 @@ function composeAsk(ctx: ReplyContext): string {
       names.length > 1
         ? `${names.slice(0, -1).join(", ")} or ${names.slice(-1)}`
         : names[0];
-    return `${ack} For that, I'd point you toward ${list}. Which calls to you — or shall I tell you more about each?`;
+    return `${ack} For that, I'd point you toward ${list}. Which calls to you, or shall I tell you more about each?`;
   }
 
   const toAsk = ctx.missing.slice(0, 3);
   if (toAsk.length === 0) {
-    return `${ack} I think I have everything I need — shall I pull together some options?`;
+    return `${ack} I think I have everything I need. Shall I pull together some options?`;
   }
   if (toAsk.length === 1) {
     return `${ack} ${QUESTION[toAsk[0]]}`;
@@ -152,14 +152,14 @@ function composeRecommend(ctx: ReplyContext): string {
   const dest = c.destinationLabel?.split(",")[0] ?? "your destination";
   const n = ctx.recommendations.length;
   if (n === 0) {
-    return `I looked across ${dest}, but nothing quite fits those exact details. If we nudge the budget or relax one preference, I can show you some exceptional options — what would you like to adjust?`;
+    return `I looked across ${dest}, but nothing quite fits those exact details. If we nudge the budget or relax one preference, I can show you some exceptional options. What would you like to adjust?`;
   }
   const intro = `${greeting(ctx.user)}I searched the best hotels in ${dest} and ranked them for ${summaryClause(c)}. Here ${n === 1 ? "is your top match" : `are your top ${n}, scored out of 10`}.`;
   const top = ctx.recommendations[0];
   const lead = top ? ` Leading is ${hotelClause(top)}.` : "";
   const outro =
     n > 1
-      ? ` They're ranked best-fit first. Tip: select up to 3 hotels from the results to compare them side by side — or say "book" when you're ready.`
+      ? ` They're ranked best-fit first. Tip: select up to 3 hotels from the results to compare them side by side, or say "book" when you're ready.`
       : ` Ask me anything about it, or say "book" when you're ready.`;
   return intro + lead + outro;
 }
@@ -178,7 +178,7 @@ function composeExplain(ctx: ReplyContext): string {
   }
   const lines = picks
     .slice(0, 3)
-    .map((r) => `• ${hotelClause(r)}${r.reason ? ` — ${r.reason}` : ""}`)
+    .map((r) => `• ${hotelClause(r)}${r.reason ? `: ${r.reason}` : ""}`)
     .join("\n");
   return `Here's the honest read on each:\n\n${lines}\n\nWant me to compare any two side by side, or shall I book one?`;
 }
@@ -192,20 +192,20 @@ const BOOKING_PROMPTS: Record<string, string> = {
   guestName: "Whose name should the reservation be under?",
   email: "What's the best email for your confirmation?",
   phone: "And a phone number, in case the hotel needs to reach you?",
-  bedPreference: "Any bed preference — one king, or two beds?",
+  bedPreference: "Any bed preference: one king, or two beds?",
   specialRequests: "Any special requests? (early check-in, a celebration touch, dietary needs…)",
   arrivalTime: "Roughly what time will you be arriving?",
 };
 
 function composeBook(ctx: ReplyContext): string {
   const b = ctx.booking;
-  if (!b) return "Wonderful — which hotel would you like to book?";
+  if (!b) return "Wonderful. Which hotel would you like to book?";
   if (b.complete) {
-    return `That's everything I need, thank you. Here's your booking summary for ${b.hotelName} — review it and I'll secure the reservation with our advisor rate and perks.`;
+    return `That's everything I need, thank you. Here's your booking summary for ${b.hotelName}. Review it and I'll secure the reservation with our advisor rate and perks.`;
   }
   const justStarted = b.collected.length === 0;
   const lead = justStarted
-    ? `Wonderful choice — ${b.hotelName}. I'll take care of this for you. `
+    ? `Wonderful choice: ${b.hotelName}. I'll take care of this for you. `
     : `Got it. `;
   const next = b.nextField ? BOOKING_PROMPTS[b.nextField] : "";
   return `${lead}${next}`;
@@ -213,13 +213,13 @@ function composeBook(ctx: ReplyContext): string {
 
 function composeChat(ctx: ReplyContext): string {
   const hi = greeting(ctx.user) || `${acknowledge(ctx)} `;
-  return `${hi}Tell me a little about the trip you have in mind — a destination, the occasion, or just the feeling you're after — and I'll take it from there.`;
+  return `${hi}Tell me a little about the trip you have in mind (a destination, the occasion, or just the feeling you're after) and I'll take it from there.`;
 }
 
 function composeQa(ctx: ReplyContext): string {
   const h = ctx.focus?.[0] ?? ctx.recommendations[0];
   if (!h)
-    return "Happy to help — which hotel are you asking about? Or tell me your destination and dates and I'll be precise.";
+    return "Happy to help. Which hotel are you asking about? Or tell me your destination and dates and I'll be precise.";
   return answerHotelQuestion(h, ctx.qaQuestion ?? ctx.lastUserMessage);
 }
 

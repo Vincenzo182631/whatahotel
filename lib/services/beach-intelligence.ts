@@ -132,7 +132,7 @@ export function beachAlertFrom(b: BeachCondition): BeachAlert | null {
 
   const reasons: string[] = [];
   if (lowScore) {
-    reasons.push(`Beach score ${b.score}/100 — ${levelWord} sargassum risk`);
+    reasons.push(`Beach score ${b.score}/100: ${levelWord} sargassum risk`);
   }
   if (worsening) {
     reasons.push("Sargassum forecast to worsen over the next 7 days");
@@ -286,7 +286,7 @@ export function formatBeachFacts(b: BeachCondition): string {
   const levelWord =
     b.level === "LOW" ? "low" : b.level === "MODERATE" ? "moderate" : "high";
   const lines = [
-    `Zone: ${b.zone} — ${levelWord} sargassum risk, beach score ${b.score}/100 (higher = clearer water).`,
+    `Zone: ${b.zone}, ${levelWord} sargassum risk, beach score ${b.score}/100 (higher = clearer water).`,
   ];
   if (b.summary) lines.push(b.summary);
   if (b.level !== "LOW" && b.alternatives.length) {

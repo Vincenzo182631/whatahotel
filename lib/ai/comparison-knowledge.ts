@@ -119,7 +119,7 @@ export async function buildComparisonBrief(
         `- Location: ${[h.neighborhood && h.neighborhood !== h.city ? h.neighborhood : "", h.city, h.country].filter(Boolean).join(", ")}`,
         distances.length ? `- Distances: ${distances.join("; ")}` : "",
         realAttractions.length
-          ? `- Nearby (real, from the property — safe to cite): ${realAttractions.join(", ")}`
+          ? `- Nearby (real, from the property, safe to cite): ${realAttractions.join(", ")}`
           : `- Nearby: ${area}`,
         policies.length ? `- Policies (real): ${policies.join(" | ")}` : "",
         info?.description ? `- About: ${info.description.length > 260 ? info.description.slice(0, 260) + "…" : info.description}` : "",
@@ -131,7 +131,7 @@ export async function buildComparisonBrief(
   }
 
   const brief = [
-    "==== COMPARISON SET (your single source of truth — compare ONLY on these facts) ====",
+    "==== COMPARISON SET (your single source of truth, compare ONLY on these facts) ====",
     ...blocks,
     "==== END COMPARISON SET ====",
   ].join("\n\n");

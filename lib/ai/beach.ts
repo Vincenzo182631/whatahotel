@@ -57,8 +57,8 @@ export async function beachBriefFor(
   if (conditions.length === 0) return "";
 
   const facts = conditions.map((c) => `- ${formatBeachFacts(c)}`).join("\n");
-  return `\n\n==== BEACH INTELLIGENCE (current sargassum conditions — USF/NOAA satellite) ====
-These ARE verified facts you may state (risk level, 0-100 beach score; higher = clearer water). Raise them only when the traveller asks about beach/seaweed/water, or a good beach is part of why they're here. If risk is moderate or high and swimming matters, mention the clearer nearby zones. Frame as current conditions that shift week to week — never a guarantee. When no reading is shown for a place, don't guess.
+  return `\n\n==== BEACH INTELLIGENCE (current sargassum conditions, USF/NOAA satellite) ====
+These ARE verified facts you may state (risk level, 0-100 beach score; higher = clearer water). Raise them only when the traveller asks about beach/seaweed/water, or a good beach is part of why they're here. If risk is moderate or high and swimming matters, mention the clearer nearby zones. Frame as current conditions that shift week to week, never a guarantee. When no reading is shown for a place, don't guess.
 ${facts}
 ==== END BEACH INTELLIGENCE ====`;
 }

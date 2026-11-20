@@ -131,7 +131,7 @@ export function generateItinerary(req: ItineraryRequest): Itinerary | null {
     if (lunch)
       items.push({
         time: "13:00",
-        title: `Lunch — ${lunch.name}`,
+        title: `Lunch: ${lunch.name}`,
         type: "meal",
         note: lunch.cuisine ? `${lunch.cuisine} cuisine` : undefined,
         travelMins: travelMins(lunch.name, true),
@@ -147,7 +147,7 @@ export function generateItinerary(req: ItineraryRequest): Itinerary | null {
     if (dinner)
       items.push({
         time: "19:30",
-        title: `Dinner — ${dinner.name}`,
+        title: `Dinner: ${dinner.name}`,
         type: "meal",
         note: dinner.cuisine ? `${dinner.cuisine} cuisine` : undefined,
         travelMins: travelMins(dinner.name, true),
@@ -173,7 +173,7 @@ export function generateItinerary(req: ItineraryRequest): Itinerary | null {
         : traveler === "couple"
           ? "Evenings lean into romantic dining and standout views."
           : "Museums and neighbourhood wandering are built in for a flexible solo pace.",
-    "Book Michelin-level dinners a few days ahead — your advisor can arrange it.",
+    "Book Michelin-level dinners a few days ahead. Your advisor can arrange it.",
   ];
 
   return {

@@ -1,5 +1,6 @@
 import { hotelSearchService } from "./amadeus-hotel-search";
 import { titleCase } from "../utils";
+import { noEmDash } from "@/lib/text/no-em-dash";
 import type {
   Hotel,
   Recommendation,
@@ -154,10 +155,10 @@ function generateReason(
 
   const lead = `I chose ${hotel.name}`;
   if (parts.length === 0) {
-    return `${lead} because it's one of the finest addresses in ${hotel.city} — ${hotel.shortPitch.toLowerCase()}`;
+    return noEmDash(`${lead} because it's one of the finest addresses in ${hotel.city}: ${hotel.shortPitch.toLowerCase()}`);
   }
   const reasonBody = parts.join(", and it offers ");
-  return `${lead} because ${reasonBody}. ${hotel.highlights[0]} seals it.`;
+  return noEmDash(`${lead} because ${reasonBody}. ${hotel.highlights[0]} seals it.`);
 }
 
 /** Map the internal 0–100 match score to a 5.0–10.0 personalised fit score. */
@@ -239,9 +240,9 @@ export function buildComparison(hotels: Hotel[]): HotelComparison {
     { label: "Starting rate / night", values: hotels.map((h) => (h.startingRate ? `$${h.startingRate.toLocaleString()}` : "On request")) },
     { label: "Brand / collection", values: hotels.map((h) => h.brand || "Independent") },
     { label: "Star rating", values: hotels.map((h) => "★".repeat(h.starRating)) },
-    { label: "Guest rating", values: hotels.map((h) => (h.rating > 0 ? `${h.rating} (${h.reviewCount.toLocaleString()} reviews)` : "—")) },
+    { label: "Guest rating", values: hotels.map((h) => (h.rating > 0 ? `${h.rating} (${h.reviewCount.toLocaleString()} reviews)` : "–")) },
     { label: "Location", values: hotels.map((h) => `${h.city}, ${h.country}`) },
-    { label: "Advisor perks", values: hotels.map((h) => (h.perks.length ? "Included" : "—")) },
+    { label: "Advisor perks", values: hotels.map((h) => (h.perks.length ? "Included" : "–")) },
     { label: "Photos", values: hotels.map((h) => `${1 + h.gallery.length}`) },
   ];
 

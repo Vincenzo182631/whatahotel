@@ -891,7 +891,7 @@ export async function buildLiveComparison(
     {
       label: "Value",
       values: cols.map((c, i) =>
-        i === bestValueIdx ? "★ Best value" : c.rates || perksOf(c.h).length ? "—" : "Add dates",
+        i === bestValueIdx ? "★ Best value" : c.rates || perksOf(c.h).length ? "–" : "Add dates",
       ),
     },
     {
@@ -906,27 +906,27 @@ export async function buildLiveComparison(
       label: "Exclusive perks",
       values: cols.map((c) => {
         const p = perksOf(c.h);
-        return p.length ? p.slice(0, 4).join(" · ") : "—";
+        return p.length ? p.slice(0, 4).join(" · ") : "–";
       }),
     },
     {
       label: "Amenities",
       values: cols.map((c) => {
         const a = amenitiesOf(c);
-        return a.length ? a.join(", ") : "—";
+        return a.length ? a.join(", ") : "–";
       }),
     },
     {
       label: "Dining",
-      values: cols.map((c) => (c.info?.restaurants?.length ? c.info.restaurants.slice(0, 3).join(", ") : "—")),
+      values: cols.map((c) => (c.info?.restaurants?.length ? c.info.restaurants.slice(0, 3).join(", ") : "–")),
     },
     {
       label: "Class",
-      values: cols.map((c) => (c.h.starRating ? "★".repeat(c.h.starRating) : "—")),
+      values: cols.map((c) => (c.h.starRating ? "★".repeat(c.h.starRating) : "–")),
     },
     {
       label: "Guest rating",
-      values: cols.map((c) => (c.h.rating > 0 ? `${c.h.rating}/10` : "—")),
+      values: cols.map((c) => (c.h.rating > 0 ? `${c.h.rating}/10` : "–")),
     },
     {
       label: "Location",
@@ -941,7 +941,7 @@ export async function buildLiveComparison(
   const best = cols[bestValueIdx].h.name;
   const forPriority = priority ? ` for ${priority}` : "";
   const recommendation = anyPriced
-    ? `Best value${forPriority}: ${best} — perks factored against the live rate.${priority ? "" : " Tell me what matters most (location, dining, spa) and I'll re-weigh it."}`
+    ? `Best value${forPriority}: ${best}, perks factored against the live rate.${priority ? "" : " Tell me what matters most (location, dining, spa) and I'll re-weigh it."}`
     : `${best} leads on inclusions${forPriority}. Share your dates and I'll pull live rates to compare on price too.`;
 
   return {

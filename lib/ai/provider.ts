@@ -65,7 +65,7 @@ async function chatModel(fast = false) {
 }
 
 const criteriaPatchSchema = z.object({
-  destination: z.string().optional().describe("the city the traveller names, e.g. 'paris', 'miami', 'scottsdale', 'rome' — any city, lowercased"),
+  destination: z.string().optional().describe("the city the traveller names, e.g. 'paris', 'miami', 'scottsdale', 'rome', any city, lowercased"),
   destinations: z
     .array(z.string())
     .optional()
@@ -93,7 +93,7 @@ const criteriaPatchSchema = z.object({
     .array(z.string())
     .optional()
     .describe(
-      "Any preference, need or constraint the traveller states that isn't a field above — e.g. 'travelling with a dog', 'high floor', 'gluten-free', 'wheelchair access', 'celebrating 10th anniversary', 'quiet room'. Short phrases; only NEW ones from the latest message.",
+      "Any preference, need or constraint the traveller states that isn't a field above, e.g. 'travelling with a dog', 'high floor', 'gluten-free', 'wheelchair access', 'celebrating 10th anniversary', 'quiet room'. Short phrases; only NEW ones from the latest message.",
     ),
 });
 
@@ -240,7 +240,7 @@ export async function classifyTurn(
 - book: wants to book / reserve
 - explain: wants to understand or contrast hotels already shown ("why this one", "which is better", "pros and cons")
 - qa: asks a specific factual question about the hotel itself already shown (breakfast, spa, pool, gym, pets, kids, on-site dining, connecting rooms, cancellation, perks, etc.)
-- local: asks about the AREA around a hotel/city — nearby tourist spots, attractions, things to do, museums, restaurants/cafés/bars nearby, the nearest airport, or getting around
+- local: asks about the AREA around a hotel/city, nearby tourist spots, attractions, things to do, museums, restaurants/cafés/bars nearby, the nearest airport, or getting around
 - live: wants hotels in a specific city/place
 - smalltalk: greeting, thanks, or a general question about how the service works
 - ask: anything else, or not enough information yet
@@ -302,7 +302,7 @@ async function* streamFromClaude(
 
   const situation = buildSituation(ctx);
   const beach = ctx.beach
-    ? `\n\nBEACH INTELLIGENCE (current sargassum conditions from USF/NOAA satellite data — these ARE verified facts you may state; surface them only when the traveller asks about beaches/seaweed/sargassum, or when a beach is part of why they're going; otherwise ignore. Frame as current conditions, informational. If risk is moderate/high and they care about swimming, mention the clearer nearby zones. Never quote it as a guarantee.):\n${formatBeachFacts(ctx.beach)}`
+    ? `\n\nBEACH INTELLIGENCE (current sargassum conditions from USF/NOAA satellite data, these ARE verified facts you may state; surface them only when the traveller asks about beaches/seaweed/sargassum, or when a beach is part of why they're going; otherwise ignore. Frame as current conditions, informational. If risk is moderate/high and they care about swimming, mention the clearer nearby zones. Never quote it as a guarantee.):\n${formatBeachFacts(ctx.beach)}`
     : "";
   const u = ctx.user;
   const persona = u
@@ -311,8 +311,8 @@ async function* streamFromClaude(
     : "";
   const tod = ctx.timeOfDay;
   const greetLine = ctx.greet
-    ? `THIS IS YOUR FIRST REPLY of the conversation${tod ? ` and it is ${tod} where the traveller is` : ""}. Open with a REFINED, ELEGANT welcome in the manner of a five-star concierge receiving a valued guest — gracious, polished and genuinely warm${tod ? `, suited to the ${tod} (e.g. an elevated "Good ${tod}, and welcome" feel — vary the exact wording)` : ""}${u ? `, welcoming ${u.firstName} by name once` : ""}. Sound like a luxury travel house, never casual or breezy (avoid "hey", "lovely", "hope your day's treating you"), yet effortless and sincere — never flowery, gushing or a canned line. One graceful sentence, then get to helping.\n\n`
-    : `This is a CONTINUING conversation, not the first message — do NOT greet, say hello, or wish them a good morning/afternoon/evening again. Just continue naturally.\n\n`;
+    ? `THIS IS YOUR FIRST REPLY of the conversation${tod ? ` and it is ${tod} where the traveller is` : ""}. Open with a REFINED, ELEGANT welcome in the manner of a five-star concierge receiving a valued guest, gracious, polished and genuinely warm${tod ? `, suited to the ${tod} (e.g. an elevated "Good ${tod}, and welcome" feel, vary the exact wording)` : ""}${u ? `, welcoming ${u.firstName} by name once` : ""}. Sound like a luxury travel house, never casual or breezy (avoid "hey", "lovely", "hope your day's treating you"), yet effortless and sincere, never flowery, gushing or a canned line. One graceful sentence, then get to helping.\n\n`
+    : `This is a CONTINUING conversation, not the first message, do NOT greet, say hello, or wish them a good morning/afternoon/evening again. Just continue naturally.\n\n`;
   const result = streamText({
     model: await chatModel(false),
     system: ADVISOR_SYSTEM_PROMPT,
@@ -330,7 +330,7 @@ function buildSituation(ctx: ReplyContext): string {
   // ---- Specific hotel property lookup (exact hotels named) ----------------
   if (ctx.namedLookup) {
     const missNote = ctx.notFoundNames?.length
-      ? ` You could NOT find: ${ctx.notFoundNames.join(", ")} — say so plainly (offer to try the exact name + city); never invent it.`
+      ? ` You could NOT find: ${ctx.notFoundNames.join(", ")}, say so plainly (offer to try the exact name + city); never invent it.`
       : "";
     const hotels = ctx.liveHotels ?? [];
     if (!hotels.length)
@@ -346,12 +346,12 @@ function buildSituation(ctx: ReplyContext): string {
         ]
           .filter(Boolean)
           .join(" · ");
-        return `- ${h.name}${bits ? ` — ${bits}` : ""}`;
+        return `- ${h.name}${bits ? `: ${bits}` : ""}`;
       })
       .join("\n");
     if (hotels.length === 1)
-      return `SITUATION: The traveller asked about ONE specific hotel and you found it — its card is on screen. Real facts (use ONLY these; NEVER quote a nightly price — say "live rates for your dates"):\n${facts}\n${missNote}\nDescribe this exact property warmly in 2–3 sentences (location, standout amenities/dining, who it suits). Invite them to add dates for live rates or name another to compare it with.`;
-    return `SITUATION: The traveller named specific hotels and you found them — their cards are on screen. Real facts (use ONLY these; NEVER quote a nightly price — say "live rates for your dates"):\n${facts}\n${missNote}\nCompare these EXACT properties: in 2–4 tight sentences give the real differences (location, amenities, dining, who each suits) and a clear pick. Do NOT swap in a different hotel.`;
+      return `SITUATION: The traveller asked about ONE specific hotel and you found it, its card is on screen. Real facts (use ONLY these; NEVER quote a nightly price, say "live rates for your dates"):\n${facts}\n${missNote}\nDescribe this exact property warmly in 2–3 sentences (location, standout amenities/dining, who it suits). Invite them to add dates for live rates or name another to compare it with.`;
+    return `SITUATION: The traveller named specific hotels and you found them, their cards are on screen. Real facts (use ONLY these; NEVER quote a nightly price, say "live rates for your dates"):\n${facts}\n${missNote}\nCompare these EXACT properties: in 2–4 tight sentences give the real differences (location, amenities, dining, who each suits) and a clear pick. Do NOT swap in a different hotel.`;
   }
 
   // ---- Brand-locked comparison (a hotel brand/chain was named) -----------
@@ -360,7 +360,7 @@ function buildSituation(ctx: ReplyContext): string {
   if (ctx.brands && ctx.brands.length) {
     const brandList = ctx.brands.join(", ");
     if (ctx.action === "ask" && ctx.askBrandCity)
-      return `SITUATION: The traveller wants ${brandList} but hasn't said where. In ONE warm sentence, ask which city or destination(s) they're considering for ${brandList} — you may note ${brandList} has properties in many places. Do NOT list hotels yet, and do NOT switch brands.`;
+      return `SITUATION: The traveller wants ${brandList} but hasn't said where. In ONE warm sentence, ask which city or destination(s) they're considering for ${brandList}, you may note ${brandList} has properties in many places. Do NOT list hotels yet, and do NOT switch brands.`;
     if (ctx.action === "ask" && ctx.missing.includes("dates")) {
       const where = ctx.cities?.length ? ` in ${ctx.cities.join(", ")}` : "";
       return `SITUATION: The traveller wants to compare ${brandList}${where}. You need dates before pulling live rates. In ONE warm sentence, acknowledge the ${brandList} focus and ask which dates. Do NOT list hotels yet.`;
@@ -369,11 +369,11 @@ function buildSituation(ctx: ReplyContext): string {
       const blocks = ctx.cityGroups
         .map((g) => {
           if (!g.hotels.length)
-            return `${g.city}: no ${brandList} property came back for these dates — say so plainly; do NOT substitute a different brand.`;
+            return `${g.city}: no ${brandList} property came back for these dates, say so plainly; do NOT substitute a different brand.`;
           const lines = g.hotels
             .map((h) => {
               const bits = [h.distanceLabel, h.matchReason].filter(Boolean).join(" · ");
-              return `   - ${h.name}${bits ? ` — ${bits}` : ""}`;
+              return `   - ${h.name}${bits ? `: ${bits}` : ""}`;
             })
             .join("\n");
           return `${g.city}:\n${lines}`;
@@ -381,13 +381,13 @@ function buildSituation(ctx: ReplyContext): string {
         .join("\n");
       const pri = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
       const multi = (ctx.cities?.length ?? 0) > 1;
-      return `SITUATION: You compared ONLY ${brandList} (the brand the traveller asked for) — the cards on screen are that brand${multi ? ", grouped by city" : ""}.${
-        pri ? ` They care about: ${pri} — rank within the brand by that.` : ""
-      } Real facts (use ONLY these; a distance is only real when shown; NEVER quote a nightly price — say "live rates for your dates"):\n${blocks}\n\nReply as a brand-focused advisor: ${
+      return `SITUATION: You compared ONLY ${brandList} (the brand the traveller asked for), the cards on screen are that brand${multi ? ", grouped by city" : ""}.${
+        pri ? ` They care about: ${pri}, rank within the brand by that.` : ""
+      } Real facts (use ONLY these; a distance is only real when shown; NEVER quote a nightly price, say "live rates for your dates"):\n${blocks}\n\nReply as a brand-focused advisor: ${
         multi
           ? "one short intro naming the brand + cities, then a line per city naming the pick there and WHY it fits their priorities"
           : "name the strongest matching property and WHY, then the key trade-off"
-      }. Stay on ${brandList} — do NOT recommend a different brand as better. If a city had no ${brandList}, say so plainly and offer to widen to nearby options only if they'd like. End by inviting them to refine.`;
+      }. Stay on ${brandList}, do NOT recommend a different brand as better. If a city had no ${brandList}, say so plainly and offer to widen to nearby options only if they'd like. End by inviting them to refine.`;
     }
   }
 
@@ -399,26 +399,26 @@ function buildSituation(ctx: ReplyContext): string {
     if (ctx.action === "ask" && ctx.missing.includes("dates"))
       return `SITUATION: The traveller wants a multi-city trip across ${list}. You need dates before pulling live rates. In ONE warm sentence, acknowledge all ${ctx.cities.length} cities and ask which dates they're travelling (the same dates apply to each city unless they say otherwise). Do NOT list hotels yet.`;
     if (ctx.action === "ask" && ctx.discovery)
-      return `SITUATION: The traveller is considering ${list} and you'll find the best hotels in each. Before you do, ask ONE concise question about what matters most for their stay — so the picks fit them across every city. Offer a few concrete examples they can pick from: near a beach/waterfront, scenic views, a spa, a pool, luxury, family-friendly, romantic, nightlife, great restaurants, major attractions, walkability, or a budget. Warm and natural, exactly ONE question, no lists of hotels yet.`;
+      return `SITUATION: The traveller is considering ${list} and you'll find the best hotels in each. Before you do, ask ONE concise question about what matters most for their stay, so the picks fit them across every city. Offer a few concrete examples they can pick from: near a beach/waterfront, scenic views, a spa, a pool, luxury, family-friendly, romantic, nightlife, great restaurants, major attractions, walkability, or a budget. Warm and natural, exactly ONE question, no lists of hotels yet.`;
     if (ctx.cityGroups && ctx.cityGroups.length) {
       const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
       const blocks = ctx.cityGroups
         .map((g) => {
           if (!g.hotels.length)
-            return `${g.city}: no WhataHotel! properties came back for these dates — say so briefly and offer to adjust.`;
+            return `${g.city}: no WhataHotel! properties came back for these dates, say so briefly and offer to adjust.`;
           const lines = g.hotels
             .slice(0, 3)
             .map((h, i) => {
               const bits = [h.distanceLabel, h.matchReason].filter(Boolean).join(" · ");
-              return `   ${i + 1}. ${h.name}${bits ? ` — ${bits}` : ""}`;
+              return `   ${i + 1}. ${h.name}${bits ? `: ${bits}` : ""}`;
             })
             .join("\n");
           return `${g.city}:\n${lines}`;
         })
         .join("\n");
       return `SITUATION: You searched WhataHotel!'s live availability for a multi-city trip and the app is showing the top hotels grouped by city (cards on screen).${
-        intent ? ` The traveller cares about: ${intent} — the ranking in each city reflects it.` : ""
-      } Real facts you may use (use ONLY these; a distance is only real when shown; NEVER quote a nightly price — say "live rates for your dates"):\n${blocks}\n\nReply as a travel advisor comparing destinations: one short intro line naming the cities, then a brief line per city naming your top pick there and WHY it fits (one crisp reason). Keep it tight — do not repeat every hotel; the cards show the full list. End by inviting them to refine (a preference, or compare specific hotels).`;
+        intent ? ` The traveller cares about: ${intent}, the ranking in each city reflects it.` : ""
+      } Real facts you may use (use ONLY these; a distance is only real when shown; NEVER quote a nightly price, say "live rates for your dates"):\n${blocks}\n\nReply as a travel advisor comparing destinations: one short intro line naming the cities, then a brief line per city naming your top pick there and WHY it fits (one crisp reason). Keep it tight, do not repeat every hotel; the cards show the full list. End by inviting them to refine (a preference, or compare specific hotels).`;
     }
   }
 
@@ -427,56 +427,56 @@ function buildSituation(ctx: ReplyContext): string {
       const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
       const shortfall =
         ctx.requestedCount && ctx.recommendations.length < ctx.requestedCount
-          ? ` NOTE: they asked for ${ctx.requestedCount} but only ${ctx.recommendations.length} match — open by saying plainly that only ${ctx.recommendations.length} fit their criteria (never pad with weaker options).`
+          ? ` NOTE: they asked for ${ctx.requestedCount} but only ${ctx.recommendations.length} match, open by saying plainly that only ${ctx.recommendations.length} fit their criteria (never pad with weaker options).`
           : "";
       return `SITUATION: You searched the best hotels in this city and RANKED them best-fit first for the traveller's needs.${
-        intent ? ` Their intent: ${intent} — the ranking reflects it (closest/most-relevant first).` : ""
-      } The app is showing ${ctx.recommendations.length} ranked hotel cards (out of ${ctx.totalFound} found).${shortfall} Real facts for each (use ONLY these — never invent ratings or perks, a distance is only real when shown here, and NEVER state a nightly price: rates are only confirmed live for specific dates, so say "live rates for your dates" instead of any number):\n${ctx.recommendations
+        intent ? ` Their intent: ${intent}, the ranking reflects it (closest/most-relevant first).` : ""
+      } The app is showing ${ctx.recommendations.length} ranked hotel cards (out of ${ctx.totalFound} found).${shortfall} Real facts for each (use ONLY these, never invent ratings or perks, a distance is only real when shown here, and NEVER state a nightly price: rates are only confirmed live for specific dates, so say "live rates for your dates" instead of any number):\n${ctx.recommendations
         .map(
           (r) =>
-            `#${r.rank} ${r.name}${r.brand ? ` (${r.brand})` : ""} — fit ${r.fitScore.toFixed(1)}/10${r.rating > 0 ? `, guest ${r.rating}/10` : ""}${r.distanceLabel ? ` · ${r.distanceLabel}` : ""}${r.perks?.[0] ? ` · perk: ${r.perks[0].label}` : ""}`,
+            `#${r.rank} ${r.name}${r.brand ? ` (${r.brand})` : ""}, fit ${r.fitScore.toFixed(1)}/10${r.rating > 0 ? `, guest ${r.rating}/10` : ""}${r.distanceLabel ? ` · ${r.distanceLabel}` : ""}${r.perks?.[0] ? ` · perk: ${r.perks[0].label}` : ""}`,
         )
         .join("\n")}\nIn 1–2 sentences, introduce the ranked shortlist and say why #1 leads with one concrete detail${
         intent ? " that fits their intent (cite its real distance if shown)" : ""
-      } (never a price). The cards show the rest — don't list them. Then add one short line telling them they can select up to 3 hotels from the results and compare them side by side to choose. No preamble.`;
+      } (never a price). The cards show the rest, don't list them. Then add one short line telling them they can select up to 3 hotels from the results and compare them side by side to choose. No preamble.`;
     }
     case "explain": {
       const focus = ctx.focus?.length ? ctx.focus : ctx.recommendations.slice(0, 2);
-      return `SITUATION: The traveller wants to understand specific hotels already on screen. Speak specifically and honestly about them using ONLY these facts (NEVER state a nightly price — rates are only confirmed live for specific dates, so say "live rates for your dates"): ${focus
+      return `SITUATION: The traveller wants to understand specific hotels already on screen. Speak specifically and honestly about them using ONLY these facts (NEVER state a nightly price, rates are only confirmed live for specific dates, so say "live rates for your dates"): ${focus
         .map(
           (r) =>
-            `${r.name}${r.brand ? ` (${r.brand})` : ""}${r.rating > 0 ? ` — guest ${r.rating}/10` : ""}; amenities: ${(r.amenities ?? []).slice(0, 4).join(", ") || "not listed"}; perk: ${r.perks?.[0]?.label ?? "advisor perks"}; why ranked: ${r.reason ?? "strong overall fit"}`,
+            `${r.name}${r.brand ? ` (${r.brand})` : ""}${r.rating > 0 ? `, guest ${r.rating}/10` : ""}; amenities: ${(r.amenities ?? []).slice(0, 4).join(", ") || "not listed"}; perk: ${r.perks?.[0]?.label ?? "advisor perks"}; why ranked: ${r.reason ?? "strong overall fit"}`,
         )
         .join(" | ")}. In 2–3 tight sentences, give the real trade-off and who each suits. Invent nothing; no preamble.`;
     }
     case "live": {
       const hotels = ctx.liveHotels ?? [];
       if (!hotels.length) {
-        return `SITUATION: You searched WhataHotel!'s live availability for ${ctx.liveCity}, but it returned no hotels — that destination isn't in WhataHotel!'s collection right now (some places simply aren't covered). Warmly tell the traveller you couldn't find any WhataHotel! properties in ${ctx.liveCity} at the moment — do NOT blame the dates, and do NOT invent hotel names. NEVER dead-end with just "no results": immediately offer a genuine next step and ask ONE simple follow-up — e.g. suggest a well-known nearby destination that's likely covered and offer to search it, offer to broaden to the surrounding area, or invite them to email info@lorrainetravel.com so the team can arrange ${ctx.liveCity} directly. 1–2 warm sentences, ending with that single helpful question.`;
+        return `SITUATION: You searched WhataHotel!'s live availability for ${ctx.liveCity}, but it returned no hotels, that destination isn't in WhataHotel!'s collection right now (some places simply aren't covered). Warmly tell the traveller you couldn't find any WhataHotel! properties in ${ctx.liveCity} at the moment, do NOT blame the dates, and do NOT invent hotel names. NEVER dead-end with just "no results": immediately offer a genuine next step and ask ONE simple follow-up, e.g. suggest a well-known nearby destination that's likely covered and offer to search it, offer to broaden to the surrounding area, or invite them to email info@lorrainetravel.com so the team can arrange ${ctx.liveCity} directly. 1–2 warm sentences, ending with that single helpful question.`;
       }
       const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
       const facts = hotels
         .slice(0, 4)
         .map((h, i) => {
           const bits = [h.distanceLabel, h.matchReason].filter(Boolean).join(" · ");
-          return `#${i + 1} ${h.name}${bits ? ` — ${bits}` : ""}`;
+          return `#${i + 1} ${h.name}${bits ? `: ${bits}` : ""}`;
         })
         .join("\n");
       const shortfall =
         ctx.requestedCount && hotels.length < ctx.requestedCount
-          ? ` NOTE: they asked for ${ctx.requestedCount} but only ${hotels.length} match — say plainly that only ${hotels.length} fit their criteria (never pad with weaker options).`
+          ? ` NOTE: they asked for ${ctx.requestedCount} but only ${hotels.length} match, say plainly that only ${hotels.length} fit their criteria (never pad with weaker options).`
           : "";
       const unmet = ctx.liveNote
-        ? ` IMPORTANT — a stated preference could NOT be met: ${ctx.liveNote} LEAD with this honestly (don't present these as beachfront), then offer the closest options.`
+        ? ` IMPORTANT: a stated preference could NOT be met: ${ctx.liveNote} LEAD with this honestly (don't present these as beachfront), then offer the closest options.`
         : "";
       const sample = ctx.sampleDates
-        ? ` IMPORTANT — they gave a month but no exact dates, so these rates are for a SAMPLE stay of ${ctx.sampleDates.label}. Say so plainly, and end by inviting them to share their exact dates so you can refresh the rates (instead of saying "for your dates").`
+        ? ` IMPORTANT: they gave a month but no exact dates, so these rates are for a SAMPLE stay of ${ctx.sampleDates.label}. Say so plainly, and end by inviting them to share their exact dates so you can refresh the rates (instead of saying "for your dates").`
         : "";
       return `SITUATION: ${ctx.liveCity} is outside your curated set, so you searched WhataHotel!'s live availability.${unmet}${sample} ${
         intent
           ? `The traveller's intent: ${intent}. The app is showing ${hotels.length} real hotels RANKED by how well they fit that intent (closest/most-relevant first).`
           : `The app is showing ${hotels.length} real hotels with live rates and advisor perks.`
-      }${shortfall} Real facts you may use (use ONLY these; a distance is only real when shown here — never invent one, and NEVER quote a nightly price, say "live rates for your dates"):
+      }${shortfall} Real facts you may use (use ONLY these; a distance is only real when shown here, never invent one, and NEVER quote a nightly price, say "live rates for your dates"):
 ${facts || "(no per-hotel notes)"}
 In 1–2 sentences, introduce the shortlist for ${ctx.liveCity}${
         intent ? " and say why the top pick fits their intent using its real note above" : ""
@@ -487,7 +487,7 @@ In 1–2 sentences, introduce the shortlist for ${ctx.liveCity}${
       if (!h)
         return `SITUATION: The traveller asked a specific question but no hotel is in focus yet. Answer generally if you can, otherwise ask which hotel (or their destination and dates) so you can be precise.`;
       const dist = (h.distances ?? []).map((d) => `${d.label} ${d.value}`).join(", ");
-      return `SITUATION: The traveller asked a specific question about ${h.name}: "${ctx.qaQuestion ?? ctx.lastUserMessage}". Answer it directly and honestly using ONLY these facts about ${h.name} — brand: ${h.brand ?? "independent"}; amenities: ${(h.amenities ?? []).join(", ") || "not listed"}; perks: ${(h.perks ?? []).map((p) => p.label).join(", ") || "advisor perks"}${dist ? `; distances: ${dist}` : ""}; highlights: ${(h.highlights ?? []).slice(0, 3).join("; ") || "n/a"}. If the facts don't cover the question, say you'll confirm it directly with the hotel — never invent. Never quote a nightly price (say "live rates for your dates"). Keep it to 1–3 sentences.`;
+      return `SITUATION: The traveller asked a specific question about ${h.name}: "${ctx.qaQuestion ?? ctx.lastUserMessage}". Answer it directly and honestly using ONLY these facts about ${h.name}, brand: ${h.brand ?? "independent"}; amenities: ${(h.amenities ?? []).join(", ") || "not listed"}; perks: ${(h.perks ?? []).map((p) => p.label).join(", ") || "advisor perks"}${dist ? `; distances: ${dist}` : ""}; highlights: ${(h.highlights ?? []).slice(0, 3).join("; ") || "n/a"}. If the facts don't cover the question, say you'll confirm it directly with the hotel, never invent. Never quote a nightly price (say "live rates for your dates"). Keep it to 1–3 sentences.`;
     }
     case "local": {
       const a = ctx.localArea;
@@ -498,29 +498,29 @@ In 1–2 sentences, introduce the shortlist for ${ctx.liveCity}${
       const near = a.hotelName ? `${a.hotelName} (in ${a.city})` : a.city;
       const grounded = p
         ? `Recommend from these real spots near there (pick the ones that answer the question):\nAttractions: ${p.attractions.map((x) => x.name).join(", ")}\nDining: ${p.dining.map((x) => x.name).join(", ")}\nCafés: ${p.cafes.map((x) => x.name).join(", ")}\nMuseums: ${p.museums.map((x) => x.name).join(", ")}\nParks: ${p.parks.map((x) => x.name).join(", ")}\nBars: ${p.bars.map((x) => x.name).join(", ")}\nGetting around: ${p.transport}\n`
-        : `Use your own knowledge of ${a.city} — name well-known nearby options.\n`;
-      return `SITUATION: The traveller asked about the area around ${near}: "${q}".\n${grounded}Answer concisely — 2–4 short sentences or a tight bullet list — naming a few of the best options that fit exactly what they asked (nearby attractions, restaurants, cafés, or the nearest airport / how to get around). These are area recommendations near the hotel, NOT hotel facilities. If they asked about the airport, name the nearest one and rough travel time from general knowledge. Suggest confirming current hours/timings. No preamble.`;
+        : `Use your own knowledge of ${a.city}, name well-known nearby options.\n`;
+      return `SITUATION: The traveller asked about the area around ${near}: "${q}".\n${grounded}Answer concisely, 2–4 short sentences or a tight bullet list, naming a few of the best options that fit exactly what they asked (nearby attractions, restaurants, cafés, or the nearest airport / how to get around). These are area recommendations near the hotel, NOT hotel facilities. If they asked about the airport, name the nearest one and rough travel time from general knowledge. Suggest confirming current hours/timings. No preamble.`;
     }
     case "compare": {
       const cmp = ctx.comparison;
       if (!cmp)
         return `SITUATION: You're comparing hotels side by side. Give a short, opinionated summary and a recommendation.`;
       const facts = cmp.rows
-        .map((r) => `${r.label} — ${cmp.hotels.map((h, i) => `${h.name}: ${r.values[i]}`).join(" | ")}`)
+        .map((r) => `${r.label}: ${cmp.hotels.map((h, i) => `${h.name}: ${r.values[i]}`).join(" | ")}`)
         .join("\n");
       const pri = ctx.comparePriority;
-      return `SITUATION: You compared these hotels using LIVE data from the WhataHotel! API (dated rates, room categories, advisor-exclusive perks, amenities, dining). The table is on screen. Real facts:\n${facts}\n${pri ? `The traveller cares most about ${pri} — weight your pick toward that.\n` : ""}\nReply in AT MOST 3 tight sentences: name the best pick FIRST and why (rate + perks${pri ? ` for ${pri}` : ""}), then the single key trade-off. Use ONLY these facts; never invent a price; if a rate says "Add dates", ask for their dates. No preamble, no restating the question.`;
+      return `SITUATION: You compared these hotels using LIVE data from the WhataHotel! API (dated rates, room categories, advisor-exclusive perks, amenities, dining). The table is on screen. Real facts:\n${facts}\n${pri ? `The traveller cares most about ${pri}, weight your pick toward that.\n` : ""}\nReply in AT MOST 3 tight sentences: name the best pick FIRST and why (rate + perks${pri ? ` for ${pri}` : ""}), then the single key trade-off. Use ONLY these facts; never invent a price; if a rate says "Add dates", ask for their dates. No preamble, no restating the question.`;
     }
     case "book": {
       const name = ctx.booking?.hotelName ?? ctx.focus?.[0]?.name ?? "that hotel";
-      return `SITUATION: The traveller wants to book ${name}. Booking happens on the hotel's own page — do NOT ask for their name, email, phone or any personal details. In ONE warm sentence, tell them to open ${name} (its "Book now" / "View details" button on the card, or ask you to open it), choose their room in the Rooms section, and hit Reserve — that opens the secure WhataHotel! booking form with their dates and advisor perks already filled in.`;
+      return `SITUATION: The traveller wants to book ${name}. Booking happens on the hotel's own page, do NOT ask for their name, email, phone or any personal details. In ONE warm sentence, tell them to open ${name} (its "Book now" / "View details" button on the card, or ask you to open it), choose their room in the Rooms section, and hit Reserve, that opens the secure WhataHotel! booking form with their dates and advisor perks already filled in.`;
     }
     case "ask": {
       if (ctx.askCityCountry)
-        return `SITUATION: The traveller named a whole country (${ctx.askCityCountry}), but hotel searches are city-based, so you need the city to get it right. In ONE warm, natural sentence, ask which city in ${ctx.askCityCountry} they'd like to stay in — you may name a couple of well-known cities there as examples. Do NOT search or list hotels yet.`;
+        return `SITUATION: The traveller named a whole country (${ctx.askCityCountry}), but hotel searches are city-based, so you need the city to get it right. In ONE warm, natural sentence, ask which city in ${ctx.askCityCountry} they'd like to stay in, you may name a couple of well-known cities there as examples. Do NOT search or list hotels yet.`;
       if (ctx.discovery) {
         const place = ctx.criteria.destinationLabel?.split(",")[0] || "there";
-        return `SITUATION: The traveller wants ${place} but hasn't told you what the trip is FOR — and that shapes everything you'd recommend. Like a warm luxury consultant, ask ONE natural, open question to understand them before you show anything: what's the occasion or kind of trip (a romantic escape, family time, a work stay, a big celebration, a relaxed getaway?). Make it feel like genuine curiosity, not a form. Acknowledge ${place} briefly first if it feels natural. Ask exactly ONE question. Do NOT list or search hotels yet, and do NOT ask for dates in this message.`;
+        return `SITUATION: The traveller wants ${place} but hasn't told you what the trip is FOR: and that shapes everything you'd recommend. Like a warm luxury consultant, ask ONE natural, open question to understand them before you show anything: what's the occasion or kind of trip (a romantic escape, family time, a work stay, a big celebration, a relaxed getaway?). Make it feel like genuine curiosity, not a form. Acknowledge ${place} briefly first if it feels natural. Ask exactly ONE question. Do NOT list or search hotels yet, and do NOT ask for dates in this message.`;
       }
       if (ctx.missing.includes("destination") && ctx.destinationSuggestions?.length)
         return `SITUATION: They're undecided on a destination but you know the vibe. Suggest these and ask which appeals: ${ctx.destinationSuggestions
@@ -528,11 +528,11 @@ In 1–2 sentences, introduce the shortlist for ${ctx.liveCity}${
           .join(", ")}.`;
       const next = ctx.missing[0];
       const rest = ctx.missing.slice(1);
-      return `SITUATION: You still need a few details${next ? `; the most important right now is: ${next}${rest.length ? ` (later, unprompted: ${rest.join(", ")})` : ""}` : ""}. Ask for just ONE thing at a time (at most two if they're closely related, like check-in/check-out) — phrased as a warm, natural follow-up that builds on what they just told you, NOT a checklist. Ask only what genuinely improves the match; once you have enough to recommend well, stop asking and move on.`;
+      return `SITUATION: You still need a few details${next ? `; the most important right now is: ${next}${rest.length ? ` (later, unprompted: ${rest.join(", ")})` : ""}` : ""}. Ask for just ONE thing at a time (at most two if they're closely related, like check-in/check-out), phrased as a warm, natural follow-up that builds on what they just told you, NOT a checklist. Ask only what genuinely improves the match; once you have enough to recommend well, stop asking and move on.`;
     }
     case "chat":
       if (ctx.farewell === "chosen")
-        return `SITUATION: The traveller is wrapping up and has already been looking at a specific hotel. Give ONE warm, brief closing — it sounds like they've found the right hotel; gently note they can complete the booking whenever they're ready right from the hotel's page, and wish them a wonderful stay. Ask NO further questions. Do not pressure them or restart the conversation.`;
+        return `SITUATION: The traveller is wrapping up and has already been looking at a specific hotel. Give ONE warm, brief closing, it sounds like they've found the right hotel; gently note they can complete the booking whenever they're ready right from the hotel's page, and wish them a wonderful stay. Ask NO further questions. Do not pressure them or restart the conversation.`;
       if (ctx.farewell === "open")
         return `SITUATION: The traveller is ending the conversation (a thank-you or sign-off). Reply with ONE warm, gracious, concise closing that leaves them feeling appreciated and welcome to return anytime to compare hotels or plan another trip. Vary the wording; don't be overly effusive. Ask NO questions, suggest nothing new, and never pressure them to book.`;
       return `SITUATION: Respond warmly and helpfully to the traveller's message: "${ctx.lastUserMessage}". If it's a general question about how WhataHotel! works (advisor rates, complimentary perks, in-app booking, comparing hotels), answer it briefly and accurately. Then, in one line, invite them to share their destination, dates and the vibe they're after so you can find the perfect stay.`;

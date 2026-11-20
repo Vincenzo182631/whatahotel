@@ -16,7 +16,7 @@ export const SUGGESTION_CHIPS: { emoji: string; label: string; prompt: string }[
 
 export const EXAMPLE_PROMPTS = [
   "Compare the best luxury hotels in Paris for my dates.",
-  "Bellagio vs Aria vs Wynn in Las Vegas — which should I pick?",
+  "Bellagio vs Aria vs Wynn in Las Vegas: which should I pick?",
   "Compare the top hotels in Bali on perks and location.",
   "Compare the finest spa hotels in Tokyo side by side.",
   "Compare three Maldives resorts and tell me the trade-offs.",

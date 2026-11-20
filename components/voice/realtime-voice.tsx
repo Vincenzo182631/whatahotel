@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Mic, Loader2, PhoneOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { noEmDash } from "@/lib/text/no-em-dash";
 
 type Phase = "connecting" | "live" | "error";
 
@@ -70,7 +71,7 @@ export function RealtimeVoice({
           }));
           result = {
             hotels,
-            note: args.checkIn && args.checkOut ? undefined : "No dates provided — ask the guest for check-in and check-out before quoting rates.",
+            note: args.checkIn && args.checkOut ? undefined : "No dates provided. Ask the guest for check-in and check-out before quoting rates.",
           };
         } catch {
           result = { hotels: [], note: "Live search failed; try again." };
@@ -202,7 +203,7 @@ export function RealtimeVoice({
 
       <p className="text-lg font-medium">
         {phase === "connecting" && "Connecting…"}
-        {phase === "live" && (speaking ? "Advisor is speaking…" : "Listening — just talk")}
+        {phase === "live" && (speaking ? "Advisor is speaking…" : "Listening. Just talk")}
         {phase === "error" && "Couldn't connect"}
       </p>
       {error && <p className="mt-2 max-w-sm text-center text-sm text-white/60">{error}</p>}
@@ -211,7 +212,7 @@ export function RealtimeVoice({
       {phase === "live" && (
         <div className="mt-6 min-h-[3.5rem] w-full max-w-md space-y-2 text-center">
           {lastUser && <p className="text-sm text-white/55">“{lastUser}”</p>}
-          {lastAdvisor && <p className="text-[15px] leading-relaxed text-white/90">{lastAdvisor}</p>}
+          {lastAdvisor && <p className="text-[15px] leading-relaxed text-white/90">{noEmDash(lastAdvisor)}</p>}
         </div>
       )}
 
