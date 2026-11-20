@@ -8,7 +8,7 @@ const STEPS = [
   {
     icon: MessagesSquare,
     title: "Describe your trip",
-    body: "Tell your advisor how you want to feel — the destination, the occasion, the budget. In plain words, no forms.",
+    body: "Tell your advisor how you want to feel: the destination, the occasion, the budget. In plain words, no forms.",
   },
   {
     icon: Sparkles,
@@ -18,7 +18,7 @@ const STEPS = [
   {
     icon: BadgeCheck,
     title: "Book with perks",
-    body: "Reserve through your advisor and enjoy exclusive benefits — upgrades, credits and breakfast included.",
+    body: "Reserve through your advisor and enjoy exclusive benefits: upgrades, credits and breakfast included.",
   },
 ];
 

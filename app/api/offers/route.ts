@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   const me = await requireAdmin();
   if (!me) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
   if (await rateLimitExceeded(req, "offers", 30, 60)) {
-    return NextResponse.json({ error: "Too many — one moment." }, { status: 429 });
+    return NextResponse.json({ error: "Too many requests. One moment, please." }, { status: 429 });
   }
   const body = await req.json().catch(() => ({}));
   const hotelIds = Array.isArray(body.hotelIds)

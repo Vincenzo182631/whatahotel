@@ -146,13 +146,13 @@ export function AdvancedSearchForm() {
       });
       const d = await res.json().catch(() => null);
       if (!res.ok) {
-        setError(d?.error || "Search failed — try again.");
+        setError(d?.error || "Search failed. Try again.");
         return;
       }
       setGroups(d.groups);
       setSummary(d.summary);
     } catch {
-      setError("Search failed — try again.");
+      setError("Search failed. Try again.");
     } finally {
       setLoading(false);
     }
@@ -161,9 +161,9 @@ export function AdvancedSearchForm() {
   return (
     <div className="mx-auto max-w-[1100px] px-5 py-8 sm:px-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Search & compare — up to 3 cities</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Search & compare: up to 3 cities</h1>
         <p className="mt-1 text-sm text-[#717171]">
-          Structured search with the same intelligence as the advisor: brands, locations, amenities and preferences — best matches per city.
+          Structured search with the same intelligence as the advisor: brands, locations, amenities and preferences, with the best matches per city.
         </p>
       </div>
 
@@ -186,7 +186,7 @@ export function AdvancedSearchForm() {
                 <MapPin className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#9a9a9a]" />
                 <input
                   className={cn(field, "pl-9")}
-                  placeholder={`City ${i + 1} — e.g. ${["Miami", "Orlando", "New York"][i] ?? "another city"}`}
+                  placeholder={`City ${i + 1}, e.g. ${["Miami", "Orlando", "New York"][i] ?? "another city"}`}
                   value={c.name}
                   onChange={(e) => setCity(i, { name: e.target.value })}
                 />
@@ -271,7 +271,7 @@ export function AdvancedSearchForm() {
               <label className="flex flex-col gap-1.5">
                 <span className={label}>Traveller</span>
                 <select className={field} value={travelerType} onChange={(e) => setTravelerType(e.target.value)}>
-                  <option value="">—</option>
+                  <option value="">–</option>
                   {TRAVELERS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </label>

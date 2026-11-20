@@ -63,7 +63,7 @@ export function DashboardChrome({
         {/* Sidebar */}
         <aside className="shrink-0 border-b border-[#EBEBEB] bg-white lg:min-h-dvh lg:w-64 lg:border-b-0 lg:border-r">
           <div className="flex items-center justify-between px-5 py-4">
-            <Link href="/" aria-label="What a Hotel — home">
+            <Link href="/" aria-label="WhataHotel! home">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="What a Hotel" className="h-7 w-auto" />
             </Link>

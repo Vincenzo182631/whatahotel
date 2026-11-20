@@ -45,7 +45,7 @@ export default async function DashboardOverview() {
         <StatCard label="Past trips" value={past.length} hint="Travel history" />
         <StatCard
           label="Renewal"
-          value={user.subscription.renewsAt ? new Date(user.subscription.renewsAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "—"}
+          value={user.subscription.renewsAt ? new Date(user.subscription.renewsAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "–"}
           hint={user.membership === "premium" ? "Next billing" : "No active plan"}
         />
       </div>

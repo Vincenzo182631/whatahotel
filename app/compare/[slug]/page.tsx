@@ -230,7 +230,7 @@ export default async function HotelVsPage({ params }: Params) {
                 {s.hotel.brand && <p className="text-[10px] font-medium uppercase tracking-wider text-[#FF385C]">{s.hotel.brand}</p>}
                 <p className="font-semibold leading-tight">{s.hotel.name}</p>
                 <p className="mt-1 line-clamp-2 text-sm text-[#717171]">
-                  {(s.info?.description || s.hotel.shortPitch || "").replace(/\s+—\s+/g, ", ")}
+                  {(s.info?.description || s.hotel.shortPitch || "").replace(/\s+\u2014\s+/g, ", ")}
                 </p>
               </div>
             </Link>

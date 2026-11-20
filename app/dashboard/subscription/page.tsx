@@ -30,7 +30,7 @@ export default function SubscriptionPage() {
             <p className="mt-1 text-lg font-semibold">{plan.name}</p>
             <p className="text-sm text-[#717171]">
               {current === "premium"
-                ? `Renews ${user.subscription.renewsAt ? new Date(user.subscription.renewsAt).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }) : "—"}`
+                ? `Renews ${user.subscription.renewsAt ? new Date(user.subscription.renewsAt).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }) : "–"}`
                 : "You're on the free plan."}
             </p>
           </div>

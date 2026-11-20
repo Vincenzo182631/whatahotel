@@ -104,7 +104,7 @@ export function RoomGallery({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={list[i]}
-              alt={`${alt} — photo ${i + 1}`}
+              alt={`${alt}, photo ${i + 1}`}
               onClick={(e) => e.stopPropagation()}
               onError={(e) => {
                 const el = e.currentTarget;

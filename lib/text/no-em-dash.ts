@@ -1,4 +1,4 @@
-const EM = "—";
+const EM = "\u2014";
 const EN = "–";
 
 /**
@@ -14,10 +14,10 @@ const EN = "–";
 export function noEmDash(text: string): string {
   if (!text || !text.includes(EM)) return text;
   return text
-    .replace(/^([ \t]*)—[ \t]*$/gm, `$1${EN}`)
-    .replace(/\|[ \t]*—[ \t]*(?=\|)/g, `| ${EN} `)
-    .replace(/^([ \t]*)—[ \t]*(?=\S)/gm, "$1- ")
-    .replace(/[ \t]*—[ \t]*([.,;:!?)])/g, "$1")
-    .replace(/([,;:(])[ \t]*—[ \t]*/g, "$1 ")
-    .replace(/[ \t]*—[ \t]*/g, ", ");
+    .replace(/^([ \t]*)\u2014[ \t]*$/gm, `$1${EN}`)
+    .replace(/\|[ \t]*\u2014[ \t]*(?=\|)/g, `| ${EN} `)
+    .replace(/^([ \t]*)\u2014[ \t]*(?=\S)/gm, "$1- ")
+    .replace(/[ \t]*\u2014[ \t]*([.,;:!?)])/g, "$1")
+    .replace(/([,;:(])[ \t]*\u2014[ \t]*/g, "$1 ")
+    .replace(/[ \t]*\u2014[ \t]*/g, ", ");
 }

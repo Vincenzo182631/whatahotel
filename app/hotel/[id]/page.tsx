@@ -186,7 +186,7 @@ export default async function HotelPage({ params, searchParams }: Params) {
             )}
 
             <PerksList
-              perks={perks.map((p) => (p.detail ? `${p.label} — ${p.detail}` : p.label))}
+              perks={perks.map((p) => (p.detail ? `${p.label}: ${p.detail}` : p.label))}
               subtitle="Complimentary with every WhataHotel! booking."
               icon={Gift}
               headingClassName="font-display text-2xl font-medium text-[#1a1a1a]"

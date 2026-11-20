@@ -120,7 +120,7 @@ export default function AssistantPage() {
           <Crown className="mx-auto size-8 text-[#FF385C]" />
           <p className="mt-3 text-lg font-semibold">A Premium benefit</p>
           <p className="mx-auto mt-1 max-w-md text-sm text-[#717171]">
-            The AI Travel Advisor builds complete day-by-day itineraries from your hotel — attractions,
+            The AI Travel Advisor builds complete day-by-day itineraries from your hotel: attractions,
             dining, cafés, activities and optimised travel times. Upgrade to unlock it.
           </p>
           <Link

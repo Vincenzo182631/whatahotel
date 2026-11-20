@@ -15,7 +15,7 @@ function getSecret(): string {
   if (s) return s;
   if (process.env.NODE_ENV === "production") {
     throw new Error(
-      "AUTH_SECRET is not set — refusing to sign/verify sessions with the insecure dev fallback in production. Set AUTH_SECRET (e.g. `openssl rand -hex 32`) in every deployed environment.",
+      "AUTH_SECRET is not set. Refusing to sign/verify sessions with the insecure dev fallback in production. Set AUTH_SECRET (e.g. `openssl rand -hex 32`) in every deployed environment.",
     );
   }
   return "dev-insecure-secret-change-me-in-production";

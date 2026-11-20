@@ -14,7 +14,7 @@ const STAGES: { key: LeadStage; label: string; dot: string; chip: string }[] = [
 const STAGE_MAP = Object.fromEntries(STAGES.map((s) => [s.key, s]));
 
 const fmt = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "—";
+  iso ? new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "–";
 
 const stageOf = (l: Lead): LeadStage => l.stage ?? "new";
 
@@ -89,7 +89,7 @@ export function LeadsCrm({ initialLeads }: { initialLeads: Lead[] }) {
         <div className="mt-4 space-y-2.5">
           {visible.map((l) => {
             const s = STAGE_MAP[stageOf(l)];
-            const name = [l.firstName, l.lastName].filter(Boolean).join(" ") || "—";
+            const name = [l.firstName, l.lastName].filter(Boolean).join(" ") || "–";
             const isOpen = openNotes === l.id;
             return (
               <div key={l.id} className="rounded-2xl border border-[#EBEBEB] bg-white">
@@ -176,7 +176,7 @@ export function LeadsCrm({ initialLeads }: { initialLeads: Lead[] }) {
                       onBlur={(e) => {
                         if (e.target.value !== (l.notes ?? "")) patch(l.id, { notes: e.target.value });
                       }}
-                      placeholder="Add a private note — e.g. called, prefers beachfront, budget ~$600/night…"
+                      placeholder="Add a private note, e.g. called, prefers beachfront, budget ~$600/night…"
                       className="min-h-20 w-full resize-y rounded-xl border border-[#DDDDDD] px-3 py-2 text-sm outline-none focus:border-[#FF385C] focus:ring-2 focus:ring-[#FF385C]/20"
                     />
                     <p className="mt-1 text-[11px] text-[#9a9a9a]">Saved automatically when you click away.</p>

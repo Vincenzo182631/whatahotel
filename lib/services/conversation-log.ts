@@ -100,7 +100,7 @@ export async function requestAgent(id: string): Promise<Conversation> {
   conv.messages.push({
     role: "assistant",
     content:
-      "You've asked to speak with a human advisor — I've flagged this conversation. A member of our team will reply right here shortly. You can keep typing in the meantime.",
+      "You've asked to speak with a human advisor. I've flagged this conversation. A member of our team will reply right here shortly. You can keep typing in the meantime.",
     ts: Date.now(),
   });
   return save(conv);

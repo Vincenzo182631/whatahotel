@@ -47,7 +47,7 @@ export async function rateLimitExceeded(
 
 /** Plain-text 429 for streaming / text endpoints (chat advisors). */
 export function tooManyText(windowSec: number): Response {
-  return new Response("You're going a little fast — give me a moment and try again.", {
+  return new Response("You're going a little fast. Give me a moment and try again.", {
     status: 429,
     headers: { "Content-Type": "text/plain; charset=utf-8", "Retry-After": String(windowSec) },
   });

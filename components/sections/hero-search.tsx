@@ -44,7 +44,7 @@ export function HeroSearch() {
             submit();
           }
         }}
-        placeholder="Tell me a city and what you want — e.g. the best spa hotels in Tokyo for a honeymoon under $1,300 a night"
+        placeholder="Tell me a city and what you want, e.g. the best spa hotels in Tokyo for a honeymoon under $1,300 a night"
         className="no-scrollbar w-full resize-none bg-transparent px-3 pt-3 pb-2 text-base leading-relaxed text-foreground placeholder:text-foreground/55 focus:outline-none"
       />
       <div className="flex items-center justify-between px-1.5 pb-1">

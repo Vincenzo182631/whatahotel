@@ -35,7 +35,7 @@ export async function POST(req: Request, { params }: Ctx) {
   }
   if (!emailConfigured()) {
     return NextResponse.json(
-      { error: "Email isn't configured yet — use Copy link for now, or add RESEND_API_KEY." },
+      { error: "Email isn't configured yet. Use Copy link for now, or add RESEND_API_KEY." },
       { status: 400 },
     );
   }
@@ -53,7 +53,7 @@ export async function POST(req: Request, { params }: Ctx) {
     subject: `Your ${offer.city} hotel options from WhataHotel!`,
     html: `<div style="font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:520px;margin:0 auto;color:#1a1a1a">
         <p style="font-size:15px;margin:0 0 14px">${hi}</p>
-        <p style="font-size:15px;margin:0 0 16px">${escapeHtml(advisor)} has prepared a personalised comparison of hotels in <strong>${escapeHtml(offer.city)}</strong> for your dates. Open it to see live rates, room options and advisor perks side by side — and ask our AI advisor any questions.</p>
+        <p style="font-size:15px;margin:0 0 16px">${escapeHtml(advisor)} has prepared a personalised comparison of hotels in <strong>${escapeHtml(offer.city)}</strong> for your dates. Open it to see live rates, room options and advisor perks side by side, and ask our AI advisor any questions.</p>
         ${note}
         <p style="margin:20px 0"><a href="${link}" style="display:inline-block;background:#FF385C;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">View your options →</a></p>
         <p style="font-size:13px;color:#888;margin:0 0 4px">Rates shown are live for your dates and can change as your trip nears.</p>
@@ -69,10 +69,10 @@ export async function POST(req: Request, { params }: Ctx) {
     // actionable message instead of dumping the technical string on the agent.
     const testMode = /only send testing emails|verify a domain/i.test(raw);
     const message = testMode
-      ? "Resend is still in test mode — it can only email your own Resend account address until you verify a sending domain. To email real guests, verify your domain at resend.com/domains and set EMAIL_FROM to an address on it. (For now, Copy the link and send it yourself.)"
+      ? "Resend is still in test mode. It can only email your own Resend account address until you verify a sending domain. To email real guests, verify your domain at resend.com/domains and set EMAIL_FROM to an address on it. (For now, Copy the link and send it yourself.)"
       : raw
         ? `Couldn't send: ${raw}`
-        : "Couldn't send the email — try again.";
+        : "Couldn't send the email. Try again.";
     return NextResponse.json({ error: message }, { status: 502 });
   }
   const updated = await markOfferSent(id);
