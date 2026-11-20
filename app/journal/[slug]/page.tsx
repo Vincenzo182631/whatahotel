@@ -144,7 +144,7 @@ export default async function ArticlePage({ params }: Params) {
                 <Sparkles className="size-5 text-primary" strokeWidth={1.5} /> Ready to plan it?
               </h2>
               <p className="mt-1.5 text-foreground/75">
-                Tell our AI advisor what you have in mind — it does the rest.
+                Tell our AI advisor what you have in mind, and it does the rest.
               </p>
             </div>
             <Button asChild className="shrink-0">

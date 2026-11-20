@@ -172,7 +172,7 @@ export default async function StayPage({ params, searchParams }: Params) {
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-[#EBEBEB] bg-white">
         <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-6 py-3.5">
-          <Link href="/" aria-label="What a Hotel — home" className="shrink-0">
+          <Link href="/" aria-label="WhataHotel! home" className="shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="What a Hotel" className="h-8 w-auto" />
           </Link>

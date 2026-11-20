@@ -107,7 +107,7 @@ export function CompareAdvisor({
       setMessages((m) =>
         m.map((x) =>
           x.id === aid
-            ? { ...x, content: x.content || "I couldn't reach the comparison advisor just now — please try again." }
+            ? { ...x, content: x.content || "I couldn't reach the comparison advisor just now. Please try again." }
             : x,
         ),
       );
@@ -205,7 +205,7 @@ export function CompareAdvisor({
         <ChatComposer
           onSend={ask}
           disabled={busy}
-          placeholder="Ask about these hotels — e.g. which has the better pool, or is the upgrade worth it?"
+          placeholder="Ask about these hotels, e.g. which has the better pool, or is the upgrade worth it?"
         />
       </div>
     </div>

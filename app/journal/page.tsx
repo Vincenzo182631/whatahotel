@@ -11,7 +11,7 @@ import { blogSchema, breadcrumbSchema, canonicalUrl } from "@/lib/seo/schema";
 export const metadata: Metadata = {
   title: "The Journal: Luxury Travel Guides & Tips | WhataHotel!",
   description:
-    "Destination guides, packing tips, and luxury travel inspiration from the WhataHotel! advisory team — from Paris and the Maldives to the art of slow travel.",
+    "Destination guides, packing tips, and luxury travel inspiration from the WhataHotel! advisory team, from Paris and the Maldives to the art of slow travel.",
   alternates: { canonical: canonicalUrl("/journal") },
   openGraph: {
     title: "The Journal: Luxury Travel Guides & Tips | WhataHotel!",
@@ -60,7 +60,7 @@ export default function JournalPage() {
           </h1>
           <p className="mt-4 text-foreground/72">
             Destination guides, packing wisdom, and the philosophy of travelling
-            well — curated by the WhataHotel! advisory team.
+            well, curated by the WhataHotel! advisory team.
           </p>
         </header>
 

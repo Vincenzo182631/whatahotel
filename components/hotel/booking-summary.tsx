@@ -81,7 +81,7 @@ export function BookingSummary({ booking }: { booking: BookingDraft }) {
                 {FIELD_LABELS[field]}
               </span>
               <span className="text-right text-foreground/90">
-                {done ? value || "—" : active ? "Awaiting your reply…" : ""}
+                {done ? value || "–" : active ? "Awaiting your reply…" : ""}
               </span>
             </li>
           );
