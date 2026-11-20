@@ -349,7 +349,7 @@ export function AirbnbLanding() {
       <footer className="border-t border-white/30 bg-white/55 backdrop-blur-md">
         {/* Mobile: everything on one line */}
         <div className="mx-auto flex max-w-[1360px] flex-wrap items-center justify-center gap-x-2 gap-y-1 px-4 py-4 text-xs text-[#555] sm:hidden">
-          <span>© 2026 WhataHotel · Lorraine Travel</span>
+          <span>© 2026 WhataHotel! · Lorraine Travel</span>
           <span className="text-[#aaa]">|</span>
           <Link href="/about" className="hover:underline">About</Link>
           <span className="text-[#aaa]">|</span>
@@ -357,7 +357,7 @@ export function AirbnbLanding() {
         </div>
         {/* Desktop (unchanged) */}
         <div className="mx-auto hidden max-w-[1360px] flex-col items-start justify-between gap-2 px-6 py-6 text-sm text-[#555] sm:flex sm:flex-row sm:items-center">
-          <span>© 2026 WhataHotel · Lorraine Travel</span>
+          <span>© 2026 WhataHotel! · Lorraine Travel</span>
           <span className="flex gap-5">
             <Link href="/about" className="hover:underline">About</Link>
             <Link href="/saved" className="hover:underline">Saved</Link>

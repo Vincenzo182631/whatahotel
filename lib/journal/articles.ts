@@ -62,7 +62,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "The most memorable journeys aren't measured in countries visited. They're measured in moments. Here's how to travel slower — and richer.",
     image: img("1469854523086-cc02fe5d8800"),
-    author: "The WhataHotel Editors",
+    author: "The WhataHotel! Editors",
     date: "2026-06-12",
     readMinutes: 7,
     keywords: ["slow travel", "luxury travel", "mindful travel", "how to travel slowly"],
@@ -154,7 +154,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "Beyond the Eiffel Tower lies the Paris that residents adore. Here's how to stay, dine, and wander like a true connoisseur.",
     image: img("1502602898657-3e91760cbb34"),
-    author: "The WhataHotel Editors",
+    author: "The WhataHotel! Editors",
     date: "2026-05-28",
     readMinutes: 9,
     keywords: ["luxury Paris guide", "best hotels in Paris", "Paris travel tips", "where to stay in Paris"],
@@ -252,7 +252,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "Overwater villas, house reefs, and absolute privacy. Here's how to choose the right Maldives resort — and the right villa — for the trip of a lifetime.",
     image: img("1514282401047-d79a71a590e8"),
-    author: "The WhataHotel Editors",
+    author: "The WhataHotel! Editors",
     date: "2026-05-09",
     readMinutes: 8,
     keywords: ["Maldives overwater villa", "best Maldives resorts", "Maldives honeymoon", "Maldives travel guide"],
@@ -343,7 +343,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "Tokyo rewards the traveller who slows down. A guide to its quiet luxury — flawless service, sublime food, and design that whispers rather than shouts.",
     image: img("1540959733332-eab4deabeeaf"),
-    author: "The WhataHotel Editors",
+    author: "The WhataHotel! Editors",
     date: "2026-04-22",
     readMinutes: 9,
     keywords: ["luxury Tokyo guide", "best hotels in Tokyo", "omakase Tokyo", "Tokyo travel tips"],
@@ -441,7 +441,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "The secret to packing for a beach escape isn't bringing more — it's bringing the right things. A capsule guide to arriving relaxed and ready.",
     image: img("1507525428034-b723cf961d3e"),
-    author: "The WhataHotel Editors",
+    author: "The WhataHotel! Editors",
     date: "2026-04-03",
     readMinutes: 7,
     keywords: ["beach packing list", "luxury packing guide", "what to pack beach holiday", "resort wardrobe"],
@@ -540,7 +540,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "An anniversary deserves more than a dinner reservation. Here's a blueprint for planning a romantic trip you'll both remember forever.",
     image: img("1455587734955-081b22074882"),
-    author: "The WhataHotel Editors",
+    author: "The WhataHotel! Editors",
     date: "2026-03-15",
     readMinutes: 8,
     keywords: ["anniversary trip ideas", "romantic getaway planning", "anniversary travel", "how to plan anniversary trip"],
@@ -635,7 +635,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "Fresh powder by day, fireside spas by night. A guide to the Swiss Alps' finest ski retreats and how to plan an effortless alpine escape.",
     image: img("1551524559-8af4e6624178"),
-    author: "The WhataHotel Editors",
+    author: "The WhataHotel! Editors",
     date: "2026-02-20",
     readMinutes: 8,
     keywords: ["luxury ski Swiss Alps", "best ski hotels Switzerland", "ski-in ski-out luxury", "Zermatt Andermatt"],
@@ -732,7 +732,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "Luxury and family travel aren't opposites. With the right hotel and a little planning, you can have a holiday that delights the kids and restores the parents.",
     image: img("1582719508461-905c673771fd"),
-    author: "The WhataHotel Editors",
+    author: "The WhataHotel! Editors",
     date: "2026-01-30",
     readMinutes: 8,
     keywords: ["luxury family travel", "best family hotels", "family friendly luxury resorts", "traveling with kids tips"],
@@ -826,7 +826,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "Beyond the beach clubs lies the Bali that travellers fall in love with: jungle spas, ancient temples, and a culture built around balance and beauty.",
     image: img("1537953773345-d172ccf13cf1"),
-    author: "The WhataHotel Editors",
+    author: "The WhataHotel! Editors",
     date: "2026-01-12",
     readMinutes: 8,
     keywords: ["Bali wellness retreat", "Ubud Bali guide", "luxury Bali resorts", "Bali culture travel"],
@@ -917,7 +917,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "Five-star stays don't always carry five-star prices — if you know how to book. Here are the insider strategies that get you more for less.",
     image: img("1566073771259-6a8506099945"),
-    author: "The WhataHotel Editors",
+    author: "The WhataHotel! Editors",
     date: "2025-12-18",
     readMinutes: 7,
     keywords: ["book luxury hotels for less", "hotel booking tips", "travel advisor perks", "cheaper five star hotels"],
@@ -959,7 +959,7 @@ export const ARTICLES: Article[] = [
       },
       { h2: "Put it into practice" },
       {
-        p: "This is the entire idea behind WhataHotel. Our [AI travel advisor](/) combines the convenience of instant online booking with the value of an advisor relationship — surfacing the right hotels, explaining why, and layering on advisor-exclusive perks. Tell it where you want to go and what matters to you, and let it find you more for less.",
+        p: "This is the entire idea behind WhataHotel! Our [AI travel advisor](/) combines the convenience of instant online booking with the value of an advisor relationship — surfacing the right hotels, explaining why, and layering on advisor-exclusive perks. Tell it where you want to go and what matters to you, and let it find you more for less.",
       },
     ],
     essentials: {

@@ -384,7 +384,7 @@ export function AdvancedSearchForm() {
                     <span>
                       {g.brandMissing
                         ? `No ${g.brand} property was found in ${g.city.split(",")[0]} for these dates. Try “Any brand” to see luxury alternatives here.`
-                        : `No WhataHotel properties came back for ${g.city.split(",")[0]} on these dates.`}
+                        : `No WhataHotel! properties came back for ${g.city.split(",")[0]} on these dates.`}
                     </span>
                   </div>
                 )}

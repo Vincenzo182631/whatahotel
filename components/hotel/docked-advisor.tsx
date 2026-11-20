@@ -222,7 +222,7 @@ export function DockedAdvisor({ hotel }: { hotel: Hotel }) {
           <img src="/chat-icon.png" alt="" className="size-5" />
         </span>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-[#1a1a1a]">WhataHotel Advisor</p>
+          <p className="text-sm font-semibold text-[#1a1a1a]">WhataHotel! Advisor</p>
           <p className="flex items-center gap-1 text-[11px] text-[#717171]">
             <Sparkles className="size-3 text-primary" /> Ask about this hotel
           </p>

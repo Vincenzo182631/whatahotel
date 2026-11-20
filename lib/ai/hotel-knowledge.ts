@@ -184,7 +184,7 @@ export async function buildHotelDossier(
       ? `\nROOM / SUITE TYPES & SIZES (real, from the property):\n${liveRoomTypes.map((r) => `- ${r.desc}${r.features.length ? ` (${r.features.slice(0, 4).join(", ")})` : ""}`).join("\n")}`
       : "",
     liveDining.length ? `\nON-SITE DINING:\n${liveDining.join(", ")}` : "",
-    perks.length ? `\nADVISOR-EXCLUSIVE PERKS (complimentary on every WhataHotel booking):\n${perks.join("; ")}` : "",
+    perks.length ? `\nADVISOR-EXCLUSIVE PERKS (complimentary on every WhataHotel! booking):\n${perks.join("; ")}` : "",
     distances.length ? `\nDISTANCES / GETTING AROUND:\n${distances.join("; ")}` : "",
     liveAttractions.length ? `\nNEARBY ATTRACTIONS (real, listed by the property — safe to cite by name):\n${liveAttractions.join(", ")}` : "",
     tax ? `\nTAXES & FEES: ${tax}` : "",

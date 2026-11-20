@@ -96,7 +96,7 @@ function composeLive(ctx: ReplyContext): string {
   const hotels = ctx.liveHotels ?? [];
   const n = hotels.length;
   if (n === 0) {
-    return `I'm sorry — I couldn't find any WhataHotel properties in ${city} at the moment; that destination isn't in our collection right now. If there's a nearby city you'd consider I'm happy to look, or email info@lorrainetravel.com and the team will help arrange ${city} directly.`;
+    return `I'm sorry — I couldn't find any WhataHotel! properties in ${city} at the moment; that destination isn't in our collection right now. If there's a nearby city you'd consider I'm happy to look, or email info@lorrainetravel.com and the team will help arrange ${city} directly.`;
   }
   const intent = ctx.liveIntent && ctx.liveIntent !== "general stay" ? ctx.liveIntent : null;
   const top = hotels[0];
@@ -108,17 +108,17 @@ function composeLive(ctx: ReplyContext): string {
     } Share your exact dates and I'll refresh the rates.`;
   }
   if (intent) {
-    return `${greeting(ctx.user)}For ${city} (${intent}), I ranked WhataHotel's live availability by what actually fits — ${n} ${n === 1 ? "hotel" : "hotels"} with live rates and advisor perks.${
+    return `${greeting(ctx.user)}For ${city} (${intent}), I ranked WhataHotel!'s live availability by what actually fits — ${n} ${n === 1 ? "hotel" : "hotels"} with live rates and advisor perks.${
       top && topNote ? ` ${top.name} leads: ${topNote}.` : ""
     } Tap any to view rates and book.`;
   }
-  return `${greeting(ctx.user)}${city} isn't in my curated list, so I checked WhataHotel's live availability — here ${n === 1 ? "is a match" : `are ${n} matches`} with live rates and advisor perks for your dates. Tap any to view rates and book.`;
+  return `${greeting(ctx.user)}${city} isn't in my curated list, so I checked WhataHotel!'s live availability — here ${n === 1 ? "is a match" : `are ${n} matches`} with live rates and advisor perks for your dates. Tap any to view rates and book.`;
 }
 
 function composeAsk(ctx: ReplyContext): string {
   // Live search for a city outside the local set needs concrete dates.
   if (ctx.liveCity && (!ctx.criteria.checkIn || !ctx.criteria.checkOut)) {
-    return `${greeting(ctx.user)}I can search ${ctx.liveCity} live across WhataHotel — just tell me your check-in and check-out dates and I'll pull real rates and perks.`;
+    return `${greeting(ctx.user)}I can search ${ctx.liveCity} live across WhataHotel! — just tell me your check-in and check-out dates and I'll pull real rates and perks.`;
   }
   const ack = acknowledge(ctx);
 

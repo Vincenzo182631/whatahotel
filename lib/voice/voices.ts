@@ -50,4 +50,4 @@ export const DEFAULT_ELEVEN_VOICE = "XB0fDUnXU5powFXDhCwa"; // Charlotte
 
 /** A short line used to preview a voice in the picker. */
 export const VOICE_SAMPLE =
-  "Hi, I'm your WhataHotel travel advisor. I can help you compare hotels and plan the perfect stay.";
+  "Hi, I'm your WhataHotel! travel advisor. I can help you compare hotels and plan the perfect stay.";
