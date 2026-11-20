@@ -63,10 +63,10 @@ export function LeadGate({ context }: Props) {
       if (d?.configured && d.url) {
         window.location.href = d.url;
       } else {
-        setNote("Google sign-in is being set up — please continue with your email for now.");
+        setNote("Google sign-in is being set up. Please continue with your email for now.");
       }
     } catch {
-      setNote("Google sign-in isn't available right now — please continue with your email.");
+      setNote("Google sign-in isn't available right now. Please continue with your email.");
     }
   };
 
@@ -77,7 +77,7 @@ export function LeadGate({ context }: Props) {
       </p>
       <h3 className="mt-1 text-lg font-semibold text-[#1a1a1a]">Create a free account to continue</h3>
       <p className="mt-1 text-sm text-[#717171]">
-        Save your shortlist and keep chatting with your advisor. It takes 10 seconds — no payment.
+        Save your shortlist and keep chatting with your advisor. It takes 10 seconds, no payment.
       </p>
 
       <button

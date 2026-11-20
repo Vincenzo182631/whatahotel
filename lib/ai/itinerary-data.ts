@@ -157,7 +157,7 @@ export const CITY_POIS: Record<string, CityPois> = {
     entertainment: [{ name: "Beach club day, Canggu" }, { name: "Balinese spa ritual" }],
   },
   maldives: {
-    transport: "Resorts are private islands — speedboat or seaplane transfers arranged for you.",
+    transport: "Resorts are private islands: speedboat or seaplane transfers arranged for you.",
     attractions: [
       { name: "House-reef snorkelling" },
       { name: "Sandbank picnic" },
@@ -179,7 +179,7 @@ export const CITY_POIS: Record<string, CityPois> = {
     entertainment: [{ name: "Sunset cruise" }, { name: "Overwater spa" }],
   },
   maui: {
-    transport: "Rent a car — it's essential for the Road to Hana and beaches.",
+    transport: "Rent a car. It's essential for the Road to Hana and beaches.",
     attractions: [
       { name: "Road to Hana" },
       { name: "Haleakalā sunrise" },

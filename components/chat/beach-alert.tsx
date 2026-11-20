@@ -54,7 +54,7 @@ export function BeachAlertBanner({ alert }: { alert: BeachAlert }) {
       </div>
       <div className="min-w-0 flex-1">
         <p className={`text-[13px] font-semibold ${tone.heading}`}>
-          {tone.title} — {alert.zone}
+          {tone.title}: {alert.zone}
         </p>
         <ul className={`mt-1 space-y-0.5 text-[13px] leading-snug ${tone.body}`}>
           {alert.reasons.map((r, i) => (

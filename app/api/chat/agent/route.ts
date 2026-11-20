@@ -19,7 +19,7 @@ async function alertAdmin(
   await Promise.all([
     sendEmail({
       to: ADMIN_EMAIL,
-      subject: "WhataHotel! — a guest wants a live advisor",
+      subject: "WhataHotel! | A guest wants a live advisor",
       html: `<div style="font-family:system-ui,Segoe UI,Arial,sans-serif;font-size:15px;color:#1a1a1a">
         <p><strong>${who}</strong> just asked to speak with a human advisor${about}.</p>
         ${conv.email ? `<p style="color:#555">Reply-to: ${conv.email}</p>` : ""}
@@ -45,7 +45,7 @@ async function alertAdmin(
  */
 export async function POST(req: Request) {
   if (await rateLimitExceeded(req, "chat-agent", 40, 60)) {
-    return Response.json({ error: "Too fast — one moment." }, { status: 429 });
+    return Response.json({ error: "Too fast. One moment, please." }, { status: 429 });
   }
   const body = await req.json().catch(() => ({}));
   const sessionId = String(body.sessionId ?? "");

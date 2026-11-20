@@ -9,6 +9,7 @@ import { ComparisonTable } from "@/components/hotel/comparison-table";
 import { BookingSummary } from "@/components/hotel/booking-summary";
 import { LiveHotelCards } from "./live-hotel-cards";
 import { BeachAlertBanner } from "./beach-alert";
+import { noEmDash } from "@/lib/text/no-em-dash";
 
 function AdvisorMark() {
   return (
@@ -66,7 +67,7 @@ export function MessageBubble({
             <TypingIndicator label={message.loadingLabel} />
           ) : (
             <p className="whitespace-pre-wrap text-[15px] leading-[1.65] text-[#2a2a2a]">
-              {message.content}
+              {noEmDash(message.content)}
               {message.streaming && (
                 <span className="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 animate-pulse-soft bg-primary" />
               )}

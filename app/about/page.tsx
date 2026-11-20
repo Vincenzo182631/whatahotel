@@ -26,7 +26,7 @@ const VALUES = [
   {
     icon: ShieldCheck,
     title: "Honesty first",
-    body: "We recommend what's right for you — not what pays the most. Every suggestion comes with the real reason behind it, trade-offs included.",
+    body: "We recommend what's right for you, not what pays the most. Every suggestion comes with the real reason behind it, trade-offs included.",
   },
   {
     icon: Compass,
@@ -36,12 +36,12 @@ const VALUES = [
   {
     icon: HeartHandshake,
     title: "Quietly personal",
-    body: "We remember the occasion, the budget, the small preferences — and shape the whole trip around how you want to feel.",
+    body: "We remember the occasion, the budget, the small preferences, and shape the whole trip around how you want to feel.",
   },
   {
     icon: Gem,
     title: "Exclusive value",
-    body: "Advisor-exclusive perks — upgrades, breakfast, spa credits, late checkout — included at no extra cost, because relationships matter.",
+    body: "Advisor-exclusive perks (upgrades, breakfast, spa credits, late checkout) included at no extra cost, because relationships matter.",
   },
 ];
 
@@ -77,7 +77,7 @@ export default function AboutPage() {
           We built WhataHotel! for a simple reason: booking a beautiful hotel had
           become a chore of tabs, filters, and fake urgency. We believe planning
           the finest trips of your life should feel like talking to someone who
-          knows you — and knows the world&apos;s great hotels by heart.
+          knows you, and knows the world&apos;s great hotels by heart.
         </p>
       </section>
 
@@ -87,7 +87,7 @@ export default function AboutPage() {
           <h2 className="font-display text-3xl font-medium">Our story</h2>
           <div className="mt-5 space-y-4 text-[17px] leading-[1.8] text-foreground/80">
             <p>
-              The best travel decisions have always been made in conversation —
+              The best travel decisions have always been made in conversation,
               with a trusted advisor who asks the right questions, listens
               closely, and returns with options that feel as though they were
               chosen just for you. That experience was reserved for a privileged
@@ -100,7 +100,7 @@ export default function AboutPage() {
               artificial intelligence. The result is an advisor that&apos;s available
               the moment inspiration strikes, remembers everything you tell it,
               and guides you all the way from a vague daydream to a confirmed
-              booking — complete with perks you&apos;d never find on a booking site.
+              booking, complete with perks you&apos;d never find on a booking site.
             </p>
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function AboutPage() {
           <Sparkles className="mx-auto size-6 text-primary" strokeWidth={1.5} />
           <h2 className="mt-4 font-display text-2xl font-light leading-snug md:text-3xl">
             Our mission is to make the world&apos;s finest hotels feel personal,
-            accessible, and effortless — guiding every traveller from{" "}
+            accessible, and effortless, guiding every traveller from{" "}
             <span className="text-gradient-gold italic">inspiration to booking</span>{" "}
             through conversation.
           </h2>
@@ -165,7 +165,7 @@ export default function AboutPage() {
                 Behind the conversation sits a curated collection of the world&apos;s
                 finest hotels and the advisor-exclusive perks that come with
                 them. You get honest recommendations, the reasoning behind each
-                one, and genuine added value — all without the forms.
+                one, and genuine added value, all without the forms.
               </p>
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function AboutPage() {
               {
                 icon: Gem,
                 title: "Advisor-exclusive perks",
-                body: "Upgrades, breakfast, and credits included — at no extra cost.",
+                body: "Upgrades, breakfast, and credits included at no extra cost.",
               },
             ].map((f) => (
               <div
@@ -218,7 +218,7 @@ export default function AboutPage() {
             moments.&rdquo;
           </blockquote>
           <p className="mt-6 leading-relaxed text-foreground/75">
-            We champion travelling well over travelling fast — staying longer,
+            We champion travelling well over travelling fast: staying longer,
             choosing properties with a real sense of place, and leaving room for
             the unplanned.
           </p>

@@ -1087,7 +1087,7 @@ export async function runTurn(
       // Preference unmet: a beach was asked for but nothing here is beachfront.
       const liveNote =
         beach && liveHotels.length && !liveHotels.some(isBeachfrontHotel)
-          ? `We couldn't find genuinely beachfront hotels in ${liveCity} for these dates — these are the closest options.`
+          ? `We couldn't find genuinely beachfront hotels in ${liveCity} for these dates. These are the closest options.`
           : undefined;
       const ctx: ReplyContext = {
         action: "live",

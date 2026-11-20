@@ -73,7 +73,7 @@ async function probeRoomCatalogue(sourceHotelId: string): Promise<LiveRoom[]> {
 function areaBlock(pois: CityPois, city: string): string {
   const list = (items: { name: string }[]) => items.map((x) => x.name).join(", ");
   return [
-    `DESTINATION KNOWLEDGE — around ${city} (curated; suggest confirming current hours/prices):`,
+    `DESTINATION KNOWLEDGE: around ${city} (curated; suggest confirming current hours/prices):`,
     `- Attractions: ${list(pois.attractions)}`,
     `- Restaurants nearby: ${pois.dining.map((d) => `${d.name}${d.cuisine ? ` (${d.cuisine})` : ""}`).join(", ")}`,
     `- Cafés: ${list(pois.cafes)}`,
@@ -126,7 +126,7 @@ export async function buildHotelDossier(
     .filter(Boolean)
     .join(", ");
   const identity = [
-    `HOTEL: ${hotel.name}${hotel.brand ? ` — a ${hotel.brand} property` : ""}`,
+    `HOTEL: ${hotel.name}${hotel.brand ? `, a ${hotel.brand} property` : ""}`,
     hotel.starRating ? `Class: ${hotel.starRating}-star luxury` : "",
     `Location: ${location}`,
     hotel.rating > 0 ? `Guest rating: ${hotel.rating}/10${hotel.reviewCount ? ` (${hotel.reviewCount} reviews)` : ""}` : "",
@@ -176,22 +176,22 @@ export async function buildHotelDossier(
     "==== HOTEL KNOWLEDGE BASE (your single source of truth) ====",
     identity,
     overview ? `\nOVERVIEW:\n${overview}` : "",
-    amenities.length ? `\nAMENITIES & FACILITIES:\n${amenities.join(", ")}` : "\nAMENITIES & FACILITIES: not individually listed by the property — offer to confirm specifics with the hotel.",
+    amenities.length ? `\nAMENITIES & FACILITIES:\n${amenities.join(", ")}` : "\nAMENITIES & FACILITIES: not individually listed by the property, offer to confirm specifics with the hotel.",
     roomsBlock
-      ? `\nROOM CATEGORIES (real, from live availability — features only; quote NO price, direct guests to the on-page Rooms section for live dated rates):\n${roomsBlock}`
-      : "\nROOM CATEGORIES: pulled live in the on-page Rooms section once dates are set — invite the guest to add their dates there.",
+      ? `\nROOM CATEGORIES (real, from live availability, features only; quote NO price, direct guests to the on-page Rooms section for live dated rates):\n${roomsBlock}`
+      : "\nROOM CATEGORIES: pulled live in the on-page Rooms section once dates are set, invite the guest to add their dates there.",
     liveRoomTypes.length
       ? `\nROOM / SUITE TYPES & SIZES (real, from the property):\n${liveRoomTypes.map((r) => `- ${r.desc}${r.features.length ? ` (${r.features.slice(0, 4).join(", ")})` : ""}`).join("\n")}`
       : "",
     liveDining.length ? `\nON-SITE DINING:\n${liveDining.join(", ")}` : "",
     perks.length ? `\nADVISOR-EXCLUSIVE PERKS (complimentary on every WhataHotel! booking):\n${perks.join("; ")}` : "",
     distances.length ? `\nDISTANCES / GETTING AROUND:\n${distances.join("; ")}` : "",
-    liveAttractions.length ? `\nNEARBY ATTRACTIONS (real, listed by the property — safe to cite by name):\n${liveAttractions.join(", ")}` : "",
+    liveAttractions.length ? `\nNEARBY ATTRACTIONS (real, listed by the property, safe to cite by name):\n${liveAttractions.join(", ")}` : "",
     tax ? `\nTAXES & FEES: ${tax}` : "",
     livePolicies.length
-      ? `\nPOLICIES (real, from the property — you MAY state these; for anything not listed here confirm with the hotel):\n${livePolicies.join("\n")}`
-      : "\nPOLICIES (check-in/out, cancellation, deposits, children, pets, extra beds): confirm specifics directly with the hotel unless stated above — do not invent them.",
-    pois ? `\n${areaBlock(pois, hotel.city)}` : `\nDESTINATION KNOWLEDGE: use reliable general knowledge of ${hotel.city}, ${hotel.country} for nearby attractions, dining, cafés and the nearest airport — frame specifics as things to confirm.`,
+      ? `\nPOLICIES (real, from the property, you MAY state these; for anything not listed here confirm with the hotel):\n${livePolicies.join("\n")}`
+      : "\nPOLICIES (check-in/out, cancellation, deposits, children, pets, extra beds): confirm specifics directly with the hotel unless stated above, do not invent them.",
+    pois ? `\n${areaBlock(pois, hotel.city)}` : `\nDESTINATION KNOWLEDGE: use reliable general knowledge of ${hotel.city}, ${hotel.country} for nearby attractions, dining, cafés and the nearest airport, frame specifics as things to confirm.`,
     "\n==== END KNOWLEDGE BASE ====",
   ]
     .filter(Boolean)

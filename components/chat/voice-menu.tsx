@@ -179,7 +179,7 @@ export function VoiceMenu({ onClose }: { onClose: () => void }) {
           ? "Natural voices use AI text-to-speech."
           : provider === "elevenlabs"
             ? "Premium, most life-like voices via ElevenLabs."
-            : "Basic voices are built into your browser — free, quality varies."}
+            : "Basic voices are built into your browser. Free, quality varies."}
       </p>
     </div>
   );
