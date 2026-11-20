@@ -11,13 +11,13 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-white px-6 text-center text-[#222]">
-      <Link href="/" aria-label="What a Hotel — home">
+      <Link href="/" aria-label="WhataHotel! home">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt="What a Hotel" className="h-9 w-auto" />
       </Link>
       <h1 className="mt-8 text-2xl font-semibold tracking-tight md:text-3xl">Something went wrong</h1>
       <p className="mt-3 max-w-md text-sm text-[#717171]">
-        We hit a problem loading this page. Please try again — if it keeps happening, contact your
+        We hit a problem loading this page. Please try again. If it keeps happening, contact your
         advisor and we&apos;ll help directly.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-2">

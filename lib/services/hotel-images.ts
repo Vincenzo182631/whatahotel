@@ -70,7 +70,7 @@ export async function buildHotelImageManifest(hotel: Hotel): Promise<HotelImage[
   for (const url of [hotel.image, ...(hotel.gallery ?? [])]) {
     if (url && !seen.has(url)) {
       seen.add(url);
-      images.push({ id: `h${hi}`, url, label: `${hotel.name} — property photo ${hi}`, kind: "hotel" });
+      images.push({ id: `h${hi}`, url, label: `${hotel.name}, property photo ${hi}`, kind: "hotel" });
       hi++;
       if (hi > 8) break;
     }

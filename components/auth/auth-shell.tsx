@@ -17,7 +17,7 @@ export function AuthShell({
     <div className="grid min-h-dvh place-items-center bg-[#f7f7f7] px-4 py-10 text-[#222]">
       <div className="w-full max-w-md">
         <div className="mb-6 flex justify-center">
-          <Link href="/" aria-label="What a Hotel — home">
+          <Link href="/" aria-label="WhataHotel! home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="What a Hotel" className="h-9 w-auto" />
           </Link>

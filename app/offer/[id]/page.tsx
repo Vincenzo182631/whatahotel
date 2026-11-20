@@ -39,7 +39,7 @@ export default async function OfferPage({ params }: Params) {
     <div className="min-h-dvh bg-white text-[#222]">
       <header className="sticky top-0 z-30 border-b border-[#EBEBEB] bg-white">
         <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-6 py-3.5">
-          <Link href="/" aria-label="What a Hotel — home" className="shrink-0">
+          <Link href="/" aria-label="WhataHotel! home" className="shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="What a Hotel" className="h-8 w-auto" />
           </Link>
@@ -66,7 +66,7 @@ export default async function OfferPage({ params }: Params) {
                 <p className="mt-1 whitespace-pre-wrap text-[15px] leading-relaxed text-[#444]">{offer.note}</p>
               ) : (
                 <p className="mt-1 text-[15px] leading-relaxed text-[#444]">
-                  I&apos;ve put together these options for your dates — compare them below, and ask the advisor anything.
+                  I&apos;ve put together these options for your dates. Compare them below, and ask the advisor anything.
                 </p>
               )}
             </div>
@@ -76,7 +76,7 @@ export default async function OfferPage({ params }: Params) {
         {/* Live-rate honesty + gentle nudge */}
         <p className="mt-4 flex items-center gap-1.5 rounded-xl bg-[#FF385C]/[0.06] px-3.5 py-2.5 text-[13px] text-[#8a3a4c]">
           <TrendingUp className="size-4 shrink-0 text-[#FF385C]" />
-          Rates are live for your dates and can rise as your trip nears — reserve to lock in today&apos;s rate.
+          Rates are live for your dates and can rise as your trip nears. Reserve to lock in today&apos;s rate.
         </p>
 
         <div className="mt-6">

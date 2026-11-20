@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-white px-6 text-center text-[#222]">
-      <Link href="/" aria-label="What a Hotel — home">
+      <Link href="/" aria-label="WhataHotel! home">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt="What a Hotel" className="h-9 w-auto" />
       </Link>

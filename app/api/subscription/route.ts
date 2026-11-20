@@ -41,7 +41,7 @@ export async function POST(req: Request) {
       {
         id: randomUUID(),
         date: now.toISOString(),
-        description: `${planDef.name} membership — ${planDef.interval}ly`,
+        description: `${planDef.name} membership (${planDef.interval}ly)`,
         amount: planDef.price,
         status: "paid",
       },

@@ -91,7 +91,7 @@ for (const h of all) {
     destinationKey: d.key,
     country: d.country,
     neighborhood: h.city,
-    shortPitch: `${brand ? brand + " — " : ""}a five-star luxury hotel in ${h.city}.`,
+    shortPitch: `${brand ? brand + ", " : ""}a five-star luxury hotel in ${h.city}.`,
     description:
       h.description ||
       `${h.name} is a five-star luxury hotel in ${h.city}, available with WhataHotel!'s exclusive complimentary perks.`,
@@ -121,7 +121,7 @@ for (const [city, d] of Object.entries(DEST)) {
   destinations[d.key] = { label: `${city}, ${d.country}`, country: d.country, aliases: d.aliases, blurb: d.blurb };
 }
 
-const header = `// AUTO-GENERATED from data/whatahotel-hotels.json — do not edit by hand.
+const header = `// AUTO-GENERATED from data/whatahotel-hotels.json. Do not edit by hand.
 // Real hotels scraped from whatahotel.com (verified fields only; amenities &
 // guest ratings are not published by the source and are intentionally empty).
 import type { Hotel } from "./types";

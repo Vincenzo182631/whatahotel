@@ -110,7 +110,7 @@ export function StayBooking({
         </span>
         <p className="mt-2 font-semibold">Reservation requested</p>
         <p className="mt-1 text-sm text-[#717171]">
-          Confirmation <span className="font-semibold text-[#222]">{result.confirmation}</span> — your
+          Confirmation <span className="font-semibold text-[#222]">{result.confirmation}</span>. Your
           advisor will finalise {name} with the advisor rate and perks.
         </p>
         {result.saved ? (
@@ -137,7 +137,7 @@ export function StayBooking({
   if (rooms.length === 0) {
     return (
       <p className="mt-5 text-sm text-[#717171]">
-        No availability for those dates — try different dates.
+        No availability for those dates. Try different dates.
       </p>
     );
   }
@@ -145,7 +145,7 @@ export function StayBooking({
   return (
     <div className="mt-5">
       <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#717171]">
-        Choose a room — {nights} night{nights > 1 ? "s" : ""} · {rooms.length} categor{rooms.length === 1 ? "y" : "ies"}
+        Choose a room: {nights} night{nights > 1 ? "s" : ""} · {rooms.length} categor{rooms.length === 1 ? "y" : "ies"}
       </p>
       <ul className="no-scrollbar max-h-[440px] space-y-2 overflow-y-auto pr-1">
         {rooms.map((r) => {
@@ -204,7 +204,7 @@ export function StayBooking({
           rel="noopener noreferrer"
           className="mt-4 block w-full rounded-xl bg-[#FF385C] px-4 py-2.5 text-center text-sm font-semibold text-white hover:opacity-90"
         >
-          Reserve — {formatCurrency(room.nightly, room.currency)}/night
+          Reserve at {formatCurrency(room.nightly, room.currency)}/night
         </a>
       ) : !open ? (
         <button
@@ -212,7 +212,7 @@ export function StayBooking({
           disabled={!room}
           className="mt-4 block w-full rounded-xl bg-[#FF385C] px-4 py-2.5 text-center text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {room ? `Reserve — ${formatCurrency(room.nightly, room.currency)}/night` : "Select a room to reserve"}
+          {room ? `Reserve at ${formatCurrency(room.nightly, room.currency)}/night` : "Select a room to reserve"}
         </button>
       ) : (
         <form onSubmit={submit} className="mt-4 space-y-3">

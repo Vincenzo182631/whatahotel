@@ -133,7 +133,7 @@ export function HotelGallery({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={list[i]}
-              alt={`${alt} — photo ${i + 1}`}
+              alt={`${alt}, photo ${i + 1}`}
               onClick={(e) => e.stopPropagation()}
               className="max-h-[88vh] max-w-[92vw] rounded-lg object-contain shadow-2xl"
             />

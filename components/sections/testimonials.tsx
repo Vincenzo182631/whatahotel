@@ -20,7 +20,7 @@ const REVIEWS: {
   },
   {
     quote:
-      "I described the honeymoon I'd dreamed of and it found the exact overwater villa — plus perks I'd never have gotten myself.",
+      "I described the honeymoon I'd dreamed of and it found the exact overwater villa, plus perks I'd never have gotten myself.",
     name: "Marcus & Aimee",
     location: "Singapore",
     label: "Honeymoon",

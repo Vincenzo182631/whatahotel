@@ -101,7 +101,7 @@ export function LiveSearch() {
       <h1 className="text-2xl font-semibold tracking-tight">Find any hotel</h1>
       <p className="mt-1 flex items-center gap-1.5 text-sm text-[#717171]">
         <Sparkles className="size-4 text-[#FF385C]" strokeWidth={2} />
-        Search every WhataHotel! property worldwide — live rates and advisor perks, straight from the source.
+        Search every WhataHotel! property worldwide: live rates and advisor perks, straight from the source.
       </p>
 
       {/* Search form */}

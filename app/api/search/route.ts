@@ -124,7 +124,7 @@ function isBeachfront(h: LiveHotel): boolean {
 
 export async function POST(req: Request) {
   if (await rateLimitExceeded(req, "form-search", 20, 60)) {
-    return NextResponse.json({ error: "Too many searches — one moment." }, { status: 429 });
+    return NextResponse.json({ error: "Too many searches. One moment, please." }, { status: 429 });
   }
   const body = await req.json().catch(() => ({}));
 
@@ -271,7 +271,7 @@ export async function POST(req: Request) {
       // genuinely beachfront — tell the traveller instead of pretending.
       const note =
         beachIntent && !top.some((s) => s.beachfront)
-          ? `We couldn't find genuinely beachfront hotels in ${cityName} for these dates — showing the closest luxury options instead.`
+          ? `We couldn't find genuinely beachfront hotels in ${cityName} for these dates. Showing the closest luxury options instead.`
           : undefined;
       return { city: c.name, brand: brandLabel, hotels: picks, brandMissing: false, note };
     }),

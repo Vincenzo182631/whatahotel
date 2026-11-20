@@ -57,7 +57,7 @@ export function Hero() {
         transition={{ duration: 0.7, delay: 0.15 }}
         className="balance mt-5 max-w-xl text-lg leading-relaxed text-white/85 drop-shadow-[0_1px_12px_rgba(0,0,0,0.45)]"
       >
-        Tell me a city and what matters most — I&apos;ll search its finest hotels,
+        Tell me a city and what matters most, and I&apos;ll search its finest hotels,
         rank them out of 10 for your needs, and help you compare the top picks.
         Just by chatting.
       </motion.p>

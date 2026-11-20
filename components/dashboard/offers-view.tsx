@@ -86,7 +86,7 @@ export function OffersView() {
       setResults(d.hotels ?? []);
       if (!d.hotels?.length) setError(`No hotels found for ${city} on those dates.`);
     } catch {
-      setError("Search failed — try again.");
+      setError("Search failed. Try again.");
     } finally {
       setSearching(false);
     }
@@ -130,7 +130,7 @@ export function OffersView() {
       setCreated(d.offer);
       loadOffers();
     } catch {
-      setError("Couldn't create the offer — try again.");
+      setError("Couldn't create the offer. Try again.");
     } finally {
       setCreating(false);
     }
@@ -321,7 +321,7 @@ export function OffersView() {
         </div>
 
         {offers.length === 0 ? (
-          <p className="mt-3 text-sm text-[#717171]">No offers yet — create your first above.</p>
+          <p className="mt-3 text-sm text-[#717171]">No offers yet. Create your first above.</p>
         ) : (
           <>
             {/* Status filter chips */}

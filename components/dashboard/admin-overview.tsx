@@ -90,7 +90,7 @@ export async function AdminOverview({ user }: { user: PublicUser }) {
     <>
       <PageHeader
         title={`${greeting()}, ${user.name.split(" ")[0]}`}
-        subtitle="Your advisor desk — leads, offers and live chats at a glance."
+        subtitle="Your advisor desk: leads, offers and live chats at a glance."
         action={
           <Link
             href="/dashboard/offers"
@@ -190,7 +190,7 @@ export async function AdminOverview({ user }: { user: PublicUser }) {
             </Link>
           </div>
           {recentLeads.length === 0 ? (
-            <p className="py-6 text-center text-sm text-[#9a9a9a]">No leads yet — they appear as visitors sign up at the chat.</p>
+            <p className="py-6 text-center text-sm text-[#9a9a9a]">No leads yet. They appear as visitors sign up at the chat.</p>
           ) : (
             <ul className="divide-y divide-[#f0f0f0]">
               {recentLeads.map((l) => (
@@ -226,7 +226,7 @@ export async function AdminOverview({ user }: { user: PublicUser }) {
             </Link>
           </div>
           {recentOffers.length === 0 ? (
-            <p className="py-6 text-center text-sm text-[#9a9a9a]">No offers yet — build one from a hotel comparison.</p>
+            <p className="py-6 text-center text-sm text-[#9a9a9a]">No offers yet. Build one from a hotel comparison.</p>
           ) : (
             <ul className="divide-y divide-[#f0f0f0]">
               {recentOffers.map((o) => (

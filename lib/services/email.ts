@@ -20,7 +20,7 @@ export async function sendEmail(opts: {
   html: string;
   text?: string;
 }): Promise<{ ok: boolean; error?: string }> {
-  if (!RESEND_KEY) return { ok: false, error: "Email isn't configured — set RESEND_API_KEY." };
+  if (!RESEND_KEY) return { ok: false, error: "Email isn't configured. Set RESEND_API_KEY." };
   const to = (Array.isArray(opts.to) ? opts.to : [opts.to]).filter(Boolean);
   if (!to.length) return { ok: false, error: "No recipient." };
   try {
