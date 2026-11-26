@@ -20,6 +20,17 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(self), geolocation=(self)" },
         ],
       },
+      {
+        // The Forbes Five-Star landing page (pro.whatahotel.com/forbes-five-star-hotels) reads live rates for its
+        // hotel comparison from this route in the visitor's browser. Allow that one site to call it. Read-only GET;
+        // the WhataHotel API key stays on this server.
+        source: "/api/rates",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "https://pro.whatahotel.com" },
+          { key: "Access-Control-Allow-Methods", value: "GET" },
+          { key: "Vary", value: "Origin" },
+        ],
+      },
     ];
   },
 };
